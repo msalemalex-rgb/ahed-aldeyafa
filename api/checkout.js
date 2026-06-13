@@ -1,4 +1,5 @@
 // POST /api/checkout — ينشئ طلب دفع Hesabe ويرجّع رابط صفحة الدفع
+// (وضع تجربة: أضف ?sandbox=1 لاستخدام مفاتيح Hesabe التجريبية العامة)
 const { encrypt, decrypt } = require("../lib/hesabeCrypt");
 
 async function readBody(req) {
@@ -19,18 +20,29 @@ module.exports = async (req, res) => {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
+
   try {
-    const MERCHANT = process.env.HSB_MERCHANT_CODE;
-    const ACCESS   = process.env.HSB_ACCESS_CODE;
-    const ENC_KEY  = process.env.HSB_ENCRYPTION_KEY;
-    const IV_KEY   = process.env.HSB_IV_KEY;
-    const BASE     = (process.env.HSB_BASE_URL || "https://api.hesabe.com").trim().replace(/\/+$/, "");
+    let MERCHANT, ACCESS, ENC_KEY, IV_KEY, BASE;
+    if (SANDBOX) {
+      // مفاتيح Hesabe التجريبية العامة (منشورة في التوثيق الرسمي)
+      MERCHANT = "842217";
+      ACCESS   = "c333729b-d060-4b74-a49d-7686a8353481";
+      ENC_KEY  = "PkW64zMe5NVdrlPVNnjo2Jy9nOb7v1Xg";
+      IV_KEY   = "5NVdrlPVNnjo2Jy9";
+      BASE     = "https://sandbox.hesabe.com";
+    } else {
+      MERCHANT = process.env.HSB_MERCHANT_CODE;
+      ACCESS   = process.env.HSB_ACCESS_CODE;
+      ENC_KEY  = process.env.HSB_ENCRYPTION_KEY;
+      IV_KEY   = process.env.HSB_IV_KEY;
+      BASE     = (process.env.HSB_BASE_URL || "https://api.hesabe.com").trim().replace(/\/+$/, "");
+    }
     const SITE     = (process.env.SITE_URL || "").trim().replace(/\/+$/, "");
     const PAY_TYPE = (process.env.HSB_PAYMENT_TYPE || "1").trim();
 
-    const present = { MERCHANT: !!MERCHANT, ACCESS: !!ACCESS, ENC_KEY_len: (ENC_KEY || "").length, IV_KEY_len: (IV_KEY || "").length, SITE, BASE };
     if (!MERCHANT || !ACCESS || !ENC_KEY || !IV_KEY || !SITE)
-      return res.status(500).json({ error: "Missing env", present });
+      return res.status(500).json({ error: "Missing env" });
 
     const body = await readBody(req);
     const amountNum = Number(body.amount);
@@ -57,11 +69,11 @@ module.exports = async (req, res) => {
 
     let decrypted;
     try { decrypted = decrypt(encResp, ENC_KEY, IV_KEY); }
-    catch (err) { return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, rawSample: raw.slice(0, 500) }); }
+    catch (err) { return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, rawSample: raw.slice(0, 400) }); }
 
     let json;
     try { json = JSON.parse(decrypted); }
-    catch (err) { return res.status(502).json({ error: "decrypted_not_json", hesabeStatus: r.status, rawSample: raw.slice(0, 300), decryptedSample: decrypted.slice(0, 300) }); }
+    catch (err) { return res.status(502).json({ error: "decrypted_not_json", hesabeStatus: r.status, decryptedSample: decrypted.slice(0, 200) }); }
 
     if (!json.status || !json.response || !json.response.data)
       return res.status(400).json({ error: "hesabe_error", message: json.message, details: json });
