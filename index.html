@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مطعم عهد الضيافة | المأكولات الكويتية الأصيلة</title>
+<meta name="description" content="مطعم عهد الضيافة - خبرة ٢٠ عاماً في الأطباق الكويتية الأصيلة بحولي. طلب أونلاين، توصيل، وكاترينج للديوانيات والمناسبات.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== الإعدادات / Brand ===================== */
+:root{
+  --maroon:#6e1423;
+  --maroon-dark:#4d0d18;
+  --red:#8b1a1a;
+  --gold:#c8962f;
+  --gold-light:#e6c061;
+  --gold-soft:#f0d896;
+  --cream:#fdf6ea;
+  --cream-2:#f7ecd8;
+  --ink:#2a1a13;
+  --muted:#8a7565;
+  --line:#e8d9bf;
+  --shadow:0 18px 50px rgba(78,13,24,.16);
+  --shadow-sm:0 8px 22px rgba(78,13,24,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Tajawal',sans-serif;background:var(--cream);color:var(--ink);line-height:1.8;overflow-x:hidden}
+h1,h2,h3,.display{font-family:'Aref Ruqaa','Cairo',serif;font-weight:700;line-height:1.4}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.container{max-width:1180px;margin:0 auto;padding:0 22px}
+.btn{display:inline-flex;align-items:center;gap:9px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:16px;padding:14px 30px;border-radius:4px;transition:.25s;white-space:nowrap;letter-spacing:.2px}
+.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--maroon-dark);box-shadow:0 8px 20px rgba(200,150,47,.35)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(200,150,47,.5)}
+.btn-red{background:var(--maroon);color:var(--gold-soft);border:1px solid var(--gold)}
+.btn-red:hover{background:var(--maroon-dark);transform:translateY(-3px)}
+.btn-wa{background:#1faa54;color:#fff}
+.btn-wa:hover{background:#178c44;transform:translateY(-3px)}
+.btn-outline{background:transparent;border:1.5px solid var(--gold-light);color:var(--gold-light)}
+.btn-outline:hover{background:var(--gold);color:var(--maroon-dark);border-color:var(--gold)}
+.section{padding:90px 0;position:relative}
+.eyebrow{display:inline-block;color:var(--gold);font-family:'Cairo';font-weight:700;letter-spacing:3px;font-size:14px;margin-bottom:10px;text-transform:uppercase}
+.section-title{text-align:center;font-size:44px;color:var(--maroon);margin-bottom:6px}
+.ornament{display:flex;align-items:center;justify-content:center;gap:14px;color:var(--gold);margin:14px auto 12px;font-size:18px}
+.ornament::before,.ornament::after{content:"";height:1px;width:60px;background:linear-gradient(to var(--d,left),var(--gold),transparent)}
+.ornament::after{--d:right}
+.section-sub{text-align:center;color:var(--muted);margin-bottom:50px;font-size:18px;max-width:600px;margin-left:auto;margin-right:auto}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:.8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* pattern bg */
+.pattern{background-image:radial-gradient(circle at 1px 1px,rgba(200,150,47,.10) 1px,transparent 0);background-size:22px 22px}
+
+/* ===================== الهيدر ===================== */
+header{position:fixed;top:0;left:0;right:0;z-index:50;transition:.35s;padding:14px 0}
+header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.nav{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;color:var(--gold-light);font-size:22px;font-family:'Aref Ruqaa'}
+.brand .logo{width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#a8242b,var(--maroon-dark));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:26px;border:2px solid var(--gold)}
+.nav-links{display:flex;gap:30px;align-items:center;font-weight:700;font-family:'Cairo';font-size:15px;color:#fff}
+.nav-links a{position:relative;color:#fff;opacity:.9}
+.nav-links a:hover{opacity:1;color:var(--gold-light)}
+.nav-links a::after{content:"";position:absolute;bottom:-6px;right:0;width:0;height:2px;background:var(--gold);transition:.3s}
+.nav-links a:hover::after{width:100%}
+.cart-btn{position:relative;background:var(--gold);color:var(--maroon-dark);border:none;cursor:pointer;width:48px;height:48px;border-radius:50%;font-size:20px;transition:.2s}
+.cart-btn:hover{transform:scale(1.08)}
+.cart-count{position:absolute;top:-5px;left:-5px;background:#fff;color:var(--maroon);font-size:12px;font-weight:900;min-width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cairo';border:2px solid var(--maroon)}
+.menu-toggle{display:none;background:none;border:none;font-size:28px;color:var(--gold-light);cursor:pointer}
+
+/* ===================== الهيرو ===================== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,var(--maroon-dark),var(--maroon) 55%,#8b1a1a);overflow:hidden}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.55}
+.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(110deg,rgba(48,8,16,.95),rgba(78,13,24,.72) 45%,rgba(40,7,12,.85))}
+.hero-deco{position:absolute;inset:0;z-index:1;background:radial-gradient(circle at 82% 22%,rgba(200,150,47,.22),transparent 42%)}
+.hero-content{position:relative;z-index:3;width:100%;text-align:center;color:#fff;padding:120px 0 60px}
+.hero .frame{display:inline-block;border:1px solid rgba(230,192,97,.4);padding:46px 50px;position:relative}
+.hero .frame::before,.hero .frame::after{content:"❖";position:absolute;color:var(--gold);font-size:20px}
+.hero .frame::before{top:-12px;right:-12px}
+.hero .frame::after{bottom:-12px;left:-12px}
+.hero .eyebrow{color:var(--gold-light)}
+.hero h1{font-size:64px;color:#fff;margin-bottom:8px;text-shadow:0 4px 20px rgba(0,0,0,.4)}
+.hero h1 .g{color:var(--gold-light)}
+.hero .tag{font-size:20px;opacity:.92;margin:14px auto 30px;max-width:540px;font-family:'Tajawal'}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.scroll-ind{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;color:var(--gold-light);font-size:26px;animation:bob 2s infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,10px)}}
+
+/* ===================== شريط المزايا ===================== */
+.feature-bar{background:linear-gradient(90deg,var(--gold),var(--gold-light));color:var(--maroon-dark)}
+.feature-bar .container{display:flex;justify-content:space-around;flex-wrap:wrap;gap:14px;padding:22px;text-align:center}
+.feature-bar .f{display:flex;align-items:center;gap:11px;font-family:'Cairo';font-weight:700;font-size:15px}
+.feature-bar .f .ic{font-size:24px}
+
+/* ===================== المنيو ===================== */
+.menu-tabs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
+.menu-tab{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-family:'Cairo';font-weight:700;padding:11px 24px;border-radius:4px;cursor:pointer;transition:.25s;font-size:15px}
+.menu-tab.active,.menu-tab:hover{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.3s;border:1px solid var(--line)}
+.card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.card .thumb{height:210px;background:linear-gradient(135deg,var(--red),var(--maroon-dark));position:relative;overflow:hidden}
+.card .thumb img{width:100%;height:100%;object-fit:cover;transition:.5s}
+.card:hover .thumb img{transform:scale(1.08)}
+.card .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(40,8,12,.45),transparent 55%)}
+.card .thumb .badge-cat{position:absolute;top:12px;right:12px;z-index:2;background:rgba(78,13,24,.85);color:var(--gold-light);font-family:'Cairo';font-size:12px;font-weight:700;padding:5px 12px;border-radius:3px;border:1px solid var(--gold)}
+.card .body{padding:20px 22px;display:flex;flex-direction:column;flex:1}
+.card h3{font-size:24px;color:var(--maroon);margin-bottom:6px}
+.card .desc{color:var(--muted);font-size:14px;margin-bottom:18px;flex:1;line-height:1.7}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card .price{font-family:'Cairo';font-weight:900;color:var(--ink);font-size:20px}
+.card .price small{font-size:13px;color:var(--muted);font-weight:500}
+.add-btn{background:var(--maroon);color:var(--gold-light);border:none;font-family:'Cairo';font-weight:700;padding:10px 20px;border-radius:4px;cursor:pointer;transition:.25s;font-size:14px}
+.add-btn:hover{background:var(--gold);color:var(--maroon-dark)}
+
+/* ===================== الشريط الاقتباسي ===================== */
+.quote-band{background:var(--maroon-dark);color:#fff;text-align:center;position:relative}
+.quote-band .container{padding:64px 22px}
+.quote-band .q{font-family:'Aref Ruqaa';font-size:34px;color:var(--gold-light);max-width:760px;margin:0 auto;line-height:1.6}
+.quote-band .qs{font-size:50px;color:var(--gold);opacity:.5;line-height:0}
+
+/* ===================== الكاترينج ===================== */
+.catering{background:var(--cream-2)}
+.cat-wrap{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.cat-info .pack{display:flex;gap:16px;background:#fff;border-radius:8px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm);align-items:center;border:1px solid var(--line);transition:.25s}
+.cat-info .pack:hover{transform:translateX(-6px);border-color:var(--gold)}
+.cat-info .pack .n{width:58px;height:58px;border-radius:50%;background:var(--maroon);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-family:'Aref Ruqaa';font-weight:900;font-size:22px;flex-shrink:0;border:2px solid var(--gold)}
+.cat-info .pack h4{font-family:'Cairo';color:var(--maroon);font-size:18px}
+.cat-info .pack p{font-size:14px;color:var(--muted)}
+.cat-form{background:#fff;border-radius:8px;padding:32px;box-shadow:var(--shadow);border-top:4px solid var(--gold)}
+.cat-form h3{color:var(--maroon);margin-bottom:6px;font-size:28px}
+.cat-form .deposit{background:rgba(200,150,47,.15);color:var(--maroon-dark);font-size:13px;padding:11px;border-radius:6px;margin-bottom:20px;font-weight:700;font-family:'Cairo'}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:'Cairo';font-weight:700;font-size:14px;margin-bottom:7px;color:var(--ink)}
+.field input,.field select,.field textarea{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:6px;font-family:'Tajawal';font-size:15px;background:var(--cream)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);background:#fff}
+
+/* ===================== الجاليري ===================== */
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gallery-grid .g{aspect-ratio:1;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,var(--red),var(--maroon-dark));position:relative}
+.gallery-grid .g img{width:100%;height:100%;object-fit:cover;transition:.5s}
+.gallery-grid .g:hover img{transform:scale(1.12)}
+.gallery-grid .g::after{content:"";position:absolute;inset:0;background:rgba(78,13,24,0);transition:.3s}
+.gallery-grid .g:hover::after{background:rgba(78,13,24,.25)}
+
+/* ===================== عن المطعم ===================== */
+.about{background:var(--maroon);color:#fff;position:relative;overflow:hidden}
+.about::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 85%,rgba(200,150,47,.18),transparent 40%)}
+.about .container{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;position:relative;z-index:1}
+.about .eyebrow{color:var(--gold-light)}
+.about h2{color:var(--gold-light);font-size:42px;margin-bottom:18px}
+.about p{opacity:.94;margin-bottom:14px;font-size:17px}
+.stats{display:flex;gap:34px;margin-top:30px;flex-wrap:wrap}
+.stat .num{font-family:'Aref Ruqaa';font-weight:900;font-size:44px;color:var(--gold-light)}
+.stat .lbl{font-size:14px;opacity:.88}
+.about-img{border-radius:10px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4);border:3px solid var(--gold);min-height:380px;background:linear-gradient(135deg,var(--red),var(--maroon-dark));position:relative}
+.about-img img{width:100%;height:100%;object-fit:cover;min-height:380px}
+
+/* ===================== الموقع / التواصل ===================== */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.info-box{background:#fff;border-radius:8px;padding:32px;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+.info-box h3{color:var(--maroon);margin-bottom:20px;font-size:26px}
+.info-row{display:flex;gap:15px;margin-bottom:18px;align-items:flex-start}
+.info-row .ic{font-size:24px;flex-shrink:0;color:var(--gold)}
+.info-row .t strong{font-family:'Cairo';display:block;color:var(--maroon)}
+.info-row .t span{color:var(--muted);font-size:15px}
+.hours-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.map-embed{border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);min-height:400px;border:1px solid var(--line);width:100%}
+
+/* ===================== الفوتر ===================== */
+footer{background:var(--maroon-dark);color:#fff;padding:54px 0 26px;text-align:center}
+footer .brand{justify-content:center;margin-bottom:14px}
+footer .social{display:flex;gap:14px;justify-content:center;margin:20px 0}
+footer .social a{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;transition:.25s;border:1px solid rgba(230,192,97,.3)}
+footer .social a:hover{background:var(--gold);color:var(--maroon-dark);transform:translateY(-3px)}
+footer .copy{opacity:.55;font-size:13px;margin-top:20px}
+
+/* ===================== زر واتساب عائم ===================== */
+.wa-float{position:fixed;bottom:26px;left:26px;background:#1faa54;color:#fff;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 28px rgba(31,170,84,.5);z-index:60;animation:pulse 2.5s infinite;transition:.2s}
+.wa-float:hover{transform:scale(1.1)}
+@keyframes pulse{0%,100%{box-shadow:0 10px 28px rgba(31,170,84,.5)}50%{box-shadow:0 10px 40px rgba(31,170,84,.85)}}
+
+/* ===================== السلة ===================== */
+.cart-overlay{position:fixed;inset:0;background:rgba(40,8,12,.55);opacity:0;visibility:hidden;transition:.3s;z-index:100}
+.cart-overlay.open{opacity:1;visibility:visible}
+.cart-panel{position:fixed;top:0;left:0;height:100%;width:410px;max-width:92vw;background:var(--cream);z-index:101;transform:translateX(-100%);transition:.35s;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,0,0,.35)}
+.cart-panel.open{transform:translateX(0)}
+.cart-head{background:var(--maroon);color:var(--gold-light);padding:22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold)}
+.cart-head h3{font-size:24px}
+.cart-close{background:none;border:none;color:var(--gold-light);font-size:28px;cursor:pointer}
+.cart-items{flex:1;overflow-y:auto;padding:18px}
+.cart-empty{text-align:center;color:var(--muted);padding:60px 20px}
+.cart-empty .big{font-size:64px;margin-bottom:12px}
+.ci{display:flex;gap:13px;align-items:center;background:#fff;border-radius:8px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow-sm)}
+.ci .ci-img{width:54px;height:54px;border-radius:6px;object-fit:cover;background:linear-gradient(135deg,var(--red),var(--maroon-dark));flex-shrink:0}
+.ci .info{flex:1}
+.ci .info h4{font-size:15px;font-family:'Cairo';color:var(--maroon)}
+.ci .info .p{font-size:13px;color:var(--muted)}
+.qty{display:flex;align-items:center;gap:9px}
+.qty button{width:29px;height:29px;border-radius:50%;border:none;background:var(--gold);color:var(--maroon-dark);font-weight:900;cursor:pointer;font-size:16px}
+.qty span{font-family:'Cairo';font-weight:700;min-width:20px;text-align:center}
+.cart-foot{border-top:1px solid var(--line);padding:20px;background:#fff}
+.cart-total{display:flex;justify-content:space-between;font-family:'Cairo';font-weight:900;font-size:21px;color:var(--maroon);margin-bottom:6px}
+.cart-note{font-size:13px;color:var(--muted);margin-bottom:14px;text-align:center}
+.cart-foot .btn{width:100%;justify-content:center}
+.discount-tag{background:rgba(31,170,84,.12);color:#178c44;font-family:'Cairo';font-weight:700;font-size:13px;padding:9px;border-radius:6px;text-align:center;margin-bottom:13px}
+
+/* ===================== توست ===================== */
+.toast{position:fixed;bottom:32px;right:50%;transform:translateX(50%) translateY(120px);background:var(--maroon);color:var(--gold-light);padding:15px 30px;border-radius:6px;font-family:'Cairo';font-weight:700;z-index:200;transition:.35s;box-shadow:var(--shadow);border:1px solid var(--gold)}
+.toast.show{transform:translateX(50%) translateY(0)}
+
+/* ===================== موبايل ===================== */
+@media(max-width:980px){
+  .hero .container,.about .container,.cat-wrap,.contact-grid{grid-template-columns:1fr}
+  .hero h1{font-size:44px}
+  .menu-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-links{position:fixed;top:78px;right:0;left:0;background:var(--maroon-dark);flex-direction:column;padding:24px;gap:18px;display:none;border-top:1px solid var(--gold)}
+  .nav-links.open{display:flex}
+  .menu-toggle{display:block}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .about-img{order:-1}
+  .section-title{font-size:34px}
+}
+@media(max-width:560px){
+  .menu-grid{grid-template-columns:1fr}
+  .hero h1{font-size:36px}
+  .hero .frame{padding:34px 24px}
+  .quote-band .q{font-size:26px}
+  .section{padding:64px 0}
+}
+</style>
+</head>
+<body class="">
+
+<!-- ========== الهيدر ========== -->
+<header id="header">
+  <div class="container nav">
+    <div class="brand"><span class="logo">🍽️</span> عهد الضيافة</div>
+    <nav class="nav-links" id="navLinks">
+      <a href="#menu" onclick="closeNav()">المنيو</a>
+      <a href="#catering" onclick="closeNav()">الكاترينج والديوانيات</a>
+      <a href="#gallery" onclick="closeNav()">معرض الأطباق</a>
+      <a href="#about" onclick="closeNav()">عن المطعم</a>
+      <a href="#contact" onclick="closeNav()">الموقع والتواصل</a>
+    </nav>
+    <div style="display:flex;gap:11px;align-items:center">
+      <button class="cart-btn" onclick="openCart()">🛒<span class="cart-count" id="cartCount">0</span></button>
+      <button class="menu-toggle" onclick="toggleNav()">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- ========== الهيرو ========== -->
+<section class="hero">
+  <img class="hero-bg" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80&auto=format&fit=crop" alt="" onerror="this.style.display='none'">
+  <div class="hero-overlay"></div>
+  <div class="hero-deco"></div>
+  <div class="hero-content">
+    <div class="container">
+      <div class="frame">
+        <div class="eyebrow">المأكولات الكويتية الأصيلة</div>
+        <h1>طعم الكويت <span class="g">الأصيل</span></h1>
+        <p class="tag">خبرة ٢٠ عاماً في تقديم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك</p>
+        <div class="hero-cta">
+          <a href="#menu" class="btn btn-gold">🍽️ اطلب الآن</a>
+          <a href="#catering" class="btn btn-outline">عروض الديوانيات</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a href="#menu" class="scroll-ind">⌄</a>
+</section>
+
+<!-- ========== شريط المزايا ========== -->
+<div class="feature-bar">
+  <div class="container">
+    <div class="f"><span class="ic">🔥</span> أكل طازج يومياً</div>
+    <div class="f"><span class="ic">💳</span> دفع آمن بـ KNET</div>
+    <div class="f"><span class="ic">🛵</span> توصيل لحولي والمناطق القريبة</div>
+    <div class="f"><span class="ic">📍</span> شارع شرحبيل بن حسنة</div>
+  </div>
+</div>
+
+<!-- ========== المنيو ========== -->
+<section class="section pattern" id="menu">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="eyebrow">قائمة الطعام</span>
+      <h2 class="section-title">اختر طبقك المفضّل</h2>
+      <div class="ornament">❖</div>
+      <p class="section-sub">أطباق كويتية أصيلة تُعدّ طازجة كل يوم • الأسعار بالدينار الكويتي</p>
+    </div>
+    <div class="menu-tabs reveal" id="menuTabs"></div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<!-- ========== شريط اقتباس ========== -->
+<div class="quote-band">
+  <div class="container reveal">
+    <div class="qs">”</div>
+    <p class="q">في عهد الضيافة، الأكل ليس مجرد وجبة… بل كرمٌ وضيافة على أصول الكويت</p>
+  </div>
+</div>
+
+<!-- ========== الكاترينج ========== -->
+<section class="section catering" id="catering">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="eyebrow">المناسبات</span>
+      <h2 class="section-title">الكاترينج والديوانيات</h2>
+      <div class="ornament">❖</div>
+      <p class="section-sub">أطباق مشتركة بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p>
+    </div>
+    <div class="cat-wrap">
+      <div class="cat-info reveal">
+        <div class="pack"><div class="n">١٠</div><div><h4>صينية تكفّي ١٠ أشخاص</h4><p>مكبوس لحم/دجاج + أرز + سلطات • مثالية للتجمعات الصغيرة</p></div></div>
+        <div class="pack"><div class="n">٢٠</div><div><h4>صينية تكفّي ٢٠ شخص</h4><p>تشكيلة أطباق كويتية • الأنسب لليلة الديوانية الأسبوعية</p></div></div>
+        <div class="pack"><div class="n">٣٠</div><div><h4>بوفيه ٣٠ شخص فأكثر</h4><p>منيو متكامل + حلى • للأعراس والمناسبات الكبيرة</p></div></div>
+        <div class="discount-tag" style="margin-top:8px">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً بشكل ثابت</div>
+      </div>
+      <form class="cat-form reveal" id="cateringForm" onsubmit="return submitCatering(event)">
+        <h3>احجز عرض كاترينج</h3>
+        <div class="deposit">💡 يتطلب عربون مقدّم لتأكيد الحجز</div>
+        <div class="field"><label>الاسم</label><input required id="catName" placeholder="اسمك الكريم"></div>
+        <div class="field"><label>رقم التواصل</label><input required id="catPhone" type="tel" placeholder="9XXXXXXX"></div>
+        <div class="field"><label>نوع المناسبة</label>
+          <select id="catType"><option>ديوانية</option><option>عرس</option><option>عزيمة عائلية</option><option>مناسبة شركة / مكتب</option><option>أخرى</option></select>
+        </div>
+        <div class="field"><label>عدد الأشخاص (تقريباً)</label>
+          <select id="catCount"><option>١٠ أشخاص</option><option>٢٠ شخص</option><option>٣٠ شخص</option><option>٥٠ شخص فأكثر</option></select>
+        </div>
+        <div class="field"><label>التاريخ المطلوب</label><input id="catDate" type="date"></div>
+        <div class="field"><label>تفاصيل إضافية</label><textarea id="catNotes" rows="2" placeholder="الأطباق المطلوبة، وقت التسليم..."></textarea></div>
+        <button type="submit" class="btn btn-wa">📲 أرسل طلب الحجز على واتساب</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ========== الجاليري ========== -->
+<section class="section pattern" id="gallery">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="eyebrow">من مطبخنا</span>
+      <h2 class="section-title">معرض الأطباق</h2>
+      <div class="ornament">❖</div>
+      <p class="section-sub">لمحة عن أطباقنا الكويتية الأصيلة</p>
+    </div>
+    <div class="gallery-grid reveal" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- ========== عن المطعم ========== -->
+<section class="section about" id="about">
+  <div class="container">
+    <div class="reveal">
+      <span class="eyebrow">قصتنا</span>
+      <h2>عشرون عاماً من الطعم الأصيل</h2>
+      <p>في عهد الضيافة، نؤمن أن الأكل الكويتي إرثٌ وكرم. نُعدّ أطباقنا على الطريقة التقليدية بأجود المكوّنات، طازجة كل يوم بحبٍّ وشغف.</p>
+      <p>من المكبوس والسيباس إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل في كل لقمة.</p>
+      <div class="stats">
+        <div class="stat"><div class="num">٢٠+</div><div class="lbl">سنة خبرة</div></div>
+        <div class="stat"><div class="num">طازج</div><div class="lbl">يومياً</div></div>
+        <div class="stat"><div class="num">حولي</div><div class="lbl">قلب الكويت</div></div>
+      </div>
+    </div>
+    <div class="about-img reveal">
+      <img src="https://images.unsplash.com/photo-1631292784640-2b24be784d5d?w=900&q=80&auto=format&fit=crop" alt="أطباق كويتية" onerror="this.style.display='none'">
+    </div>
+  </div>
+</section>
+
+<!-- ========== الموقع والتواصل ========== -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="eyebrow">زورنا</span>
+      <h2 class="section-title">الموقع والتواصل</h2>
+      <div class="ornament">❖</div>
+      <p class="section-sub">حولي، قطعة ٨، شارع شرحبيل بن حسنة، بالقرب من مدرسة الجيل الجديد</p>
+    </div>
+    <div class="contact-grid">
+      <div class="info-box reveal">
+        <h3>معلومات التواصل</h3>
+        <div class="info-row"><span class="ic">📍</span><div class="t"><strong>العنوان</strong><span>حولي، قطعة ٨، شارع شرحبيل بن حسنة، قرب مدرسة الجيل الجديد</span></div></div>
+        <div class="info-row"><span class="ic">📞</span><div class="t"><strong>الهاتف / واتساب</strong><span id="phoneText">حدّث الرقم في الإعدادات</span></div></div>
+        <div class="info-row"><span class="ic">📷</span><div class="t"><strong>إنستجرام</strong><span>@ahedaldeyafa</span></div></div>
+        <h3 style="margin-top:26px">أوقات العمل</h3>
+        <div class="hours-row"><span>السبت - الخميس</span><strong>١١ ص - ١٢ م</strong></div>
+        <div class="hours-row"><span>الجمعة</span><strong>١ ظ - ١٢ م</strong></div>
+        <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+          <a href="#menu" class="btn btn-red">🍽️ اطلب الآن</a>
+          <a id="waContactBtn" class="btn btn-wa" target="_blank">📲 واتساب</a>
+        </div>
+      </div>
+      <iframe class="map-embed reveal" loading="lazy" allowfullscreen
+        src="https://www.google.com/maps?q=Hawalli+Sharhabeel+bin+Hasna+Street+Kuwait&output=embed"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ========== الفوتر ========== -->
+<footer>
+  <div class="container">
+    <div class="brand"><span class="logo">🍽️</span> مطعم عهد الضيافة</div>
+    <p style="opacity:.8">المأكولات الكويتية الأصيلة • حولي، الكويت</p>
+    <div class="social">
+      <a href="https://www.instagram.com/ahedaldeyafa" target="_blank">📷</a>
+      <a id="waFooter" target="_blank">💬</a>
+    </div>
+    <div class="copy">© <span id="year"></span> عهد الضيافة. جميع الحقوق محفوظة.</div>
+  </div>
+</footer>
+
+<!-- ========== السلة ========== -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<aside class="cart-panel" id="cartPanel">
+  <div class="cart-head"><h3>🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="discount-tag">✅ خصم ١٠٪ مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
+    <p class="cart-note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
+    <button class="btn btn-gold" onclick="checkoutKNET()">💳 ادفع الآن بـ KNET</button>
+  </div>
+</aside>
+
+<a class="wa-float" id="waFloat" target="_blank" title="تواصل واتساب">💬</a>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   ⚙️  الإعدادات — عدّل هنا فقط
+   ===================================================================== */
+const CONFIG = {
+  whatsapp: "96500000000",          // ← ضع رقم واتساب المطعم بصيغة دولية بدون +  (مثال: 96599887766)
+  currency: "د.ك",
+  directDiscount: 0.10,             // خصم الطلب الأونلاين (10%) — غيّره أو خليه 0
+  knet: {
+    enabled: true,                  // تكامل Hesabe مفعّل
+    endpoint: "/api/checkout"       // دالة Vercel serverless (Hesabe)
+  }
+};
+
+/* =====================================================================
+   🍽️  المنيو — عدّل الأطباق والأسعار والصور هنا (السعر بالدينار الكويتي)
+   img: رابط صورة الطبق (يفضّل صورك الحقيقية لاحقاً)
+   ===================================================================== */
+const IMG = u => `https://images.unsplash.com/${u}?w=700&q=80&auto=format&fit=crop`;
+const MENU = [
+  {cat:"المكبوس والأرز", items:[
+    {id:1, name:"مكبوس لحم", desc:"أرز بسمتي مع لحم غنم طري وبهارات كويتية", price:3.500, img:IMG("photo-1631292784640-2b24be784d5d")},
+    {id:2, name:"مكبوس دجاج", desc:"دجاج طازج مع أرز معطّر ومكسرات", price:2.750, img:IMG("photo-1633945274405-b6c8069047b0")},
+    {id:3, name:"مكبوس ربيان", desc:"ربيان طازج مع أرز بالبهارات", price:3.250, img:IMG("photo-1574484284002-952d92456975")},
+    {id:4, name:"مجبوس لحم", desc:"الطبق الكويتي الكلاسيكي باللحم والحشو", price:3.500, img:IMG("photo-1547928576-b822bc410bdf")},
+  ]},
+  {cat:"الأسماك", items:[
+    {id:5, name:"سيباس مشوي", desc:"سمك سيباس طازج مشوي على الفحم", price:4.000, img:IMG("photo-1535140728325-a4d3707eee61")},
+    {id:6, name:"زبيدي مقلي", desc:"سمك الزبيدي الكويتي مع الأرز", price:5.000, img:IMG("photo-1604908176997-125f25cc6f3d")},
+    {id:7, name:"صيادية سمك", desc:"أرز بالسمك على الطريقة التقليدية", price:3.750, img:IMG("photo-1432139509613-5c4255815697")},
+  ]},
+  {cat:"أطباق شعبية", items:[
+    {id:8, name:"جريش", desc:"جريش كويتي بالدجاج", price:2.250, img:IMG("photo-1455619452474-d2be8b1e70cd")},
+    {id:9, name:"مرقوق", desc:"عجين ولحم ومرق على الطريقة الكويتية", price:2.500, img:IMG("photo-1596797038530-2c107229654b")},
+    {id:10, name:"هريس", desc:"هريس باللحم — طبق الضيافة الأصيل", price:2.500, img:IMG("photo-1565958011703-44f9829ba187")},
+  ]},
+  {cat:"المقبلات والسلطات", items:[
+    {id:11, name:"سلطة كويتية", desc:"خضار طازجة مع صلصة خاصة", price:0.750, img:IMG("photo-1546069901-ba9599a7e63c")},
+    {id:12, name:"تبولة", desc:"بقدونس وبرغل وطماطم", price:0.750, img:IMG("photo-1512621776951-a57141f2eefd")},
+    {id:13, name:"رقاق محشي", desc:"رقاق بالجبن أو اللحم", price:1.000, img:IMG("photo-1565299624946-b28f40a0ae38")},
+  ]},
+  {cat:"الحلويات والمشروبات", items:[
+    {id:14, name:"درابيل", desc:"حلى كويتي تقليدي", price:1.250, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+    {id:15, name:"عصير طازج", desc:"عصائر موسمية طازجة", price:0.750, img:IMG("photo-1600271886742-f049cd451bba")},
+    {id:16, name:"قهوة عربية", desc:"تُقدَّم مع التمر", price:0.500, img:IMG("photo-1606491956689-2ea866880c84")},
+  ]},
+];
+
+/* صور الجاليري */
+const GALLERY = [
+  "photo-1631292784640-2b24be784d5d","photo-1535140728325-a4d3707eee61",
+  "photo-1547928576-b822bc410bdf","photo-1574484284002-952d92456975",
+  "photo-1633945274405-b6c8069047b0","photo-1546069901-ba9599a7e63c",
+  "photo-1604908176997-125f25cc6f3d","photo-1596797038530-2c107229654b"
+];
+
+/* ===================== المنطق ===================== */
+let cart = {};
+function fmt(n){return n.toFixed(3)+" "+CONFIG.currency}
+const imgTag = (src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
+
+function renderMenu(){
+  const tabs=document.getElementById('menuTabs');
+  const grid=document.getElementById('menuGrid');
+  MENU.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='menu-tab'+(i===0?' active':'');
+    b.textContent=c.cat;
+    b.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));b.classList.add('active');showCat(i)};
+    tabs.appendChild(b);
+  });
+  showCat(0);
+}
+function showCat(i){
+  const grid=document.getElementById('menuGrid');
+  grid.innerHTML='';
+  MENU[i].items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='card';
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${imgTag(it.img)}</div>
+      <div class="body">
+        <h3>${it.name}</h3>
+        <div class="desc">${it.desc}</div>
+        <div class="row">
+          <div class="price">${it.price.toFixed(3)} <small>${CONFIG.currency}</small></div>
+          <button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button>
+        </div>
+      </div>`;
+    grid.appendChild(d);
+  });
+}
+function renderGallery(){
+  const g=document.getElementById('galleryGrid');
+  g.innerHTML=GALLERY.map(p=>`<div class="g">${imgTag(IMG(p))}</div>`).join('');
+}
+function findItem(id){for(const c of MENU)for(const it of c.items)if(it.id===id)return it;}
+function addItem(id){cart[id]=(cart[id]||0)+1;updateCart();showToast(`✓ أُضيف ${findItem(id).name}`)}
+function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart()}
+function cartArray(){return Object.keys(cart).map(id=>({it:findItem(+id),q:cart[id]}))}
+function subtotal(){return cartArray().reduce((s,r)=>s+r.it.price*r.q,0)}
+function total(){return subtotal()*(1-CONFIG.directDiscount)}
+function count(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+
+function updateCart(){
+  document.getElementById('cartCount').textContent=count();
+  const box=document.getElementById('cartItems');
+  const arr=cartArray();
+  if(arr.length===0){
+    box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك المفضلة من المنيو</p></div>`;
+  }else{
+    box.innerHTML=arr.map(r=>`<div class="ci">
+      ${imgTag(r.it.img,'ci-img')}
+      <div class="info"><h4>${r.it.name}</h4><div class="p">${r.it.price.toFixed(3)} ${CONFIG.currency}</div></div>
+      <div class="qty"><button onclick="changeQty(${r.it.id},-1)">−</button><span>${r.q}</span><button onclick="changeQty(${r.it.id},1)">＋</button></div>
+    </div>`).join('');
+  }
+  document.getElementById('cartTotal').textContent=fmt(total());
+}
+function openCart(){cartOverlay.classList.add('open');cartPanel.classList.add('open')}
+function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.remove('open')}
+function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
+function closeNav(){document.getElementById('navLinks').classList.remove('open')}
+
+async function checkoutKNET(){
+  const arr=cartArray();
+  if(arr.length===0){showToast("السلة فارغة 🛒");return;}
+  if(!(CONFIG.knet.enabled && CONFIG.knet.endpoint)){
+    showToast("💳 الدفع بـ KNET قيد التفعيل");return;
+  }
+  const items=arr.map(r=>`${r.it.name}×${r.q}`).join("، ").slice(0,250);
+  showToast("⏳ جارٍ تحويلك لصفحة الدفع...");
+  try{
+    const res=await fetch(CONFIG.knet.endpoint,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({amount:Number(total().toFixed(3)),items:items})
+    });
+    const data=await res.json();
+    if(data.paymentUrl){window.location.href=data.paymentUrl;}
+    else{showToast("⚠️ تعذّر بدء الدفع، حاول مرة أخرى");console.error(data);}
+  }catch(e){showToast("⚠️ خطأ في الاتصال بالدفع");console.error(e);}
+}
+function initPaymentStatus(){
+  const q=new URLSearchParams(location.search);
+  const p=q.get("payment");if(!p)return;
+  if(p==="success"){
+    showToast("✅ تم الدفع بنجاح! شكراً لك");
+    alert("✅ تم استلام دفعتك بنجاح.\nرقم الطلب: "+(q.get("ref")||"")+"\nرقم العملية: "+(q.get("pid")||"")+"\nسنتواصل معك لتأكيد التوصيل.");
+  }else if(p==="failed"){
+    showToast("❌ لم تتم عملية الدفع");
+    alert("❌ لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى أو الطلب عبر واتساب.");
+  }
+  history.replaceState({},"",location.pathname);
+}
+function submitCatering(e){
+  e.preventDefault();
+  const n=catName.value,p=catPhone.value,t=catType.value,c=catCount.value,d=catDate.value||"غير محدد",notes=catNotes.value||"لا يوجد";
+  let msg=`🍲 *طلب حجز كاترينج - عهد الضيافة*%0A%0A`;
+  msg+=`الاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A`;
+  msg+=`(أرغب بتأكيد الحجز ومعرفة قيمة العربون)`;
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');
+  return false;
+}
+function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
+
+/* ===================== التهيئة + الأنيميشن ===================== */
+function initLinks(){
+  const wa=`https://wa.me/${CONFIG.whatsapp}`;
+  waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
+  const pretty="+"+CONFIG.whatsapp;
+  document.getElementById('phoneText').textContent = CONFIG.whatsapp==="96500000000" ? "⚠️ حدّث الرقم في إعدادات الموقع" : pretty;
+  document.getElementById('year').textContent=new Date().getFullYear();
+}
+function initScroll(){
+  const h=document.getElementById('header');
+  const onScroll=()=>{h.classList.toggle('scrolled',window.scrollY>40)};
+  window.addEventListener('scroll',onScroll);onScroll();
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}
+renderMenu();renderGallery();updateCart();initLinks();initScroll();initPaymentStatus();
+</script>
+</body>
+</html>
