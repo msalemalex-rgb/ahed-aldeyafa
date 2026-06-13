@@ -427,6 +427,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
     <p class="cart-note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
     <button class="btn btn-gold" onclick="checkoutKNET()">💳 ادفع الآن بـ KNET</button>
+    <button class="btn btn-wa" style="margin-top:10px" onclick="checkoutWhatsApp()">📲 أو اطلب عبر واتساب</button>
   </div>
 </aside>
 
@@ -438,7 +439,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
    ⚙️  الإعدادات — عدّل هنا فقط
    ===================================================================== */
 const CONFIG = {
-  whatsapp: "96500000000",          // ← ضع رقم واتساب المطعم بصيغة دولية بدون +  (مثال: 96599887766)
+  whatsapp: "96566348608",          // رقم واتساب المطعم
   currency: "د.ك",
   directDiscount: 0.10,             // خصم الطلب الأونلاين (10%) — غيّره أو خليه 0
   knet: {
@@ -453,31 +454,70 @@ const CONFIG = {
    ===================================================================== */
 const IMG = u => `https://images.unsplash.com/${u}?w=700&q=80&auto=format&fit=crop`;
 const MENU = [
-  {cat:"المكبوس والأرز", items:[
-    {id:1, name:"مكبوس لحم", desc:"أرز بسمتي مع لحم غنم طري وبهارات كويتية", price:3.500, img:IMG("photo-1631292784640-2b24be784d5d")},
-    {id:2, name:"مكبوس دجاج", desc:"دجاج طازج مع أرز معطّر ومكسرات", price:2.750, img:IMG("photo-1633945274405-b6c8069047b0")},
-    {id:3, name:"مكبوس ربيان", desc:"ربيان طازج مع أرز بالبهارات", price:3.250, img:IMG("photo-1574484284002-952d92456975")},
-    {id:4, name:"مجبوس لحم", desc:"الطبق الكويتي الكلاسيكي باللحم والحشو", price:3.500, img:IMG("photo-1547928576-b822bc410bdf")},
+  {cat:"المجبوس والبرياني", items:[
+    {id:1, name:"مجبوس لحم استرالي", desc:"Australian Meat Majboos", price:4.500, img:IMG("photo-1631292784640-2b24be784d5d")},
+    {id:2, name:"مجبوس لحم عربي", desc:"Arabic Meat Majboos", price:6.000, img:IMG("photo-1547928576-b822bc410bdf")},
+    {id:3, name:"مجبوس دجاج", desc:"Chicken Majboos", price:2.750, img:IMG("photo-1633945274405-b6c8069047b0")},
+    {id:4, name:"برياني لحم استرالي", desc:"Australian Meat Biryani", price:4.750, img:IMG("photo-1631292784640-2b24be784d5d")},
+    {id:5, name:"برياني دجاج", desc:"Chicken Biryani", price:3.000, img:IMG("photo-1633945274405-b6c8069047b0")},
   ]},
-  {cat:"الأسماك", items:[
-    {id:5, name:"سيباس مشوي", desc:"سمك سيباس طازج مشوي على الفحم", price:4.000, img:IMG("photo-1535140728325-a4d3707eee61")},
-    {id:6, name:"زبيدي مقلي", desc:"سمك الزبيدي الكويتي مع الأرز", price:5.000, img:IMG("photo-1604908176997-125f25cc6f3d")},
-    {id:7, name:"صيادية سمك", desc:"أرز بالسمك على الطريقة التقليدية", price:3.750, img:IMG("photo-1432139509613-5c4255815697")},
+  {cat:"المطبق والروبيان", items:[
+    {id:6, name:"مطبق زبيدي", desc:"Mutabbaq Zubaidi", price:4.750, img:IMG("photo-1604908176997-125f25cc6f3d")},
+    {id:7, name:"مطبق زبيدي ملكي", desc:"Mutabbaq Zubaidi Royal", price:6.250, img:IMG("photo-1604908176997-125f25cc6f3d")},
+    {id:8, name:"مطبق سيباس", desc:"Mutabbaq Seabas", price:4.500, img:IMG("photo-1535140728325-a4d3707eee61")},
+    {id:9, name:"مطبق سيباس ملكي", desc:"Mutabbaq Seabas Royal", price:6.000, img:IMG("photo-1535140728325-a4d3707eee61")},
+    {id:10, name:"مربين روبيان طري", desc:"Tender Shrimp", price:4.250, img:IMG("photo-1574484284002-952d92456975")},
+    {id:11, name:"مموش روبيان يابس", desc:"Mamoush Dry Shrimp", price:3.250, img:IMG("photo-1574484284002-952d92456975")},
+    {id:12, name:"مموش روبيان طري", desc:"Mamoush Tender Shrimp", price:4.500, img:IMG("photo-1574484284002-952d92456975")},
   ]},
-  {cat:"أطباق شعبية", items:[
-    {id:8, name:"جريش", desc:"جريش كويتي بالدجاج", price:2.250, img:IMG("photo-1455619452474-d2be8b1e70cd")},
-    {id:9, name:"مرقوق", desc:"عجين ولحم ومرق على الطريقة الكويتية", price:2.500, img:IMG("photo-1596797038530-2c107229654b")},
-    {id:10, name:"هريس", desc:"هريس باللحم — طبق الضيافة الأصيل", price:2.500, img:IMG("photo-1565958011703-44f9829ba187")},
+  {cat:"التشاريب والأطباق الشعبية", items:[
+    {id:13, name:"تشريب لحم استرالي", desc:"Australian Meat Impregnation", price:3.250, img:IMG("photo-1455619452474-d2be8b1e70cd")},
+    {id:14, name:"تشريب بدون لحم", desc:"Impregnation without Meat", price:1.500, img:IMG("photo-1455619452474-d2be8b1e70cd")},
+    {id:15, name:"قبوط لحم", desc:"Meat Qaboot", price:3.250, img:IMG("photo-1596797038530-2c107229654b")},
+    {id:16, name:"مرقوق خضار", desc:"Vegetable Margog", price:1.750, img:IMG("photo-1596797038530-2c107229654b")},
+    {id:17, name:"مشخول / عيش + مرق لحم", desc:"Mashkoul / Rice + Meat Broth", price:3.750, img:IMG("photo-1565958011703-44f9829ba187")},
+    {id:18, name:"معكرونة الطيبين باللحم", desc:"Taybeen Macaroni with Meat", price:2.250, img:IMG("photo-1565958011703-44f9829ba187")},
+    {id:19, name:"كبه برغل باللحم (٦ قطع)", desc:"Meat Bulgur Kibbeh (6 pcs)", price:1.750, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+    {id:20, name:"كبه بطاطا باللحم (٦ قطع)", desc:"Meat Potato Kibbeh (6 pcs)", price:2.000, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+    {id:21, name:"الهريس", desc:"Groats (Hareis)", price:1.750, img:IMG("photo-1455619452474-d2be8b1e70cd")},
+    {id:22, name:"الجريش", desc:"Jerish", price:1.750, img:IMG("photo-1565958011703-44f9829ba187")},
   ]},
-  {cat:"المقبلات والسلطات", items:[
-    {id:11, name:"سلطة كويتية", desc:"خضار طازجة مع صلصة خاصة", price:0.750, img:IMG("photo-1546069901-ba9599a7e63c")},
-    {id:12, name:"تبولة", desc:"بقدونس وبرغل وطماطم", price:0.750, img:IMG("photo-1512621776951-a57141f2eefd")},
-    {id:13, name:"رقاق محشي", desc:"رقاق بالجبن أو اللحم", price:1.000, img:IMG("photo-1565299624946-b28f40a0ae38")},
+  {cat:"السلطات", items:[
+    {id:23, name:"سلطة خضار", desc:"Vegetable Salad", price:1.250, img:IMG("photo-1546069901-ba9599a7e63c")},
+    {id:24, name:"سلطة جرجير", desc:"Arugula Salad", price:1.250, img:IMG("photo-1512621776951-a57141f2eefd")},
+    {id:25, name:"روب خيار", desc:"Rob & Cucumber", price:1.000, img:IMG("photo-1546069901-ba9599a7e63c")},
+    {id:26, name:"سلطة شمندر", desc:"Beetroot Salad", price:1.250, img:IMG("photo-1512621776951-a57141f2eefd")},
+    {id:27, name:"سلطة جرجير وشمندر", desc:"Arugula & Beetroot Salad", price:1.500, img:IMG("photo-1546069901-ba9599a7e63c")},
   ]},
-  {cat:"الحلويات والمشروبات", items:[
-    {id:14, name:"درابيل", desc:"حلى كويتي تقليدي", price:1.250, img:IMG("photo-1567620905732-2d1ec7ab7445")},
-    {id:15, name:"عصير طازج", desc:"عصائر موسمية طازجة", price:0.750, img:IMG("photo-1600271886742-f049cd451bba")},
-    {id:16, name:"قهوة عربية", desc:"تُقدَّم مع التمر", price:0.500, img:IMG("photo-1606491956689-2ea866880c84")},
+  {cat:"الشوربات", items:[
+    {id:28, name:"شوربة عدس", desc:"Lentil Soup", price:1.000, img:IMG("photo-1547928576-b822bc410bdf")},
+    {id:29, name:"شوربة دجاج", desc:"Chicken Soup", price:1.000, img:IMG("photo-1633945274405-b6c8069047b0")},
+  ]},
+  {cat:"الإضافات", items:[
+    {id:30, name:"دبل لحم عربي", desc:"Arabic Double Meat", price:4.750, img:IMG("photo-1547928576-b822bc410bdf")},
+    {id:31, name:"دبل دجاج", desc:"Chicken Double", price:1.750, img:IMG("photo-1633945274405-b6c8069047b0")},
+    {id:32, name:"دبل روبيان طري", desc:"Soft Shrimp Double", price:3.250, img:IMG("photo-1574484284002-952d92456975")},
+    {id:33, name:"دبل روبيان يابس", desc:"Double Dry Shrimp", price:2.250, img:IMG("photo-1574484284002-952d92456975")},
+    {id:34, name:"دبل زبيدي / سيباس", desc:"Double Seabas / Zubaidi", price:3.750, img:IMG("photo-1535140728325-a4d3707eee61")},
+    {id:35, name:"دبل لحم استرالي", desc:"Australian Double Meat", price:3.250, img:IMG("photo-1547928576-b822bc410bdf")},
+    {id:36, name:"عيش مجبوس خالي", desc:"Empty Mahboos Rice", price:1.000, img:IMG("photo-1631292784640-2b24be784d5d")},
+    {id:37, name:"عيش سمك / روبيان خالي", desc:"Empty Fish/Shrimp Rice", price:1.000, img:IMG("photo-1432139509613-5c4255815697")},
+    {id:38, name:"عيش مموش خالي", desc:"Empty Mamoush Rice", price:1.250, img:IMG("photo-1631292784640-2b24be784d5d")},
+    {id:39, name:"مرق / دقوس / دقوس صبار", desc:"Broth / Dakus", price:0.250, img:IMG("photo-1596797038530-2c107229654b")},
+  ]},
+  {cat:"الحلويات", items:[
+    {id:40, name:"كريم كراميل", desc:"Creme Caramel", price:0.500, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+    {id:41, name:"مهلبية", desc:"Pudding", price:0.500, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+    {id:42, name:"جيلي", desc:"Jelly", price:0.500, img:IMG("photo-1567620905732-2d1ec7ab7445")},
+  ]},
+  {cat:"العصائر والمشروبات", items:[
+    {id:43, name:"عصير برتقال / ليمون", desc:"Orange / Lemon Juice", price:1.000, img:IMG("photo-1600271886742-f049cd451bba")},
+    {id:44, name:"عصير ليمون ونعناع", desc:"Lemon & Mint Juice", price:1.000, img:IMG("photo-1600271886742-f049cd451bba")},
+    {id:45, name:"مشروب غازي", desc:"Soft Drink", price:0.150, img:IMG("photo-1606491956689-2ea866880c84")},
+    {id:46, name:"لبن فرش", desc:"Fresh Laban", price:0.150, img:IMG("photo-1606491956689-2ea866880c84")},
+    {id:47, name:"لبن اكتيفيا", desc:"Activia Laban", price:0.200, img:IMG("photo-1606491956689-2ea866880c84")},
+    {id:48, name:"روب", desc:"Yogurt", price:0.200, img:IMG("photo-1606491956689-2ea866880c84")},
+    {id:49, name:"ماء صحة صغير", desc:"Small Water", price:0.200, img:IMG("photo-1606491956689-2ea866880c84")},
   ]},
 ];
 
@@ -556,6 +596,23 @@ function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.re
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
 
+function checkoutWhatsApp(){
+  const arr=cartArray();
+  if(arr.length===0){showToast("السلة فارغة 🛒");return;}
+  let msg="🍽️ *طلب جديد من موقع عهد الضيافة*%0A%0A";
+  arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q} — ${(r.it.price*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
+  msg+=`%0Aالمجموع قبل الخصم: ${subtotal().toFixed(3)} ${CONFIG.currency}%0A`;
+  msg+=`خصم الطلب المباشر (١٠٪): -${(subtotal()*CONFIG.directDiscount).toFixed(3)} ${CONFIG.currency}%0A`;
+  msg+=`*الإجمالي: ${total().toFixed(3)} ${CONFIG.currency}*%0A%0A`;
+  msg+="📍 عنوان التوصيل: ____%0A📞 رقمي: ____";
+  saveOrder("whatsapp");
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');
+}
+function orderItemsText(a){return a.map(r=>`${r.it.name} ×${r.q}`).join("، ");}
+function saveOrder(channel){
+  const a=cartArray(); if(!a.length)return;
+  try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:orderItemsText(a),total:Number(total().toFixed(3)),channel:channel})});}catch(_){}
+}
 async function checkoutKNET(){
   const arr=cartArray();
   if(arr.length===0){showToast("السلة فارغة 🛒");return;}
@@ -563,6 +620,7 @@ async function checkoutKNET(){
     showToast("💳 الدفع بـ KNET قيد التفعيل");return;
   }
   const items=arr.map(r=>`${r.it.name}×${r.q}`).join("، ").slice(0,250);
+  saveOrder("knet");
   showToast("⏳ جارٍ تحويلك لصفحة الدفع...");
   try{
     const res=await fetch(CONFIG.knet.endpoint,{
