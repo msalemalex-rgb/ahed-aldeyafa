@@ -302,7 +302,7 @@ function submitCatering(e){
   e.preventDefault();
   const n=catName.value,p=catPhone.value,t=catType.value,c=catCount.value,d=catDate.value||"غير محدد",notes=catNotes.value||"لا يوجد";
   let msg=`🍲 *طلب حجز كاترينج - عهد الضيافة*%0A%0Aالاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A(أرغب بتأكيد الحجز ومعرفة العربون)`;
-  try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:'كاترينج: '+t+' - '+c,total:0,channel:'whatsapp',name:n,phone:p,note:'حجز كاترينج '+d})});}catch(_){}
+  try{fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
 function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
