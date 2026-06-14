@@ -56,7 +56,7 @@ header h1{font-size:19px;color:var(--gold-light);display:flex;align-items:center
 .lbl{font-size:11px;color:var(--muted)}
 .row-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .setrow{margin-bottom:16px}.setrow label{display:block;font-family:'Cairo';font-weight:700;margin-bottom:6px}
-.logo-prev{width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin-top:8px;background:#eee}
+.logo-prev{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin-top:10px;background:#eee}
 .toast{position:fixed;bottom:20px;right:50%;transform:translateX(50%) translateY(80px);background:var(--maroon);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:'Cairo';font-weight:700;z-index:200;transition:.3s}
 .toast.show{transform:translateX(50%) translateY(0)}
 @media(max-width:760px){.mi{grid-template-columns:1fr 1fr}.mi img{grid-column:span 2;width:100%;height:120px}.mi .x{grid-column:span 2}}
@@ -99,7 +99,12 @@ header h1{font-size:19px;color:var(--gold-light);display:flex;align-items:center
     <div id="view-settings" style="display:none">
       <div class="cat-block">
         <h3 style="color:var(--maroon);margin-bottom:14px">الإعدادات العامة</h3>
-        <div class="setrow"><label>رابط اللوجو (URL)</label><input id="setLogo" placeholder="https://..."><img class="logo-prev" id="logoPrev" onerror="this.style.display='none'"></div>
+        <div class="setrow"><label>اللوجو — ارفع صورة</label>
+          <input type="file" id="logoFile" accept="image/*" onchange="onLogoFile(event)">
+          <div style="font-size:12px;color:var(--muted);margin:8px 0 4px">أو الصق رابط صورة:</div>
+          <input id="setLogo" placeholder="https://..." oninput="onLogoUrl(this.value)">
+          <img class="logo-prev" id="logoPrev" onerror="this.style.display='none'">
+        </div>
         <div class="setrow"><label>رقم واتساب (دولي بدون +)</label><input id="setWhatsapp" placeholder="9655XXXXXX"></div>
         <div class="setrow"><label>نسبة خصم الطلب الأونلاين (٪)</label><input id="setDiscount" type="number" min="0" max="90" placeholder="10"></div>
         <button class="btn btn-green" onclick="saveSettings()">💾 حفظ الإعدادات</button>
@@ -109,7 +114,7 @@ header h1{font-size:19px;color:var(--gold-light);display:flex;align-items:center
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let KEY="",filter="new",orders=[],seen=new Set(),audioCtx=null,first=true,DATA={menu:[],settings:{}};
+let KEY="",filter="new",orders=[],seen=new Set(),audioCtx=null,first=true,DATA={menu:[],settings:{}},currentLogo="";
 function doLogin(e){e.preventDefault();const p=document.getElementById('pass').value.trim();if(!p)return false;KEY=p;
   fetch('/api/orders?key='+encodeURIComponent(KEY)).then(r=>{
     if(r.status===401){document.getElementById('loginErr').textContent="كلمة السر غير صحيحة";return;}
@@ -149,8 +154,11 @@ function delCat(ci){if(confirm("حذف القسم كامل؟")){DATA.menu.splice
 function addItem(ci){const ids=[];(DATA.menu||[]).forEach(c=>(c.items||[]).forEach(i=>ids.push(i.id||0)));const nid=(Math.max(0,...ids)||0)+1;DATA.menu[ci].items=DATA.menu[ci].items||[];DATA.menu[ci].items.push({id:nid,name:"",desc:"",price:0,img:""});renderMenuEditor();}
 function delItem(ci,ii){DATA.menu[ci].items.splice(ii,1);renderMenuEditor();}
 function saveMenu(){fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu})}).then(r=>r.json()).then(d=>{if(d.ok)toast("✅ تم حفظ المنيو");else toast("⚠️ خطأ في الحفظ");}).catch(()=>toast("⚠️ خطأ في الاتصال"));}
-function fillSettings(){const s=DATA.settings||{};document.getElementById('setLogo').value=s.logo||"";document.getElementById('setWhatsapp').value=s.whatsapp||"";document.getElementById('setDiscount').value=Math.round((s.directDiscount||0)*100);const p=document.getElementById('logoPrev');if(s.logo){p.src=s.logo;p.style.display='block';}else{p.style.display='none';}document.getElementById('setLogo').oninput=function(){p.src=this.value;p.style.display=this.value?'block':'none';};}
-function saveSettings(){const settings={logo:document.getElementById('setLogo').value.trim(),whatsapp:document.getElementById('setWhatsapp').value.trim(),directDiscount:(parseFloat(document.getElementById('setDiscount').value)||0)/100};fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({settings})}).then(r=>r.json()).then(d=>{if(d.ok)toast("✅ تم حفظ الإعدادات");else toast("⚠️ خطأ");}).catch(()=>toast("⚠️ خطأ في الاتصال"));}
+function showLogoPrev(src){const p=document.getElementById('logoPrev');if(src){p.src=src;p.style.display='block';}else{p.style.display='none';}}
+function onLogoUrl(v){currentLogo=v;showLogoPrev(v);}
+function onLogoFile(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=256;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{currentLogo=c.toDataURL('image/png');}catch(_){currentLogo=rd.result;}showLogoPrev(currentLogo);document.getElementById('setLogo').value="";toast("✅ تم اختيار الصورة — اضغط حفظ");};img.src=rd.result;};rd.readAsDataURL(f);}
+function fillSettings(){const s=DATA.settings||{};currentLogo=s.logo||"";document.getElementById('setWhatsapp').value=s.whatsapp||"";document.getElementById('setDiscount').value=Math.round((s.directDiscount||0)*100);document.getElementById('setLogo').value=(s.logo&&s.logo.indexOf('data:')!==0)?s.logo:"";showLogoPrev(s.logo||"");}
+function saveSettings(){const settings={logo:currentLogo,whatsapp:document.getElementById('setWhatsapp').value.trim(),directDiscount:(parseFloat(document.getElementById('setDiscount').value)||0)/100};fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({settings})}).then(r=>r.json()).then(d=>{if(d.ok)toast("✅ تم حفظ الإعدادات");else toast("⚠️ خطأ");}).catch(()=>toast("⚠️ خطأ في الاتصال"));}
 (function(){try{const k=sessionStorage.getItem('ak');if(k)document.getElementById('pass').value=k;}catch(_){}})();
 </script>
 </body>
