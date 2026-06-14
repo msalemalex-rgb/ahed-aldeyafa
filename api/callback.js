@@ -1,9 +1,11 @@
 // =====================================================================
 //  /api/callback   (responseUrl + failureUrl)
-//  يستقبل نتيجة Hesabe (مشفّرة في data)، يفكّها، يتحقق، ويحوّل المستخدم
-//  لصفحة نجاح/فشل على الموقع.
+//  يستقبل نتيجة Hesabe (مشفّرة في data)، يفكّها، يتحقق، يؤكّد الطلب في
+//  قاعدة البيانات (pending → new عند النجاح، أو failed عند الفشل)،
+//  ثم يحوّل المستخدم لصفحة نجاح/فشل على الموقع.
 // =====================================================================
 const { decrypt } = require("../lib/hesabeCrypt");
+const { setOrderStatus } = require("../lib/kv");
 
 function getData(req) {
   if (req.query && req.query.data) return req.query.data;
@@ -32,9 +34,15 @@ module.exports = async (req, res) => {
     const code = (r.resultCode || "").toUpperCase();
     const ok = json.status === true && ["CAPTURED", "ACCEPT", "SUCCESS"].includes(code);
 
-    const ref     = encodeURIComponent(r.orderReferenceNumber || r.variable1 || "");
+    const rawRef = r.orderReferenceNumber || r.variable1 || "";
+    const ref     = encodeURIComponent(rawRef);
     const payId   = encodeURIComponent(r.paymentId || "");
     const amount  = encodeURIComponent(r.amount || "");
+
+    // تأكيد/فشل الطلب في قاعدة البيانات
+    if (rawRef) {
+      try { await setOrderStatus(rawRef, ok ? "new" : "failed"); } catch (_) {}
+    }
 
     if (ok) {
       return res.redirect(302, `${SITE}/?payment=success&ref=${ref}&pid=${payId}&amt=${amount}`);

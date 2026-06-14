@@ -3,8 +3,36 @@ const { cmd } = require("../lib/kv");
 
 const IMG = (u) => `https://images.unsplash.com/${u}?w=700&q=80&auto=format&fit=crop`;
 
+// قائمة شاملة بمناطق الكويت (الرسوم والحد الأدنى = 0 ويعدّلها الأدمن)
+const A = (name) => ({ name, fee: 0, minOrder: 0 });
+const DEFAULT_AREAS = [
+  // العاصمة
+  A("الشرق"), A("المرقاب"), A("القبلة"), A("الدسمة"), A("الدعية"), A("المنصورية"), A("الفيحاء"),
+  A("الشامية"), A("الروضة"), A("العديلية"), A("الخالدية"), A("قرطبة"), A("السرة"), A("اليرموك"),
+  A("الشويخ"), A("كيفان"), A("النزهة"), A("عبدالله السالم"), A("الدوحة"), A("النهضة"), A("غرناطة"),
+  A("الصليبخات"), A("جابر الأحمد"), A("الصوابر"), A("ضاحية عبدالله السالم"),
+  // حولي
+  A("حولي"), A("السالمية"), A("الرميثية"), A("الجابرية"), A("مشرف"), A("بيان"), A("سلوى"),
+  A("البدع"), A("النقرة"), A("حطين"), A("الشعب"), A("السلام"), A("الزهراء"), A("الصديق"),
+  A("الشهداء"), A("الصالحية"),
+  // الفروانية
+  A("الفروانية"), A("خيطان"), A("العمرية"), A("الرابية"), A("الأندلس"), A("جليب الشيوخ"),
+  A("الرقعي"), A("الفردوس"), A("العارضية"), A("صباح الناصر"), A("إشبيلية"), A("الرحاب"),
+  A("الضجيج"), A("عبدالله المبارك"), A("الري"), A("جنوب عبدالله المبارك"),
+  // الأحمدي
+  A("الأحمدي"), A("الفحيحيل"), A("المنقف"), A("أبو حليفة"), A("المهبولة"), A("الفنطاس"),
+  A("العقيلة"), A("الصباحية"), A("الرقة"), A("هدية"), A("جابر العلي"), A("فهد الأحمد"),
+  A("الظهر"), A("الوفرة"), A("علي صباح السالم"), A("الخيران"), A("صباح الأحمد"),
+  // الجهراء
+  A("الجهراء"), A("القصر"), A("النعيم"), A("النسيم"), A("الواحة"), A("تيماء"), A("العيون"),
+  A("الصليبية"), A("أمغرة"), A("سعد العبدالله"), A("الجهراء الصناعية"), A("القيروان"),
+  // مبارك الكبير
+  A("مبارك الكبير"), A("أبو فطيرة"), A("العدان"), A("القصور"), A("صباح السالم"), A("المسيلة"),
+  A("المسايل"), A("الفنيطيس"), A("صبحان"), A("القرين"), A("الأحمدي الصناعية"),
+];
+
 const DEFAULT_DATA = {
-  settings: { whatsapp: "96566348608", currency: "د.ك", directDiscount: 0.10, logo: "" },
+  settings: { whatsapp: "96566348608", currency: "د.ك", directDiscount: 0.10, logo: "", pickupEnabled: true, areas: DEFAULT_AREAS },
   menu: [
     {cat:"المجبوس والبرياني", items:[
       {id:1, name:"مجبوس لحم استرالي", desc:"Australian Meat Majboos", price:4.500, img:IMG("photo-1631292784640-2b24be784d5d")},
@@ -74,6 +102,18 @@ const DEFAULT_DATA = {
   ],
 };
 
+// يضمن وجود الحقول الجديدة (areas/pickup/prepTime/available) في البيانات القديمة
+function ensureFields(data){
+  if(!data || typeof data!=="object") data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  if(!data.settings) data.settings = {};
+  if(!Array.isArray(data.settings.areas) || !data.settings.areas.length) data.settings.areas = DEFAULT_AREAS;
+  if(data.settings.pickupEnabled == null) data.settings.pickupEnabled = true;
+  if(data.settings.currency == null) data.settings.currency = "د.ك";
+  if(!Array.isArray(data.menu)) data.menu = [];
+  data.menu.forEach(c=>{ (c.items||[]).forEach(it=>{ if(it.prepTime==null) it.prepTime=20; if(it.available==null) it.available=true; }); });
+  return data;
+}
+
 function readBody(req){
   if(req.body&&typeof req.body==="object")return Promise.resolve(req.body);
   if(typeof req.body==="string"){try{return Promise.resolve(JSON.parse(req.body||"{}"));}catch{return Promise.resolve({});}}
@@ -90,13 +130,14 @@ module.exports = async (req,res)=>{
     if(req.method==="GET"){
       let raw=await cmd(["GET","menu_data"]);
       if(!raw){ await cmd(["SET","menu_data",JSON.stringify(DEFAULT_DATA)]); raw=JSON.stringify(DEFAULT_DATA); }
+      const data = ensureFields(JSON.parse(raw));
       res.setHeader("Cache-Control","no-store");
-      return res.status(200).json(JSON.parse(raw));
+      return res.status(200).json(data);
     }
     if(req.method==="POST"){
       if(!isAdmin(req))return res.status(401).json({error:"unauthorized"});
       const b=await readBody(req);
-      const cur = JSON.parse((await cmd(["GET","menu_data"]))||JSON.stringify(DEFAULT_DATA));
+      const cur = ensureFields(JSON.parse((await cmd(["GET","menu_data"]))||JSON.stringify(DEFAULT_DATA)));
       const next = { menu: b.menu||cur.menu, settings: Object.assign({},cur.settings,b.settings||{}) };
       await cmd(["SET","menu_data",JSON.stringify(next)]);
       return res.status(200).json({ok:true});
