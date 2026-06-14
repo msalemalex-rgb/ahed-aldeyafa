@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--maroon:#6e1423;--maroon-dark:#4d0d18;--red:#8b1a1a;--gold:#c8962f;--gold-light:#e6c061;--gold-soft:#f0d896;--cream:#fdf6ea;--cream-2:#f7ecd8;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--shadow:0 18px 50px rgba(78,13,24,.16);--shadow-sm:0 8px 22px rgba(78,13,24,.10)}
+:root{--maroon:#6e1423;--maroon-dark:#4d0d18;--red:#8b1a1a;--gold:#c8962f;--gold-light:#e6c061;--gold-soft:#f0d896;--cream:#fdf6ea;--cream-2:#f7ecd8;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--green:#1faa54;--shadow:0 18px 50px rgba(78,13,24,.16);--shadow-sm:0 8px 22px rgba(78,13,24,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Tajawal',sans-serif;background:var(--cream);color:var(--ink);line-height:1.8;overflow-x:hidden}
@@ -23,6 +23,7 @@ a{color:inherit;text-decoration:none}
 .btn-wa{background:#1faa54;color:#fff}
 .btn-wa:hover{background:#178c44;transform:translateY(-3px)}
 .btn-outline{background:transparent;border:1.5px solid var(--gold-light);color:var(--gold-light)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none!important}
 .section{padding:90px 0;position:relative}
 .eyebrow{display:inline-block;color:var(--gold);font-family:'Cairo';font-weight:700;letter-spacing:3px;font-size:14px;margin-bottom:10px}
 .section-title{text-align:center;font-size:44px;color:var(--maroon);margin-bottom:6px}
@@ -63,18 +64,23 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
 .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.3s;border:1px solid var(--line)}
 .card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.card.soldout{opacity:.72}
+.card.soldout .thumb img{filter:grayscale(.7)}
 .card .thumb{height:200px;background:linear-gradient(135deg,var(--red),var(--maroon-dark));position:relative;overflow:hidden}
 .card .thumb img{width:100%;height:100%;object-fit:cover;transition:.5s}
 .card:hover .thumb img{transform:scale(1.08)}
 .card .thumb .badge-cat{position:absolute;top:12px;right:12px;z-index:2;background:rgba(78,13,24,.85);color:var(--gold-light);font-family:'Cairo';font-size:12px;font-weight:700;padding:5px 12px;border-radius:3px;border:1px solid var(--gold)}
+.soldout-ribbon{position:absolute;top:12px;left:12px;z-index:3;background:#c0392b;color:#fff;font-family:'Cairo';font-size:12px;font-weight:700;padding:5px 12px;border-radius:3px}
 .card .body{padding:20px 22px;display:flex;flex-direction:column;flex:1}
 .card h3{font-size:23px;color:var(--maroon);margin-bottom:6px}
-.card .desc{color:var(--muted);font-size:13px;margin-bottom:18px;flex:1}
+.card .desc{color:var(--muted);font-size:13px;margin-bottom:12px;flex:1}
+.card .prep{font-family:'Cairo';font-size:12px;color:var(--muted);margin-bottom:12px}
 .card .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .card .price{font-family:'Cairo';font-weight:900;color:var(--ink);font-size:20px}
 .card .price small{font-size:13px;color:var(--muted);font-weight:500}
 .add-btn{background:var(--maroon);color:var(--gold-light);border:none;font-family:'Cairo';font-weight:700;padding:10px 18px;border-radius:4px;cursor:pointer;transition:.25s;font-size:14px}
 .add-btn:hover{background:var(--gold);color:var(--maroon-dark)}
+.add-btn.disabled{background:#ddd;color:#999;cursor:not-allowed}
 .quote-band{background:var(--maroon-dark);color:#fff;text-align:center}
 .quote-band .container{padding:64px 22px}
 .quote-band .q{font-family:'Aref Ruqaa';font-size:32px;color:var(--gold-light);max-width:760px;margin:0 auto;line-height:1.6}
@@ -115,30 +121,45 @@ footer .social{display:flex;gap:14px;justify-content:center;margin:20px 0}
 footer .social a{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(230,192,97,.3)}
 footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .wa-float{position:fixed;bottom:26px;left:26px;background:#1faa54;color:#fff;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 28px rgba(31,170,84,.5);z-index:60}
+.float-cart{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140px);background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));color:var(--gold-light);border:1.5px solid var(--gold);border-radius:50px;padding:12px 12px 12px 22px;display:flex;align-items:center;gap:13px;box-shadow:0 14px 36px rgba(78,13,24,.45);z-index:65;cursor:pointer;transition:.35s;font-family:'Cairo';font-weight:700;max-width:92vw}
+.float-cart.show{transform:translateX(-50%) translateY(0)}
+.float-cart .fc-ic{font-size:22px}
+.float-cart .fc-sep{opacity:.4}
+.float-cart .fc-total{color:#fff}
+.float-cart .fc-go{background:var(--gold);color:var(--maroon-dark);padding:9px 16px;border-radius:50px;font-size:14px;white-space:nowrap}
 .cart-overlay{position:fixed;inset:0;background:rgba(40,8,12,.55);opacity:0;visibility:hidden;transition:.3s;z-index:100}
 .cart-overlay.open{opacity:1;visibility:visible}
-.cart-panel{position:fixed;top:0;left:0;height:100%;width:410px;max-width:92vw;background:var(--cream);z-index:101;transform:translateX(-100%);transition:.35s;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,0,0,.35)}
+.cart-panel{position:fixed;top:0;left:0;height:100%;width:430px;max-width:94vw;background:var(--cream);z-index:101;transform:translateX(-100%);transition:.35s;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,0,0,.35)}
 .cart-panel.open{transform:translateX(0)}
 .cart-head{background:var(--maroon);color:var(--gold-light);padding:22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold)}
 .cart-head h3{font-size:24px}
 .cart-close{background:none;border:none;color:var(--gold-light);font-size:28px;cursor:pointer}
-.cart-items{flex:1;overflow-y:auto;padding:18px}
-.cart-empty{text-align:center;color:var(--muted);padding:60px 20px}.cart-empty .big{font-size:64px;margin-bottom:12px}
+.cart-items{flex:1;overflow-y:auto;padding:18px;min-height:90px}
+.cart-empty{text-align:center;color:var(--muted);padding:40px 20px}.cart-empty .big{font-size:64px;margin-bottom:12px}
 .ci{display:flex;gap:13px;align-items:center;background:#fff;border-radius:8px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow-sm)}
 .ci .ci-img{width:54px;height:54px;border-radius:6px;object-fit:cover;background:linear-gradient(135deg,var(--red),var(--maroon-dark));flex-shrink:0}
 .ci .info{flex:1}.ci .info h4{font-size:15px;font-family:'Cairo';color:var(--maroon)}.ci .info .p{font-size:13px;color:var(--muted)}
 .qty{display:flex;align-items:center;gap:9px}
 .qty button{width:29px;height:29px;border-radius:50%;border:none;background:var(--gold);color:var(--maroon-dark);font-weight:900;cursor:pointer;font-size:16px}
 .qty span{font-family:'Cairo';font-weight:700;min-width:20px;text-align:center}
-.cart-foot{border-top:1px solid var(--line);padding:20px;background:#fff}
-.cart-total{display:flex;justify-content:space-between;font-family:'Cairo';font-weight:900;font-size:21px;color:var(--maroon);margin-bottom:6px}
-.cart-note{font-size:13px;color:var(--muted);margin-bottom:14px;text-align:center}
+.cart-foot{border-top:1px solid var(--line);padding:18px;background:#fff;max-height:64vh;overflow-y:auto}
+.deliv-toggle{display:flex;gap:10px;margin-bottom:14px}
+.dtg{flex:1;border:1.5px solid var(--line);background:var(--cream);color:var(--ink);font-family:'Cairo';font-weight:700;padding:11px;border-radius:8px;cursor:pointer;font-size:14px;transition:.2s}
+.dtg.active{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
+.cart-foot .field{margin-bottom:12px}
+.cart-foot .field label{font-size:13px}
+.cart-foot .field input,.cart-foot .field select{padding:11px;font-size:14px}
+.btn-locate{width:100%;background:rgba(200,150,47,.15);color:var(--maroon-dark);border:1.5px dashed var(--gold);font-family:'Cairo';font-weight:700;padding:11px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:12px}
+.prep-line{font-family:'Cairo';font-weight:700;font-size:13px;color:var(--maroon);background:rgba(110,20,35,.06);padding:9px;border-radius:6px;text-align:center;margin-bottom:12px}
+.sum-line{display:flex;justify-content:space-between;font-size:14px;color:var(--ink);margin-bottom:5px;font-family:'Cairo'}
+.sum-line.discount{color:var(--green)}
+.cart-total{display:flex;justify-content:space-between;font-family:'Cairo';font-weight:900;font-size:21px;color:var(--maroon);margin:8px 0 6px;padding-top:8px;border-top:1px dashed var(--line)}
+.min-warn{background:#fde8e8;color:#c0392b;font-family:'Cairo';font-weight:700;font-size:13px;padding:10px;border-radius:6px;text-align:center;margin-bottom:12px}
 .cart-foot .btn{width:100%;justify-content:center}
-.discount-tag{background:rgba(31,170,84,.12);color:#178c44;font-family:'Cairo';font-weight:700;font-size:13px;padding:9px;border-radius:6px;text-align:center;margin-bottom:13px}
-.toast{position:fixed;bottom:32px;right:50%;transform:translateX(50%) translateY(120px);background:var(--maroon);color:var(--gold-light);padding:15px 30px;border-radius:6px;font-family:'Cairo';font-weight:700;z-index:200;transition:.35s;box-shadow:var(--shadow);border:1px solid var(--gold)}
+.toast{position:fixed;bottom:32px;right:50%;transform:translateX(50%) translateY(120px);background:var(--maroon);color:var(--gold-light);padding:15px 30px;border-radius:6px;font-family:'Cairo';font-weight:700;z-index:200;transition:.35s;box-shadow:var(--shadow);border:1px solid var(--gold);max-width:90vw;text-align:center}
 .toast.show{transform:translateX(50%) translateY(0)}
 @media(max-width:980px){.hero .container,.about .container,.cat-wrap,.contact-grid{grid-template-columns:1fr}.hero h1{font-size:44px}.menu-grid{grid-template-columns:repeat(2,1fr)}.nav-links{position:fixed;top:78px;right:0;left:0;background:var(--maroon-dark);flex-direction:column;padding:24px;gap:18px;display:none;border-top:1px solid var(--gold)}.nav-links.open{display:flex}.menu-toggle{display:block}.about-img{order:-1}.section-title{font-size:34px}}
-@media(max-width:560px){.menu-grid{grid-template-columns:1fr}.hero h1{font-size:36px}.hero .frame{padding:34px 24px}.quote-band .q{font-size:24px}.section{padding:64px 0}}
+@media(max-width:560px){.menu-grid{grid-template-columns:1fr}.hero h1{font-size:36px}.hero .frame{padding:34px 24px}.quote-band .q{font-size:24px}.section{padding:64px 0}.float-cart{left:12px;right:12px;transform:translateX(0) translateY(140px);justify-content:space-between}.float-cart.show{transform:translateX(0) translateY(0)}}
 </style>
 </head>
 <body>
@@ -170,7 +191,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 <div class="feature-bar"><div class="container">
   <div class="f"><span class="ic">🔥</span> أكل طازج يومياً</div>
   <div class="f"><span class="ic">💳</span> دفع آمن بـ KNET</div>
-  <div class="f"><span class="ic">🛵</span> توصيل لحولي والمناطق القريبة</div>
+  <div class="f"><span class="ic">🛵</span> توصيل لكل مناطق الكويت</div>
   <div class="f"><span class="ic">📍</span> شارع شرحبيل بن حسنة</div>
 </div></div>
 <section class="section pattern" id="menu"><div class="container">
@@ -186,7 +207,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="pack"><div class="n">١٠</div><div><h4>صينية تكفّي ١٠ أشخاص</h4><p>مجبوس لحم/دجاج + أرز + سلطات</p></div></div>
       <div class="pack"><div class="n">٢٠</div><div><h4>صينية تكفّي ٢٠ شخص</h4><p>تشكيلة أطباق كويتية لليلة الديوانية</p></div></div>
       <div class="pack"><div class="n">٣٠</div><div><h4>بوفيه ٣٠ شخص فأكثر</h4><p>منيو متكامل + حلى للأعراس والمناسبات</p></div></div>
-      <div class="discount-tag" style="margin-top:8px">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
+      <div class="prep-line" style="margin-top:8px">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
     </div>
     <form class="cat-form" id="cateringForm" onsubmit="return submitCatering(event)">
       <h3>احجز عرض كاترينج</h3>
@@ -237,20 +258,43 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div class="cart-head"><h3>🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="discount-tag">✅ خصم ١٠٪ مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="deliv-toggle">
+      <button type="button" class="dtg active" id="tgDelivery" onclick="setDeliveryType('delivery')">🛵 توصيل</button>
+      <button type="button" class="dtg" id="tgPickup" onclick="setDeliveryType('pickup')">🏠 استلام</button>
+    </div>
+    <div id="deliveryBox">
+      <div class="field"><label>منطقة التوصيل</label><select id="areaSelect" onchange="onAreaChange()"><option value="">اختر منطقتك</option></select></div>
+      <button type="button" class="btn-locate" onclick="detectLocation()">📍 حدّد موقعي تلقائياً</button>
+      <div class="field"><label>العنوان (قطعة / شارع / منزل)</label><input id="custAddress" placeholder="قطعة، شارع، رقم المنزل"></div>
+    </div>
+    <div class="field"><label>الاسم</label><input id="custName" placeholder="اسمك"></div>
+    <div class="field"><label>رقم الهاتف</label><input id="custPhone" type="tel" placeholder="9XXXXXXX"></div>
+    <div class="prep-line" id="prepLine">⏱️ أضف أطباقك لمعرفة وقت التحضير</div>
+    <div class="sum-line"><span>المجموع</span><span id="sumSubtotal">0.000 د.ك</span></div>
+    <div class="sum-line discount"><span>خصم الأونلاين</span><span id="sumDiscount">0.000 د.ك</span></div>
+    <div class="sum-line" id="feeLine"><span>التوصيل</span><span id="sumFee">—</span></div>
     <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
-    <p class="cart-note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
-    <button class="btn btn-gold" onclick="checkoutKNET()">💳 ادفع الآن بـ KNET</button>
-    <button class="btn btn-wa" style="margin-top:10px" onclick="checkoutWhatsApp()">📲 أو اطلب عبر واتساب</button>
+    <div class="min-warn" id="minWarn" style="display:none"></div>
+    <button class="btn btn-gold" id="btnKnet" onclick="checkoutKNET()">💳 ادفع الآن بـ KNET</button>
+    <button class="btn btn-wa" id="btnWa" style="margin-top:10px" onclick="checkoutWhatsApp()">📲 أو اطلب عبر واتساب</button>
   </div>
 </aside>
+<div class="float-cart" id="floatCart" onclick="openCart()">
+  <span class="fc-ic">🛒</span>
+  <span><b id="fcCount">0</b> أصناف</span>
+  <span class="fc-sep">·</span>
+  <span class="fc-total" id="fcTotal">0.000 د.ك</span>
+  <span class="fc-go">عرض السلة ←</span>
+</div>
 <a class="wa-float" id="waFloat" target="_blank" title="واتساب">💬</a>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",pickupEnabled:true,areas:[],knet:{enabled:true,endpoint:"/api/checkout"}};
 let MENU=[];
 let cart={};
-const fmt=n=>n.toFixed(3)+" "+CONFIG.currency;
+let deliveryType="delivery";
+let selectedAreaName="";
+const fmt=n=>Number(n).toFixed(3)+" "+CONFIG.currency;
 const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
 function renderMenu(){
   const tabs=document.getElementById('menuTabs');tabs.innerHTML='';
@@ -259,43 +303,161 @@ function renderMenu(){
 }
 function showCat(i){
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
-  (MENU[i].items||[]).forEach(it=>{const d=document.createElement('div');d.className='card';
-    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${imgTag(it.img)}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div><button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button></div></div>`;
-    grid.appendChild(d);});
+  (MENU[i].items||[]).forEach(it=>{
+    const avail=it.available!==false;
+    const d=document.createElement('div');d.className='card'+(avail?'':' soldout');
+    const ribbon=avail?'':'<span class="soldout-ribbon">غير متاح</span>';
+    const btn=avail?`<button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button>`:`<button class="add-btn disabled" disabled>غير متاح</button>`;
+    const prep=it.prepTime?`<div class="prep">⏱️ يجهز خلال ${it.prepTime} دقيقة تقريباً</div>`:'';
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${ribbon}${imgTag(it.img)}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div>${prep}<div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div>${btn}</div></div>`;
+    grid.appendChild(d);
+  });
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
-function addItem(id){cart[id]=(cart[id]||0)+1;updateCart();const it=findItem(id);showToast(`✓ أُضيف ${it?it.name:''}`)}
+function addItem(id){const it=findItem(id);if(!it)return;if(it.available===false){showToast("الصنف غير متاح حالياً");return;}cart[id]=(cart[id]||0)+1;updateCart();showToast(`✓ أُضيف ${it.name}`)}
 function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart()}
 function cartArray(){return Object.keys(cart).map(id=>({it:findItem(+id),q:cart[id]})).filter(r=>r.it)}
 function subtotal(){return cartArray().reduce((s,r)=>s+r.it.price*r.q,0)}
-function total(){return subtotal()*(1-CONFIG.directDiscount)}
+function maxPrep(arr){return arr.reduce((m,r)=>Math.max(m,Number(r.it.prepTime)||0),0)}
 function count(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+function areaObj(){return (CONFIG.areas||[]).find(a=>a.name===selectedAreaName)||null}
+function computeTotals(){
+  const sub=subtotal();
+  const disc=sub*CONFIG.directDiscount;
+  let fee=0,ao=null;
+  if(deliveryType==="delivery"&&selectedAreaName){ao=areaObj();if(ao)fee=Number(ao.fee)||0;}
+  return {sub,disc,fee,grand:sub-disc+fee,ao};
+}
+function setDeliveryType(t){
+  deliveryType=t;
+  document.getElementById('tgDelivery').classList.toggle('active',t==="delivery");
+  document.getElementById('tgPickup').classList.toggle('active',t==="pickup");
+  document.getElementById('deliveryBox').style.display=t==="delivery"?"block":"none";
+  renderTotals();
+}
+function onAreaChange(){selectedAreaName=document.getElementById('areaSelect').value;renderTotals();}
+function populateAreas(){
+  const sel=document.getElementById('areaSelect');if(!sel)return;
+  sel.innerHTML='<option value="">اختر منطقتك</option>'+(CONFIG.areas||[]).map(a=>`<option value="${a.name}">${a.name}</option>`).join('');
+  if(selectedAreaName)sel.value=selectedAreaName;
+  document.getElementById('tgPickup').style.display=CONFIG.pickupEnabled?"":"none";
+}
+function norm(s){return (s||'').replace(/^ال/,'').replace(/[ً-ْ]/g,'').replace(/\s+/g,'').trim()}
+function matchArea(names){
+  for(const nm of names){const n=norm(nm);if(!n)continue;
+    for(const a of (CONFIG.areas||[])){const an=norm(a.name);if(an&&(an===n||an.includes(n)||n.includes(an)))return a.name;}
+  }
+  return null;
+}
+function detectLocation(){
+  if(!navigator.geolocation){showToast("المتصفح لا يدعم تحديد الموقع");return;}
+  showToast("⏳ جارٍ تحديد موقعك...");
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const la=pos.coords.latitude,lo=pos.coords.longitude;
+      const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${la}&longitude=${lo}&localityLanguage=ar`);
+      const d=await r.json();
+      const names=[];
+      if(d.locality)names.push(d.locality);
+      if(d.city)names.push(d.city);
+      if(d.principalSubdivision)names.push(d.principalSubdivision);
+      if(d.localityInfo&&d.localityInfo.administrative)d.localityInfo.administrative.forEach(a=>{if(a.name)names.push(a.name);});
+      const m=matchArea(names);
+      if(m){selectedAreaName=m;const sel=document.getElementById('areaSelect');if(sel)sel.value=m;renderTotals();showToast("📍 منطقتك: "+m);}
+      else showToast("ما قدرنا نحدد منطقتك بدقة، اختارها يدوياً");
+    }catch(e){showToast("تعذّر تحديد المنطقة، اختارها يدوياً");}
+  },err=>{showToast("اسمح بالوصول للموقع أو اختار منطقتك يدوياً");},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
 function updateCart(){
-  document.getElementById('cartCount').textContent=count();
+  const c=count();
+  document.getElementById('cartCount').textContent=c;
   const box=document.getElementById('cartItems');const arr=cartArray();
   if(!arr.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
   else{box.innerHTML=arr.map(r=>`<div class="ci">${imgTag(r.it.img,'ci-img')}<div class="info"><h4>${r.it.name}</h4><div class="p">${Number(r.it.price).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${r.it.id},-1)">−</button><span>${r.q}</span><button onclick="changeQty(${r.it.id},1)">＋</button></div></div>`).join('');}
-  document.getElementById('cartTotal').textContent=fmt(total());
+  const fc=document.getElementById('floatCart');
+  document.getElementById('fcCount').textContent=c;
+  renderTotals();
+  if(c>0)fc.classList.add('show');else fc.classList.remove('show');
+}
+function renderTotals(){
+  const t=computeTotals();const arr=cartArray();
+  document.getElementById('sumSubtotal').textContent=fmt(t.sub);
+  document.getElementById('sumDiscount').textContent="-"+fmt(t.disc);
+  const feeLine=document.getElementById('feeLine');
+  if(deliveryType==="pickup"){feeLine.style.display="none";}
+  else{feeLine.style.display="flex";document.getElementById('sumFee').textContent=selectedAreaName?(t.fee>0?fmt(t.fee):"مجاني"):"اختر المنطقة";}
+  document.getElementById('cartTotal').textContent=fmt(t.grand);
+  document.getElementById('fcTotal').textContent=fmt(t.grand);
+  const prep=maxPrep(arr);
+  document.getElementById('prepLine').textContent=arr.length?`⏱️ وقت التحضير المتوقع: ${prep} دقيقة`:"⏱️ أضف أطباقك لمعرفة وقت التحضير";
+  const warn=document.getElementById('minWarn');let block=false;
+  if(deliveryType==="delivery"&&t.ao&&Number(t.ao.minOrder)>0&&t.sub<Number(t.ao.minOrder)){
+    block=true;warn.style.display="block";
+    warn.textContent=`⚠️ الحد الأدنى للطلب في ${selectedAreaName} هو ${Number(t.ao.minOrder).toFixed(3)} د.ك — أضف بـ ${(Number(t.ao.minOrder)-t.sub).toFixed(3)} د.ك أكثر`;
+  }else{warn.style.display="none";}
+  document.getElementById('btnKnet').disabled=block;
+  document.getElementById('btnWa').disabled=block;
 }
 function openCart(){cartOverlay.classList.add('open');cartPanel.classList.add('open')}
 function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.remove('open')}
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
 function orderItemsText(a){return a.map(r=>`${r.it.name} ×${r.q}`).join("، ")}
-function saveOrder(channel){const a=cartArray();if(!a.length)return;try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:orderItemsText(a),total:Number(total().toFixed(3)),channel:channel})});}catch(_){}}
+function validateOrder(){
+  const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return null;}
+  const t=computeTotals();
+  if(deliveryType==="delivery"){
+    if(!selectedAreaName){showToast("اختر منطقة التوصيل أولاً");openCart();return null;}
+    if(t.ao&&Number(t.ao.minOrder)>0&&t.sub<Number(t.ao.minOrder)){showToast(`الحد الأدنى في ${selectedAreaName} هو ${Number(t.ao.minOrder).toFixed(3)} د.ك`);openCart();return null;}
+  }
+  const name=(document.getElementById('custName').value||'').trim();
+  const phone=(document.getElementById('custPhone').value||'').trim();
+  if(!name||!phone){showToast("اكتب الاسم ورقم الهاتف");openCart();return null;}
+  let address="";
+  if(deliveryType==="delivery"){address=(document.getElementById('custAddress').value||'').trim();if(!address){showToast("اكتب عنوان التوصيل");openCart();return null;}}
+  return {arr,t,name,phone,address};
+}
+async function createOrder(channel,v){
+  const prep=maxPrep(v.arr);
+  const body={
+    items:orderItemsText(v.arr),
+    subtotal:Number(v.t.sub.toFixed(3)),
+    total:Number(v.t.grand.toFixed(3)),
+    channel:channel,name:v.name,phone:v.phone,
+    deliveryType:deliveryType,
+    area:deliveryType==="delivery"?selectedAreaName:"",
+    deliveryFee:Number(v.t.fee.toFixed(3)),
+    prepTime:prep,address:v.address,
+    note:(deliveryType==="delivery"?("توصيل - "+selectedAreaName):"استلام من المطعم")+` • ⏱️ ${prep} دقيقة`
+  };
+  const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();return d.id;
+}
 function checkoutWhatsApp(){
-  const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
+  const v=validateOrder();if(!v)return;const t=v.t;const prep=maxPrep(v.arr);
   let msg="🍽️ *طلب جديد من موقع عهد الضيافة*%0A%0A";
-  arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q} — ${(r.it.price*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
-  msg+=`%0Aالإجمالي بعد الخصم: ${total().toFixed(3)} ${CONFIG.currency}%0A%0A📍 عنوان التوصيل: ____%0A📞 رقمي: ____`;
-  saveOrder("whatsapp");
+  v.arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q} — ${(r.it.price*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
+  msg+=`%0Aالمجموع: ${t.sub.toFixed(3)} ${CONFIG.currency}%0A`;
+  msg+=`خصم الأونلاين: -${t.disc.toFixed(3)} ${CONFIG.currency}%0A`;
+  if(deliveryType==="delivery")msg+=`التوصيل (${selectedAreaName}): ${t.fee.toFixed(3)} ${CONFIG.currency}%0A`;
+  else msg+=`الاستلام من المطعم 🏠%0A`;
+  msg+=`*الإجمالي: ${t.grand.toFixed(3)} ${CONFIG.currency}*%0A`;
+  msg+=`⏱️ وقت التحضير: ${prep} دقيقة%0A%0A`;
+  msg+=`👤 ${v.name}%0A📞 ${v.phone}`;
+  if(deliveryType==="delivery")msg+=`%0A📍 ${selectedAreaName} - ${v.address}`;
+  try{createOrder("whatsapp",v);}catch(_){}
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');
 }
 async function checkoutKNET(){
-  const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
-  saveOrder("knet");showToast("⏳ جارٍ تحويلك لصفحة الدفع...");
-  try{const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:Number(total().toFixed(3))})});const data=await res.json();
-    if(data.paymentUrl)window.location.href=data.paymentUrl;else showToast("⚠️ تعذّر بدء الدفع، حاول مرة أخرى");
+  const v=validateOrder();if(!v)return;
+  showToast("⏳ جارٍ تحويلك لصفحة الدفع...");
+  let orderId=null;
+  try{orderId=await createOrder("knet",v);}catch(_){}
+  try{
+    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:Number(v.t.grand.toFixed(3)),orderRef:orderId})});
+    const data=await res.json();
+    if(data.paymentUrl)window.location.href=data.paymentUrl;
+    else showToast("⚠️ تعذّر بدء الدفع. جرّب واتساب أو حاول لاحقاً");
   }catch(e){showToast("⚠️ خطأ في الاتصال بالدفع");}
 }
 function submitCatering(e){
@@ -305,7 +467,7 @@ function submitCatering(e){
   try{fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
-function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
+function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2600)}
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
@@ -318,7 +480,7 @@ function initScroll(){
 }
 function initPaymentStatus(){
   const q=new URLSearchParams(location.search);const p=q.get("payment");if(!p)return;
-  if(p==="success"){showToast("✅ تم الدفع بنجاح! شكراً لك");alert("✅ تم استلام دفعتك بنجاح.\nرقم الطلب: "+(q.get("ref")||"")+"\nسنتواصل معك لتأكيد التوصيل.");}
+  if(p==="success"){showToast("✅ تم الدفع بنجاح! شكراً لك");alert("✅ تم استلام دفعتك بنجاح.\nرقم الطلب: "+(q.get("ref")||"")+"\nسنتواصل معك لتأكيد التوصيل.");cart={};updateCart();}
   else if(p==="failed"){showToast("❌ لم تتم عملية الدفع");alert("❌ لم تكتمل عملية الدفع. حاول مرة أخرى أو اطلب عبر واتساب.");}
   history.replaceState({},"",location.pathname);
 }
@@ -326,9 +488,9 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){CONFIG.whatsapp=d.settings.whatsapp||CONFIG.whatsapp;if(d.settings.directDiscount!=null)CONFIG.directDiscount=d.settings.directDiscount;if(d.settings.currency)CONFIG.currency=d.settings.currency;CONFIG.logo=d.settings.logo||"";}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";if(Array.isArray(s.areas))CONFIG.areas=s.areas;if(s.pickupEnabled!=null)CONFIG.pickupEnabled=s.pickupEnabled;}
   }catch(e){}
-  renderMenu();updateCart();applySettings();
+  renderMenu();populateAreas();setDeliveryType("delivery");updateCart();applySettings();
 }
 applySettings();initScroll();initPaymentStatus();loadMenu();
 </script>
