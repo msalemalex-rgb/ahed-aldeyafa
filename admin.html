@@ -56,7 +56,16 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .view{display:none}.view.active{display:block}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(78,13,24,.08)}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-.item-head,.item-block{display:grid;grid-template-columns:40px 230px 200px minmax(70px,1fr) minmax(70px,1fr) minmax(60px,0.8fr) minmax(56px,0.7fr) minmax(56px,0.7fr);gap:5px;align-items:center}
+.item-head,.item-block{display:grid;grid-template-columns:38px 200px 175px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
+.opt-ic{background:rgba(110,20,35,.10);color:var(--maroon)}
+.oe-g{display:grid;grid-template-columns:1fr 1.6fr auto auto;gap:8px;align-items:center;margin-bottom:8px}
+.oe-g input[type=text],.oe-g>input{margin:0;padding:9px}
+.oe-req{display:flex;align-items:center;gap:5px;font-family:'Cairo';font-weight:700;font-size:13px;white-space:nowrap}
+.oe-req input{width:auto;margin:0;transform:scale(1.3)}
+.optedit-overlay{position:fixed;inset:0;background:rgba(40,8,12,.6);display:none;align-items:center;justify-content:center;z-index:120;padding:18px}
+.optedit-overlay.open{display:flex}
+.optedit-box{background:#fff;border-radius:12px;padding:20px;width:560px;max-width:95vw;max-height:88vh;overflow:auto;border-top:5px solid var(--gold)}
+.optedit-box h3{color:var(--maroon);margin-bottom:14px}
 .item-head{font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin:0 4px 5px;text-align:center}
 .item-block{border:1px solid var(--line);border-radius:8px;padding:5px 6px;margin-bottom:6px}
 .item-block input{margin:0;padding:9px 8px;width:100%;min-width:0}
@@ -128,6 +137,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     </div>
 
     <div class="view" id="view-menu">
+      <div style="margin-bottom:12px"><button class="btn" style="background:#178c44;width:auto;padding:11px 18px" onclick="applyNewItems()">➕ إضافة الصواني والكومبو والإضافات + خيارات الأطباق (مرة واحدة)</button></div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
       <div class="savebar"><button class="btn" onclick="saveMenu()">💾 حفظ المنيو</button></div>
@@ -157,6 +167,17 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
   </div>
 </div>
 
+<div class="optedit-overlay" id="optEditModal">
+  <div class="optedit-box">
+    <h3>خيارات: <span id="optEditTitle"></span></h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">الإضافات المجانية اللي يختارها العميل مع الصنف (بدون سعر). كل مجموعة = اختيار واحد.</p>
+    <div id="optEditBody"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="addbtn" onclick="addOEGroup()">+ إضافة مجموعة خيارات</button>
+      <button class="btn" style="width:auto;flex:1" onclick="closeOptEdit()">تم — احفظ المنيو بعدها</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -342,6 +363,7 @@ function renderMenuEditor(){
         <button class="avail-btn ${av?'avail-on':'avail-off'}" onclick="toggleAvail(${ci},${ii})">${av?'✅':'🚫'}</button>
         <label class="iconbtn up-ic" title="رفع صورة">📷<input type="file" accept="image/*" onchange="onItemImg(${ci},${ii},this)"></label>
         <button class="iconbtn del-ic" title="حذف الصنف" onclick="delItem(${ci},${ii})">🗑</button>
+        <button class="iconbtn opt-ic" title="خيارات الإضافات المجانية" onclick="editOpts(${ci},${ii})">⚙️</button>
       </div>`;
     }).join('');
     return `<div class="card">
@@ -349,7 +371,7 @@ function renderMenuEditor(){
         <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0">
         <button class="delx" onclick="delCat(${ci})">🗑</button>
       </div>
-      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span></div>`:''}
+      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
       ${items}
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
@@ -401,6 +423,78 @@ function saveSettings(){
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ الإعدادات":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
 }
+
+/* ===== إضافة الأصناف الجديدة + الخيارات (مرة واحدة) ===== */
+function gSide(){return {label:"الجانب",required:true,choices:["هريس","جريش","مرقوق خضار"]};}
+function gSoup(){return {label:"الشوربة",required:true,choices:["شوربة عدس","شوربة دجاج"]};}
+function gTray(){return {label:"مرق أو دقوس",required:false,choices:["مرق","دقوس","دقوس صبار","بدون"]};}
+function ensureCat(name){let c=DATA.menu.find(x=>x.cat===name);if(!c){c={cat:name,items:[]};DATA.menu.push(c);}return c;}
+function addItemTo(cat,name,price,desc,opts){const c=ensureCat(cat);const ex=c.items.find(i=>i.name===name);if(ex){ex.options=opts||ex.options||[];if(desc&&!ex.desc)ex.desc=desc;return;}c.items.push({id:Date.now()+Math.floor(Math.random()*99999),name:name,desc:desc||"",price:price,img:"",prepTime:30,available:true,options:opts||[]});}
+function applyNewItems(){
+  if(!confirm("هيتم: إضافة خيار (جانب+شوربة) لكل الأطباق الرئيسية، وإضافة صواني الديوانية وصواني السيباس ووجبات الكومبو والإضافات الناقصة. متأكد؟"))return;
+  const mainCats=["المجبوس والبرياني","المطبق والروبيان"];
+  DATA.menu.forEach(c=>{if(mainCats.includes(c.cat))c.items.forEach(it=>{it.options=[gSide(),gSoup()];});});
+  // وجبات كومبو
+  const combos=[
+    ["مجبوس لحم استرالي (كومبو)",6.75,"أرز البسمتي الفاخر مع 2 قطعة من اللحم الأسترالي و الحشو الكويتي و اللبن و التمر و الشوربة بالإضافة إلى المرق أو الدقوس و مرقوق او هريس او جريش اختياري مع السرفيس"],
+    ["مجبوس لحم عربي (كومبو)",8.25,"أرز البسمتي الفاخر مع 2 قطعة من اللحم العربي الطازج و الحشو الكويتي و الشوربة و اللبن و التمر بالإضافة إلى المرق أو الدقوس أو مرقوق او هريس او جريش اختياري مع السرفيس"],
+    ["مجبوس دجاج (كومبو)",5.25,"أرز البسمتي الفاخر مع نصف دجاجة مقلية و الحشو الكويتي و الشوربة و اللبن و التمر بالإضافة إلى المرق أو الدقوس أو هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["برياني لحم استرالي (كومبو)",7.5,"قطع من اللحم الأسترالي مع العظم مع الأرز الفاخر محضرة بالتوابل الشهية بالإضافة إلى الشوربة و المرق أو الدقوس او هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["برياني دجاج (كومبو)",5.5,"قطع من الدجاج مع العظم مع الأرز الفاخر محضرة بالتوابل الشهية بالإضافة إلى اللبن و التمر و الشوربة و المرق أو الدقوس أو هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["مطبق زبيدي (كومبو)",7.5,"سمكة واحدة وسط محشوة بحشوة خاصة محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى اللبن و التمر و الدقوس و هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["مربين روبيان طري (كومبو)",6.5,"من 10 ل 12 حبة روبيان حجم وسط يقدم مع الأرز الفاخر و الحشو المتميز بالتوابل الخاصة بالإضافة إلى التمر و اللبن و الشوربة و الدقوس و هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["مموش روبيان يابس (كومبو)",5.75,"أرز البسمتي الفاخر مع الماش و الروبيان المجفف المحضر بطريقة شهية بالإضافة إلى الشوربة و اللبن و التمر و الدقوس او الدقوس صبار مع هريس او جريش او مرقوق مع السرفيس"],
+    ["مموش روبيان طري (كومبو)",7,"من 10 ل 12 حبة روبيان حجم وسط يقدم مع الأرز الفاخر و الماش و الحشو المميز بالتوابل الخاصة بالإضافة إلى اللبن و التمر مع الدقوس او الدقوس صبار و مرقوق او هريس او جريش مع السرفيس"],
+    ["مطبق زبيدي ملكي (كومبو)",8.75,"سمكة واحدة وسط محشوة بحشوة خاصة محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى 6 ل 7 حبات روبيان محضرة بطريقة شهية مع اللبن و التمر و الشوربة و الدقوس و هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["مطبق سيباس ملكي (كومبو)",8.5,"سمكة واحدة وسط محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى 6 ل 7 حبات من الروبيان المحضرة بطريقة شهية و الدقوس و التمر و اللبن و الشوربة مع هريس او جريش او مرقوق اختياري مع السرفيس"],
+    ["مطبق سيباس (كومبو)",7,"سمكة واحدة وسط محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى الدقوس و التمر و اللبن و الشوربة مع هريس او جريش او مرقوق اختياري مع السرفيس"]
+  ];
+  combos.forEach(a=>addItemTo("وجبات كومبو",a[0],a[1],a[2],[gSide(),gSoup()]));
+  // صواني الديوانية
+  const trays=[
+    ["صينية مجبوس لحم استرالي تكفي 3 أشخاص",13,"أرز البسمتي الفاخر مع قطع من اللحم الأسترالي و الحشو الكويتي بالإضافة إلى المرق أو الدقوس اختياري مع السرفيس"],
+    ["صينية مجبوس لحم عربي تكفي 4 أشخاص",28.75,"أرز البسمتي الفاخر مع قطع من اللحم العربي الطازج و الحشو الكويتي بالإضافة إلى المرق أو الدقوس اختياري مع السرفيس"],
+    ["صينية مجبوس دجاج تكفي 5 أشخاص",13.75,"أرز البسمتي الفاخر مع 5 أنصاف من الدجاج مقلية و الحشو الكويتي بالإضافة إلى المرق أو الدقوس اختياري مع السرفيس"],
+    ["صينية برياني لحم استرالي تكفي 5 أشخاص",21.25,"قطع من اللحم الأسترالي مع العظم مع الأرز الفاخر محضرة بالتوابل الشهية بالإضافة إلى المرق أو الدقوس اختياري مع السرفيس"],
+    ["صينية برياني دجاج تكفي 5 أشخاص",15,"قطع من الدجاج مع العظم مع الأرز الفاخر محضرة بالتوابل الشهية بالإضافة إلى المرق أو الدقوس اختياري مع السرفيس"],
+    ["صينية مطبق زبيدي تكفي 5 أشخاص",23.75,"5 سمكات وسط محشوة بحشوة خاصة محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى الدقوس مع السرفيس"],
+    ["صينية مربين روبيان طري تكفي 5 أشخاص",20,"حبات من الروبيان حجم وسط يقدم مع الأرز الفاخر و الحشو المتميز بالتوابل الخاصة بالإضافة إلى الدقوس مع السرفيس"],
+    ["صينية مموش روبيان يابس تكفي 5 أشخاص",15,"أرز البسمتي الفاخر مع الماش و الروبيان المجفف المحضر بطريقة شهية بالإضافة إلى الدقوس مع السرفيس"],
+    ["صينية مموش روبيان طري تكفي 5 أشخاص",21.25,"حبات من الروبيان حجم وسط يقدم مع الأرز الفاخر و الماش و الحشو المميز بالتوابل الخاصة بالإضافة إلى الدقوس مع السرفيس"],
+    ["صينية مطبق سيباس تكفي 5 أشخاص",22.5,"5 سمكات وسط محضرة بالتوابل الشهية مع الأرز الفاخر بالإضافة إلى الدقوس مع السرفيس"]
+  ];
+  trays.forEach(a=>addItemTo("صواني الديوانية",a[0],a[1],a[2],[gTray()]));
+  // صواني السيباس
+  const seabass=[
+    ["صينية مطبق سيباس تكفي 3 أشخاص",14],["صينية مطبق سيباس تكفي 4 أشخاص",18.5],["صينية مطبق سيباس تكفي 5 أشخاص",23],
+    ["صينية مطبق سيباس تكفي 6 أشخاص",28.25],["صينية مطبق سيباس تكفي 7 أشخاص",32.75],["صينية مطبق سيباس تكفي 8 أشخاص",37.25],
+    ["صينية مطبق سيباس تكفي 9 أشخاص",41.75],["صينية مطبق سيباس تكفي 10 أشخاص",46.25]
+  ];
+  seabass.forEach(a=>addItemTo("صواني السيباس",a[0],a[1],a[1]+" سمكات محضرة بالتوابل الشهية مع الأرز بالإضافة إلى الدقوس و السرفيس",[gTray()]));
+  // إضافات ناقصة
+  [["سمن عداني",0],["مخلل",0],["معبوج أحمر",0],["معبوج أخضر",0],["دبل خضار",0]].forEach(a=>addItemTo("الإضافات",a[0],a[1],"",[]));
+  renderMenuEditor();
+  saveMenu();
+  toast("✅ تم إضافة الأصناف والخيارات — تأكد من الأسعار");
+}
+
+/* ===== محرّر خيارات الصنف ===== */
+let optCtx=null;
+function editOpts(ci,ii){optCtx={ci,ii};const it=DATA.menu[ci].items[ii];if(!it.options)it.options=[];renderOptEditor();document.getElementById('optEditModal').classList.add('open');}
+function closeOptEdit(){document.getElementById('optEditModal').classList.remove('open');optCtx=null;renderMenuEditor();}
+function renderOptEditor(){
+  const it=DATA.menu[optCtx.ci].items[optCtx.ii];
+  document.getElementById('optEditTitle').textContent=it.name;
+  document.getElementById('optEditBody').innerHTML=(it.options||[]).map((g,gi)=>`<div class="oe-g">
+    <input value="${(g.label||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${optCtx.ci}].items[${optCtx.ii}].options[${gi}].label=this.value" placeholder="اسم المجموعة (مثل: الجانب)">
+    <input value="${(g.choices||[]).join('، ').replace(/"/g,'&quot;')}" oninput="setOEChoices(${gi},this.value)" placeholder="الخيارات مفصولة بفاصلة">
+    <label class="oe-req"><input type="checkbox" ${g.required?'checked':''} onchange="DATA.menu[${optCtx.ci}].items[${optCtx.ii}].options[${gi}].required=this.checked"> إجباري</label>
+    <button class="delx" onclick="delOEGroup(${gi})">🗑</button>
+  </div>`).join('')||'<div style="color:var(--muted);font-size:13px">لا توجد خيارات — أضف مجموعة</div>';
+}
+function setOEChoices(gi,v){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices=v.split(/[،,]/).map(s=>s.trim()).filter(Boolean);}
+function addOEGroup(){DATA.menu[optCtx.ci].items[optCtx.ii].options.push({label:"",required:true,choices:[]});renderOptEditor();}
+function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,1);renderOptEditor();}
 
 /* استعادة الجلسة */
 (function(){try{const k=sessionStorage.getItem('ak');if(k){document.getElementById('pass').value=k;}}catch(_){}})();
