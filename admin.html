@@ -58,8 +58,14 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
 .item-head,.item-block{display:grid;grid-template-columns:38px 200px 175px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
 .opt-ic{background:rgba(110,20,35,.10);color:var(--maroon)}
-.oe-g{display:grid;grid-template-columns:1fr 1.6fr auto auto;gap:8px;align-items:center;margin-bottom:8px}
-.oe-g input[type=text],.oe-g>input{margin:0;padding:9px}
+.oe-group{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--cream)}
+.oe-ghead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.oe-ghead input{flex:1;margin:0;padding:9px}
+.oe-choices{padding:0 6px}
+.oe-c{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.oe-c input:first-child{flex:1;margin:0;padding:8px}
+.oe-c input[type=number]{width:96px;margin:0;padding:8px;text-align:center}
+.oe-cu{font-size:12px;color:var(--muted);font-family:'Cairo'}
 .oe-req{display:flex;align-items:center;gap:5px;font-family:'Cairo';font-weight:700;font-size:13px;white-space:nowrap}
 .oe-req input{width:auto;margin:0;transform:scale(1.3)}
 .optedit-overlay{position:fixed;inset:0;background:rgba(40,8,12,.6);display:none;align-items:center;justify-content:center;z-index:120;padding:18px}
@@ -425,9 +431,10 @@ function saveSettings(){
 }
 
 /* ===== إضافة الأصناف الجديدة + الخيارات (مرة واحدة) ===== */
-function gSide(){return {label:"الجانب",required:true,choices:["هريس","جريش","مرقوق خضار"]};}
-function gSoup(){return {label:"الشوربة",required:true,choices:["شوربة عدس","شوربة دجاج"]};}
-function gTray(){return {label:"مرق أو دقوس",required:false,choices:["مرق","دقوس","دقوس صبار","بدون"]};}
+function ch(n){return {name:n,price:0};}
+function gSide(){return {label:"الجانب",required:true,choices:[ch("هريس"),ch("جريش"),ch("مرقوق خضار")]};}
+function gSoup(){return {label:"الشوربة",required:true,choices:[ch("شوربة عدس"),ch("شوربة دجاج")]};}
+function gTray(){return {label:"مرق أو دقوس",required:false,choices:[ch("مرق"),ch("دقوس"),ch("دقوس صبار"),ch("بدون")]};}
 function ensureCat(name){let c=DATA.menu.find(x=>x.cat===name);if(!c){c={cat:name,items:[]};DATA.menu.push(c);}return c;}
 function addItemTo(cat,name,price,desc,opts){const c=ensureCat(cat);const ex=c.items.find(i=>i.name===name);if(ex){ex.options=opts||ex.options||[];if(desc&&!ex.desc)ex.desc=desc;return;}c.items.push({id:Date.now()+Math.floor(Math.random()*99999),name:name,desc:desc||"",price:price,img:"",prepTime:30,available:true,options:opts||[]});}
 function applyNewItems(){
@@ -480,19 +487,30 @@ function applyNewItems(){
 
 /* ===== محرّر خيارات الصنف ===== */
 let optCtx=null;
-function editOpts(ci,ii){optCtx={ci,ii};const it=DATA.menu[ci].items[ii];if(!it.options)it.options=[];renderOptEditor();document.getElementById('optEditModal').classList.add('open');}
+function editOpts(ci,ii){optCtx={ci,ii};const it=DATA.menu[ci].items[ii];if(!it.options)it.options=[];
+  // توحيد صيغة الاختيارات لتدعم السعر
+  it.options.forEach(g=>{g.choices=(g.choices||[]).map(c=>typeof c==='string'?{name:c,price:0}:{name:c.name||'',price:Number(c.price)||0});});
+  renderOptEditor();document.getElementById('optEditModal').classList.add('open');}
 function closeOptEdit(){document.getElementById('optEditModal').classList.remove('open');optCtx=null;renderMenuEditor();}
 function renderOptEditor(){
-  const it=DATA.menu[optCtx.ci].items[optCtx.ii];
+  const it=DATA.menu[optCtx.ci].items[optCtx.ii];const ci=optCtx.ci,ii=optCtx.ii;
   document.getElementById('optEditTitle').textContent=it.name;
-  document.getElementById('optEditBody').innerHTML=(it.options||[]).map((g,gi)=>`<div class="oe-g">
-    <input value="${(g.label||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${optCtx.ci}].items[${optCtx.ii}].options[${gi}].label=this.value" placeholder="اسم المجموعة (مثل: الجانب)">
-    <input value="${(g.choices||[]).join('، ').replace(/"/g,'&quot;')}" oninput="setOEChoices(${gi},this.value)" placeholder="الخيارات مفصولة بفاصلة">
-    <label class="oe-req"><input type="checkbox" ${g.required?'checked':''} onchange="DATA.menu[${optCtx.ci}].items[${optCtx.ii}].options[${gi}].required=this.checked"> إجباري</label>
-    <button class="delx" onclick="delOEGroup(${gi})">🗑</button>
-  </div>`).join('')||'<div style="color:var(--muted);font-size:13px">لا توجد خيارات — أضف مجموعة</div>';
+  document.getElementById('optEditBody').innerHTML=(it.options||[]).map((g,gi)=>`<div class="oe-group">
+    <div class="oe-ghead">
+      <input value="${(g.label||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].options[${gi}].label=this.value" placeholder="نوع الاختيار (مثل: الجانب / دبل)">
+      <label class="oe-req"><input type="checkbox" ${g.required?'checked':''} onchange="DATA.menu[${ci}].items[${ii}].options[${gi}].required=this.checked"> إجباري</label>
+      <button class="delx" onclick="delOEGroup(${gi})">🗑</button>
+    </div>
+    <div class="oe-choices">
+      ${(g.choices||[]).map((c,xi)=>`<div class="oe-c"><input value="${(c.name||'').replace(/"/g,'&quot;')}" oninput="setOEChoiceName(${gi},${xi},this.value)" placeholder="اسم الاختيار"><input type="number" step="0.05" value="${c.price||0}" oninput="setOEChoicePrice(${gi},${xi},this.value)" placeholder="سعر إضافي"><span class="oe-cu">د.ك</span><button class="delx" onclick="delOEChoice(${gi},${xi})">✕</button></div>`).join('')}
+      <button class="addbtn" onclick="addOEChoice(${gi})">+ اختيار</button>
+    </div>
+  </div>`).join('')||'<div style="color:var(--muted);font-size:13px">لا توجد أنواع اختيارات — أضف نوع</div>';
 }
-function setOEChoices(gi,v){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices=v.split(/[،,]/).map(s=>s.trim()).filter(Boolean);}
+function setOEChoiceName(gi,xi,v){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices[xi].name=v;}
+function setOEChoicePrice(gi,xi,v){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices[xi].price=parseFloat(v)||0;}
+function addOEChoice(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices.push({name:"",price:0});renderOptEditor();}
+function delOEChoice(gi,xi){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices.splice(xi,1);renderOptEditor();}
 function addOEGroup(){DATA.menu[optCtx.ci].items[optCtx.ii].options.push({label:"",required:true,choices:[]});renderOptEditor();}
 function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,1);renderOptEditor();}
 

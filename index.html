@@ -334,7 +334,11 @@ function showCat(i){
   });
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
-function optsText(opts){return (opts&&opts.length)?(' ('+opts.map(o=>o.choice).join('، ')+')'):'';}
+function cName(c){return typeof c==='string'?c:(c&&c.name||'');}
+function cPrice(c){return typeof c==='string'?0:(c&&Number(c.price)||0);}
+function optsPrice(opts){return (opts||[]).reduce((s,o)=>s+(Number(o.price)||0),0);}
+function linePrice(it,opts){return Number(it.price)+optsPrice(opts);}
+function optsText(opts){return (opts&&opts.length)?(' ('+opts.map(o=>o.choice+(Number(o.price)>0?` +${Number(o.price).toFixed(3)}`:'')).join('، ')+')'):'';}
 function addToCart(id,opts){
   opts=opts||[];
   const key=id+'#'+opts.map(o=>o.label+'='+o.choice).join('|');
@@ -349,23 +353,25 @@ function addItem(id){const it=findItem(id);if(!it)return;if(it.available===false
 function openOpts(it){
   optItem=it;optSel={};
   document.getElementById('optTitle').textContent=it.name;
-  document.getElementById('optBody').innerHTML=it.options.map((g,gi)=>`<div class="optg"><div class="optg-label">${g.label}${g.required?' <span style="color:#c0392b">*</span>':' (اختياري)'}</div><div class="optg-choices">${(g.choices||[]).map(c=>`<button type="button" class="optc" onclick="pickOpt(${gi},this)">${c}</button>`).join('')}</div></div>`).join('');
+  document.getElementById('optBody').innerHTML=it.options.map((g,gi)=>`<div class="optg"><div class="optg-label">${g.label}${g.required?' <span style="color:#c0392b">*</span>':' (اختياري)'}</div><div class="optg-choices">${(g.choices||[]).map((c,ci)=>{const nm=cName(c),pr=cPrice(c);return `<button type="button" class="optc" onclick="pickOpt(${gi},${ci})">${nm}${pr>0?` <small>+${pr.toFixed(3)}</small>`:''}</button>`;}).join('')}</div></div>`).join('');
   document.getElementById('optModal').classList.add('open');
 }
-function pickOpt(gi,btn){optSel[gi]=btn.textContent;btn.parentNode.querySelectorAll('.optc').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function pickOpt(gi,ci){const c=optItem.options[gi].choices[ci];optSel[gi]={name:cName(c),price:cPrice(c)};
+  const groups=document.querySelectorAll('#optBody .optg');const btns=groups[gi].querySelectorAll('.optc');btns.forEach(b=>b.classList.remove('sel'));btns[ci].classList.add('sel');
+}
 function closeOpts(){document.getElementById('optModal').classList.remove('open');optItem=null;}
 function confirmOpts(){
   if(!optItem)return;
   const opts=[];
   for(let gi=0;gi<optItem.options.length;gi++){const g=optItem.options[gi];
     if(optSel[gi]==null){if(g.required){showToast("اختر "+g.label);return;}else continue;}
-    opts.push({label:g.label,choice:optSel[gi]});
+    opts.push({label:g.label,choice:optSel[gi].name,price:optSel[gi].price});
   }
   addToCart(optItem.id,opts);showToast(`✓ أُضيف ${optItem.name}`);closeOpts();
 }
 function changeQty(idx,d){const l=cart[idx];if(!l)return;l.q+=d;if(l.q<=0)cart.splice(idx,1);updateCart();}
 function cartArray(){return cart.map(l=>({it:findItem(l.id),q:l.q,opts:l.opts})).filter(r=>r.it)}
-function subtotal(){return cartArray().reduce((s,r)=>s+r.it.price*r.q,0)}
+function subtotal(){return cartArray().reduce((s,r)=>s+linePrice(r.it,r.opts)*r.q,0)}
 function maxPrep(arr){return arr.reduce((m,r)=>Math.max(m,Number(r.it.prepTime)||0),0)}
 function count(){return cart.reduce((a,l)=>a+l.q,0)}
 function areaObj(){return (CONFIG.areas||[]).find(a=>a.name===selectedAreaName)||null}
@@ -421,7 +427,7 @@ function updateCart(){
   document.getElementById('cartCount').textContent=c;
   const box=document.getElementById('cartItems');const arr=cartArray();
   if(!arr.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
-  else{box.innerHTML=cart.map((l,idx)=>{const it=findItem(l.id);if(!it)return'';const op=(l.opts&&l.opts.length)?`<div class="ci-opts">${l.opts.map(o=>o.choice).join('، ')}</div>`:'';return `<div class="ci">${imgTag(it.img,'ci-img')}<div class="info"><h4>${it.name}</h4>${op}<div class="p">${Number(it.price).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${idx},-1)">−</button><span>${l.q}</span><button onclick="changeQty(${idx},1)">＋</button></div></div>`;}).join('');}
+  else{box.innerHTML=cart.map((l,idx)=>{const it=findItem(l.id);if(!it)return'';const op=(l.opts&&l.opts.length)?`<div class="ci-opts">${l.opts.map(o=>o.choice).join('، ')}</div>`:'';return `<div class="ci">${imgTag(it.img,'ci-img')}<div class="info"><h4>${it.name}</h4>${op}<div class="p">${linePrice(it,l.opts).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${idx},-1)">−</button><span>${l.q}</span><button onclick="changeQty(${idx},1)">＋</button></div></div>`;}).join('');}
   const fc=document.getElementById('floatCart');
   document.getElementById('fcCount').textContent=c;
   renderTotals();
@@ -484,7 +490,7 @@ async function createOrder(channel,v){
 function checkoutWhatsApp(){
   const v=validateOrder();if(!v)return;const t=v.t;const prep=maxPrep(v.arr);
   let msg="🍽️ *طلب جديد من موقع عهد الضيافة*%0A%0A";
-  v.arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q}${optsText(r.opts)} — ${(r.it.price*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
+  v.arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q}${optsText(r.opts)} — ${(linePrice(r.it,r.opts)*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
   msg+=`%0Aالمجموع: ${t.sub.toFixed(3)} ${CONFIG.currency}%0A`;
   msg+=`خصم الأونلاين: -${t.disc.toFixed(3)} ${CONFIG.currency}%0A`;
   if(deliveryType==="delivery")msg+=`التوصيل (${selectedAreaName}): ${t.fee.toFixed(3)} ${CONFIG.currency}%0A`;
