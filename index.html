@@ -252,8 +252,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="info-row"><span class="ic">📞</span><div class="t"><strong>الهاتف / واتساب</strong><span id="phoneText">—</span></div></div>
       <div class="info-row"><span class="ic">📷</span><div class="t"><strong>إنستجرام</strong><span>@ahedaldeyafa</span></div></div>
       <h3 style="margin-top:26px">أوقات العمل</h3>
-      <div class="hours-row"><span>السبت - الخميس</span><strong>١١ ص - ١٢ م</strong></div>
-      <div class="hours-row"><span>الجمعة</span><strong>١ ظ - ١٢ م</strong></div>
+      <div id="hoursBox"></div>
       <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap"><a href="#menu" class="btn btn-red">🍽️ اطلب الآن</a><a id="waContactBtn" class="btn btn-wa" target="_blank">📲 واتساب</a></div>
     </div>
     <iframe class="map-embed" loading="lazy" allowfullscreen src="https://www.google.com/maps?q=Hawalli+Sharhabeel+bin+Hasna+Street+Kuwait&output=embed"></iframe>
@@ -308,7 +307,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",pickupEnabled:true,areas:[],knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",pickupEnabled:true,areas:[],hours:[],knet:{enabled:true,endpoint:"/api/checkout"}};
 let MENU=[];
 let cart=[];
 let deliveryType="delivery";
@@ -528,6 +527,8 @@ function applySettings(){
   document.getElementById('phoneText').textContent="+"+CONFIG.whatsapp;
   document.getElementById('year').textContent=new Date().getFullYear();
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
+  const hb=document.getElementById('hoursBox');
+  if(hb){const hrs=(CONFIG.hours&&CONFIG.hours.length)?CONFIG.hours:[{days:'السبت - الخميس',time:'١١ ص - ١٢ م'},{days:'الجمعة',time:'١ ظ - ١٢ م'}];hb.innerHTML=hrs.map(h=>`<div class="hours-row"><span>${h.days}</span><strong>${h.time}</strong></div>`).join('');}
 }
 function initScroll(){
   const h=document.getElementById('header');const onS=()=>h.classList.toggle('scrolled',window.scrollY>40);window.addEventListener('scroll',onS);onS();
@@ -542,7 +543,7 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";if(Array.isArray(s.areas))CONFIG.areas=s.areas;if(s.pickupEnabled!=null)CONFIG.pickupEnabled=s.pickupEnabled;}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";if(Array.isArray(s.areas))CONFIG.areas=s.areas;if(s.pickupEnabled!=null)CONFIG.pickupEnabled=s.pickupEnabled;if(Array.isArray(s.hours))CONFIG.hours=s.hours;}
   }catch(e){}
   renderMenu();populateAreas();setDeliveryType("delivery");updateCart();applySettings();
 }

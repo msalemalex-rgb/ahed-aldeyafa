@@ -90,6 +90,8 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .area-head{display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:8px;font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
 .area-row{display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .area-row input{margin:0;padding:9px;font-size:14px}
+.hour-row{display:grid;grid-template-columns:1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
+.hour-row input{margin:0;padding:9px;font-size:14px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:'Cairo';font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
 .toast.show{opacity:1}
 .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--cream) 40%);padding:14px 0 4px;display:flex;gap:10px}
@@ -159,6 +161,9 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="fld">نسبة خصم الطلب المباشر (مثال 0.10 = ١٠٪)</label>
         <input id="setDisc" type="number" step="0.01" placeholder="0.10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
+        <label class="fld">مواعيد العمل</label>
+        <div id="hoursBox"></div>
+        <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
       </div>
       <div class="card">
         <label class="fld">مناطق التوصيل — الرسوم والحد الأدنى لكل منطقة (بالدينار)</label>
@@ -351,6 +356,7 @@ function loadMenuData(){
   fetch('/api/menu').then(r=>r.json()).then(d=>{
     DATA.menu=d.menu||[]; DATA.settings=d.settings||{};
     if(!Array.isArray(DATA.settings.areas))DATA.settings.areas=[];
+    if(!Array.isArray(DATA.settings.hours)||!DATA.settings.hours.length)DATA.settings.hours=[{days:"السبت - الخميس",time:"١١ ص - ١٢ م"},{days:"الجمعة",time:"١ ظ - ١٢ م"}];
     renderMenuEditor(); fillSettings(); renderAreas('');
   }).catch(()=>{});
 }
@@ -412,11 +418,19 @@ function addArea(){DATA.settings.areas.unshift({name:"منطقة جديدة",fee
 function delArea(i){if(!confirm("حذف هذه المنطقة؟"))return;DATA.settings.areas.splice(i,1);renderAreas(document.getElementById('areaFilter').value);}
 
 /* ===== الإعدادات ===== */
+function renderHours(){
+  const box=document.getElementById('hoursBox');if(!box)return;
+  const hrs=DATA.settings.hours||[];
+  box.innerHTML=hrs.map((h,i)=>`<div class="hour-row"><input value="${(h.days||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].days=this.value" placeholder="الأيام (السبت - الخميس)"><input value="${(h.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].time=this.value" placeholder="الوقت (١١ص - ١٢م)"><button class="delx" onclick="delHour(${i})">🗑</button></div>`).join('');
+}
+function addHour(){if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];DATA.settings.hours.push({days:"",time:""});renderHours();}
+function delHour(i){DATA.settings.hours.splice(i,1);renderHours();}
 function fillSettings(){
   const s=DATA.settings||{};
   document.getElementById('setWa').value=s.whatsapp||"";
   document.getElementById('setDisc').value=(s.directDiscount!=null?s.directDiscount:0.10);
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
+  renderHours();
   const lp=document.getElementById('logoPrev');
   if(s.logo){lp.src=s.logo;lp.style.display='block';}else{lp.style.display='none';}
 }
