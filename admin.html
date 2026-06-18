@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة تحكم - عهد الضيافة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--maroon:#6e1423;--maroon-dark:#4d0d18;--gold:#c8962f;--gold-light:#e6c061;--cream:#fdf6ea;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--green:#1faa54}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -145,7 +146,10 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     </div>
 
     <div class="view" id="view-menu">
-      <div style="margin-bottom:12px"><button class="btn" style="background:#178c44;width:auto;padding:11px 18px" onclick="applyNewItems()">➕ إضافة الصواني والكومبو والإضافات + خيارات الأطباق (مرة واحدة)</button></div>
+      <div style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" style="background:#2563c9;width:auto;padding:11px 18px" onclick="exportMenu()">📥 تصدير المنيو (Excel)</button>
+        <label class="btn" style="background:#9a6b00;width:auto;padding:11px 18px;cursor:pointer">📤 استيراد المنيو (Excel)<input type="file" accept=".xlsx,.xls" onchange="importMenu(this)" style="display:none"></label>
+      </div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
       <div class="savebar"><button class="btn" onclick="saveMenu()">💾 حفظ المنيو</button></div>
@@ -442,6 +446,74 @@ function saveSettings(){
   if(DATA.settings.currency==null)DATA.settings.currency="د.ك";
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ الإعدادات":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
+}
+
+/* ===== تصدير / استيراد المنيو (Excel) ===== */
+function _cN(c){return typeof c==='string'?c:(c&&c.name||'');}
+function _cP(c){return typeof c==='string'?0:(c&&Number(c.price)||0);}
+function encOpts(opts){return (opts||[]).map(g=>{const lbl=(g.label||'')+(g.required?'*':'');const ch=(g.choices||[]).map(c=>{const n=_cN(c),p=_cP(c);return p>0?(n+'('+p.toFixed(3)+')'):n;}).join(' ، ');return lbl+' = '+ch;}).join(' ؛ ');}
+function parseOpts(text){
+  if(!text||!(''+text).trim())return [];
+  return (''+text).split(/[؛;]/).map(s=>s.trim()).filter(Boolean).map(part=>{
+    const eq=part.split('=');const lblRaw=(eq[0]||'').trim();const rest=eq.slice(1).join('=').trim();
+    const required=/\*\s*$/.test(lblRaw);const label=lblRaw.replace(/\*\s*$/,'').trim();
+    const choices=rest.split(/[،,]/).map(c=>c.trim()).filter(Boolean).map(c=>{const m=c.match(/^(.*?)\(\s*([\d.]+)\s*\)\s*$/);return m?{name:m[1].trim(),price:parseFloat(m[2])||0}:{name:c,price:0};});
+    return {label:label,required:required,choices:choices};
+  });
+}
+function exportMenu(){
+  if(!window.XLSX){toast("جارٍ تحميل المكتبة، حاول بعد ثانية");return;}
+  const header=["ID","القسم","اسم الصنف","السعر (د.ك)","وقت التحضير (د)","متاح","الوصف","الاختيارات"];
+  const aoa=[header];
+  DATA.menu.forEach(c=>c.items.forEach(it=>{aoa.push([it.id,c.cat,it.name,Number(it.price)||0,(it.prepTime!=null?it.prepTime:''),(it.available!==false)?"نعم":"لا",it.desc||"",encOpts(it.options)]);}));
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:14},{wch:22},{wch:24},{wch:11},{wch:13},{wch:8},{wch:30},{wch:55}];
+  ws['!views']=[{RTL:true}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"المنيو");
+  XLSX.writeFile(wb,"منيو_عهد_الضيافة.xlsx");
+  toast("📥 تم تنزيل ملف المنيو (Downloads)");
+}
+function importMenu(inp){
+  const f=inp.files[0];if(!f)return;
+  if(!window.XLSX){toast("جارٍ تحميل المكتبة، حاول تاني");inp.value='';return;}
+  const rd=new FileReader();
+  rd.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(!rows.length){toast("❌ الملف فاضي");return;}
+      const head=rows[0].map(h=>(''+h).trim());
+      const idx=n=>head.indexOf(n);
+      const cID=idx("ID"),cCat=idx("القسم"),cName=idx("اسم الصنف"),cPrice=idx("السعر (د.ك)"),cPrep=idx("وقت التحضير (د)"),cAv=idx("متاح"),cDesc=idx("الوصف"),cOpt=idx("الاختيارات");
+      if(cCat<0||cName<0){toast("❌ الأعمدة غير صحيحة — صدّر الملف الأول وعدّل عليه");return;}
+      const oldById={};DATA.menu.forEach(c=>c.items.forEach(it=>{oldById[it.id]=it;}));
+      const newMenu=[];const catMap={};
+      for(let i=1;i<rows.length;i++){const r=rows[i];if(!r)continue;
+        const cat=(''+(r[cCat]||'')).trim();const nm=(''+(r[cName]||'')).trim();
+        if(!cat&&!nm)continue;
+        let c=catMap[cat];if(!c){c={cat:cat,items:[]};catMap[cat]=c;newMenu.push(c);}
+        const id=cID>=0?r[cID]:'';const old=(id!==''&&oldById[id])?oldById[id]:null;
+        const optTxt=cOpt>=0?(''+(r[cOpt]||'')).trim():'';
+        c.items.push({
+          id: old?old.id:(Date.now()+Math.floor(Math.random()*99999)+i),
+          name:nm,
+          desc:cDesc>=0?(''+(r[cDesc]||'')):'',
+          price:cPrice>=0?(parseFloat(r[cPrice])||0):0,
+          prepTime:cPrep>=0?(parseInt(r[cPrep])||0):0,
+          available: cAv>=0? !/^(لا|غير|no|false|0)\b/i.test((''+(r[cAv]||'')).trim()) : true,
+          img: old?old.img:'',
+          options: optTxt? parseOpts(optTxt) : (old?(old.options||[]):[])
+        });
+      }
+      const total=newMenu.reduce((a,c)=>a+c.items.length,0);
+      if(!total){toast("❌ مفيش أصناف في الملف");return;}
+      if(!confirm("سيتم استبدال المنيو بالكامل بالملف ("+total+" صنف في "+newMenu.length+" قسم). متأكد؟"))return;
+      DATA.menu=newMenu;renderMenuEditor();saveMenu();
+      toast("✅ تم استيراد المنيو وحفظه");
+    }catch(err){toast("❌ خطأ في قراءة الملف: "+err.message);}
+  };
+  rd.readAsBinaryString(f);inp.value='';
 }
 
 /* ===== إضافة الأصناف الجديدة + الخيارات (مرة واحدة) ===== */
