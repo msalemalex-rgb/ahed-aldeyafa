@@ -1,5 +1,7 @@
 // /api/reservations — POST: إنشاء حجز | GET: قائمة (أدمن) | PATCH: تحديث الحالة (أدمن)
-const { addReservation, listReservations, cmd } = require("../lib/kv");
+const { addReservation, listReservations, cmd, rateHit } = require("../lib/kv");
+
+const clientIp = (req) => ((req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || "x";
 
 function readBody(req){
   if(req.body&&typeof req.body==="object")return Promise.resolve(req.body);
@@ -21,7 +23,10 @@ module.exports = async (req,res)=>{
       return res.status(200).json({ok:true,id:r.id});
     }
     if(req.method==="GET"){
-      if(!isAdmin(req))return res.status(401).json({error:"unauthorized"});
+      if(!isAdmin(req)){
+        const blocked=await rateHit("auth:"+clientIp(req),20,900);
+        return res.status(blocked?429:401).json({error: blocked?"too_many_attempts":"unauthorized"});
+      }
       return res.status(200).json({reservations:await listReservations(300)});
     }
     if(req.method==="PATCH"){
@@ -32,5 +37,5 @@ module.exports = async (req,res)=>{
       return res.status(404).json({error:"not found"});
     }
     return res.status(405).json({error:"method"});
-  }catch(e){return res.status(500).json({error:e.message});}
+  }catch(e){return res.status(500).json({error:"server_error"});}
 };

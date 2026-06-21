@@ -143,5 +143,5 @@ module.exports = async (req,res)=>{
       return res.status(200).json({ok:true});
     }
     return res.status(405).json({error:"method"});
-  }catch(e){return res.status(500).json({error:e.message});}
+  }catch(e){return res.status(500).json({error:"server_error"});}
 };

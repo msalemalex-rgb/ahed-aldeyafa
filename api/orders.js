@@ -1,5 +1,6 @@
 // /api/orders — POST: إنشاء طلب | GET: قائمة الطلبات (أدمن) | PATCH: تحديث الحالة (أدمن)
-const { addOrder, listOrders, setOrderStatus } = require("../lib/kv");
+const { addOrder, listOrders, setOrderStatus, rateHit } = require("../lib/kv");
+const clientIp = (req) => ((req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || "x";
 
 function readBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
@@ -34,7 +35,10 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, id: order.id });
     }
     if (req.method === "GET") {
-      if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
+      if (!isAdmin(req)) {
+        const blocked = await rateHit("auth:" + clientIp(req), 20, 900);
+        return res.status(blocked ? 429 : 401).json({ error: blocked ? "too_many_attempts" : "unauthorized" });
+      }
       const all = await listOrders(300);
       // إخفاء الطلبات المعلّقة (لم يتأكد دفعها) والفاشلة
       const visible = all.filter(o => o.status !== "pending" && o.status !== "failed");
@@ -47,5 +51,5 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, order: o });
     }
     return res.status(405).json({ error: "method" });
-  } catch (e) { return res.status(500).json({ error: e.message }); }
+  } catch (e) { return res.status(500).json({ error: "server_error" }); }
 };
