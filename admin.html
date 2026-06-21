@@ -199,13 +199,16 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true;
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function akHdr(){return {'x-admin-key':KEY};}
 
 function doLogin(e){
   e.preventDefault();
   const p=document.getElementById('pass').value.trim();
   if(!p){return false;}
   KEY=p;
-  fetch('/api/orders?key='+encodeURIComponent(KEY)).then(r=>{
+  fetch('/api/orders',{headers:akHdr()}).then(r=>{
+    if(r.status===429){document.getElementById('loginErr').textContent="محاولات كثيرة — انتظر ١٥ دقيقة";return;}
     if(r.status===401){document.getElementById('loginErr').textContent="كلمة السر غير صحيحة";return;}
     if(!r.ok){document.getElementById('loginErr').textContent="خطأ في الاتصال";return;}
     try{sessionStorage.setItem('ak',KEY);}catch(_){}
@@ -263,7 +266,7 @@ document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended"
 /* ===== الطلبات ===== */
 function loadOrders(){
   if(!KEY)return;
-  fetch('/api/orders?key='+encodeURIComponent(KEY)).then(r=>r.json()).then(d=>{
+  fetch('/api/orders',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.orders)return;
     let fresh=0;
     d.orders.forEach(o=>{ if(!seen.has(o.id)){ seen.add(o.id); if(!first && o.status==="new") fresh++; } });
@@ -283,21 +286,23 @@ function renderOrders(){
     const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
     const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done']};
     const st=stMap[o.status]||stMap.new;
-    const meta=[o.name,o.phone].filter(Boolean).join(' • ');
+    const meta=[o.name,o.phone].filter(Boolean).map(esc).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
     const dparts=[];
     if(dtype)dparts.push(dtype);
-    if(o.area)dparts.push('📍 '+o.area);
-    if(o.address)dparts.push(o.address);
+    if(o.area)dparts.push('📍 '+esc(o.area));
+    if(o.address)dparts.push(esc(o.address));
     if(o.deliveryFee)dparts.push('رسوم التوصيل: '+Number(o.deliveryFee).toFixed(3)+' د.ك');
-    if(o.prepTime)dparts.push('⏱️ '+o.prepTime+' دقيقة');
+    if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
+    const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web'})[o.channel]||'web';
+    const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':esc(o.channel));
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
-        <div><span class="oid">${o.id}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
-        <div style="text-align:left"><span class="chan ${o.channel}">${o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':o.channel)}</span><div class="time">${t}</div></div>
+        <div><span class="oid">${esc(o.id)}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
+        <div style="text-align:left"><span class="chan ${chanCls}">${chanTxt}</span><div class="time">${t}</div></div>
       </div>
-      <div class="items">${o.items}</div>
+      <div class="items">${esc(o.items)}</div>
       <div class="total">${Number(o.total).toFixed(3)} د.ك</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
@@ -316,7 +321,7 @@ function updOrder(id,status){
 /* ===== الحجوزات ===== */
 function loadReservations(){
   if(!KEY)return;
-  fetch('/api/reservations?key='+encodeURIComponent(KEY)).then(r=>r.json()).then(d=>{
+  fetch('/api/reservations',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
@@ -334,13 +339,13 @@ function renderReservations(){
     const stMap={new:['جديد','st-new'],confirmed:['مؤكد','st-confirmed'],done:['تم','st-done'],cancelled:['ملغي','st-cancelled']};
     const st=stMap[r.status]||stMap.new;
     const d=r.date?new Date(r.date).toLocaleString('ar-KW',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-    const meta=[r.type,r.count?('عدد: '+r.count):'',r.notes].filter(Boolean).join(' • ');
+    const meta=[r.type,r.count?('عدد: '+r.count):'',r.notes].filter(Boolean).map(esc).join(' • ');
     return `<div class="order">
       <div class="top">
-        <div><span class="oid">${r.name||'بدون اسم'}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
+        <div><span class="oid">${esc(r.name||'بدون اسم')}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
         <div style="text-align:left"><div class="time">📅 ${d}</div></div>
       </div>
-      <div class="meta">📞 ${r.phone||'—'}</div>
+      <div class="meta">📞 ${esc(r.phone||'—')}</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
       <div class="actions">
         ${r.status!=='confirmed'?`<button class="sbtn done" onclick="updRes('${r.id}','confirmed')">✅ تأكيد</button>`:''}

@@ -314,7 +314,8 @@ let deliveryType="delivery";
 let selectedAreaName="";
 let optItem=null, optSel={};
 const fmt=n=>Number(n).toFixed(3)+" "+CONFIG.currency;
-const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
+const esc=s=>(''+(s==null?'':s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const imgTag=(src,cls)=>`<img class="${cls||''}" src="${esc(src)}" loading="lazy" alt="" onerror="this.style.display='none'">`;
 function renderMenu(){
   const tabs=document.getElementById('menuTabs');tabs.innerHTML='';
   MENU.forEach((c,i)=>{const b=document.createElement('button');b.className='menu-tab'+(i===0?' active':'');b.textContent=c.cat;b.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));b.classList.add('active');showCat(i)};tabs.appendChild(b);});
@@ -327,8 +328,8 @@ function showCat(i){
     const d=document.createElement('div');d.className='card'+(avail?'':' soldout');
     const ribbon=avail?'':'<span class="soldout-ribbon">غير متاح</span>';
     const btn=avail?`<button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button>`:`<button class="add-btn disabled" disabled>غير متاح</button>`;
-    const prep=it.prepTime?`<div class="prep">⏱️ يجهز خلال ${it.prepTime} دقيقة تقريباً</div>`:'';
-    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${ribbon}${imgTag(it.img)}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div>${prep}<div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div>${btn}</div></div>`;
+    const prep=it.prepTime?`<div class="prep">⏱️ يجهز خلال ${parseInt(it.prepTime)||0} دقيقة تقريباً</div>`:'';
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${esc(MENU[i].cat)}</span>${ribbon}${imgTag(it.img)}</div><div class="body"><h3>${esc(it.name)}</h3><div class="desc">${esc(it.desc||'')}</div>${prep}<div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${esc(CONFIG.currency)}</small></div>${btn}</div></div>`;
     grid.appendChild(d);
   });
 }
@@ -352,7 +353,7 @@ function addItem(id){const it=findItem(id);if(!it)return;if(it.available===false
 function openOpts(it){
   optItem=it;optSel={};
   document.getElementById('optTitle').textContent=it.name;
-  document.getElementById('optBody').innerHTML=it.options.map((g,gi)=>`<div class="optg"><div class="optg-label">${g.label}${g.required?' <span style="color:#c0392b">*</span>':' (اختياري)'}</div><div class="optg-choices">${(g.choices||[]).map((c,ci)=>{const nm=cName(c),pr=cPrice(c);return `<button type="button" class="optc" onclick="pickOpt(${gi},${ci})">${nm}${pr>0?` <small>+${pr.toFixed(3)}</small>`:''}</button>`;}).join('')}</div></div>`).join('');
+  document.getElementById('optBody').innerHTML=it.options.map((g,gi)=>`<div class="optg"><div class="optg-label">${esc(g.label)}${g.required?' <span style="color:#c0392b">*</span>':' (اختياري)'}</div><div class="optg-choices">${(g.choices||[]).map((c,ci)=>{const nm=cName(c),pr=cPrice(c);return `<button type="button" class="optc" onclick="pickOpt(${gi},${ci})">${esc(nm)}${pr>0?` <small>+${pr.toFixed(3)}</small>`:''}</button>`;}).join('')}</div></div>`).join('');
   document.getElementById('optModal').classList.add('open');
 }
 function pickOpt(gi,ci){const c=optItem.options[gi].choices[ci];optSel[gi]={name:cName(c),price:cPrice(c)};
@@ -426,7 +427,7 @@ function updateCart(){
   document.getElementById('cartCount').textContent=c;
   const box=document.getElementById('cartItems');const arr=cartArray();
   if(!arr.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
-  else{box.innerHTML=cart.map((l,idx)=>{const it=findItem(l.id);if(!it)return'';const op=(l.opts&&l.opts.length)?`<div class="ci-opts">${l.opts.map(o=>o.choice).join('، ')}</div>`:'';return `<div class="ci">${imgTag(it.img,'ci-img')}<div class="info"><h4>${it.name}</h4>${op}<div class="p">${linePrice(it,l.opts).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${idx},-1)">−</button><span>${l.q}</span><button onclick="changeQty(${idx},1)">＋</button></div></div>`;}).join('');}
+  else{box.innerHTML=cart.map((l,idx)=>{const it=findItem(l.id);if(!it)return'';const op=(l.opts&&l.opts.length)?`<div class="ci-opts">${esc(l.opts.map(o=>o.choice).join('، '))}</div>`:'';return `<div class="ci">${imgTag(it.img,'ci-img')}<div class="info"><h4>${esc(it.name)}</h4>${op}<div class="p">${linePrice(it,l.opts).toFixed(3)} ${esc(CONFIG.currency)}</div></div><div class="qty"><button onclick="changeQty(${idx},-1)">−</button><span>${l.q}</span><button onclick="changeQty(${idx},1)">＋</button></div></div>`;}).join('');}
   const fc=document.getElementById('floatCart');
   document.getElementById('fcCount').textContent=c;
   renderTotals();
