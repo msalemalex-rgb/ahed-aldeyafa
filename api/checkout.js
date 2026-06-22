@@ -1,6 +1,7 @@
 // POST /api/checkout — ينشئ طلب دفع Hesabe ويرجّع رابط صفحة الدفع
 // (وضع تجربة: أضف ?sandbox=1 لاستخدام مفاتيح Hesabe التجريبية العامة)
 const { encrypt, decrypt } = require("../lib/hesabeCrypt");
+const crypto = require("crypto");
 
 async function readBody(req) {
   if (req.body !== undefined && req.body !== null) {
@@ -28,11 +29,20 @@ module.exports = async (req, res) => {
     const iv = process.env.HSB_IV_KEY || "";
     const ac = process.env.HSB_ACCESS_CODE || "";
     const mc = process.env.HSB_MERCHANT_CODE || "";
+    // اختبار ذاتي: نفكّ أول بلوك من رد حقيقي بمفاتيح البيئة — لو طلع JSON فالمفاتيح صح
+    let selftest;
+    try {
+      const C1 = Buffer.from("c3b594ae55e0cb8dd7e304c76768b214", "hex");
+      const dd = crypto.createDecipheriv("aes-256-cbc", Buffer.from(k, "utf8"), Buffer.from(iv, "utf8"));
+      dd.setAutoPadding(false);
+      selftest = dd.update(C1).toString("utf8");
+    } catch (e) { selftest = "ERR:" + e.message; }
     return res.status(200).json({
       encLen: k.length, encFirst2: k.slice(0, 2), encLast2: k.slice(-2),
       ivLen: iv.length, ivFirst2: iv.slice(0, 2), ivLast2: iv.slice(-2),
       accessLen: ac.length, accessFirst4: ac.slice(0, 4),
-      merchant: mc, base: (process.env.HSB_BASE_URL || ""), payType: (process.env.HSB_PAYMENT_TYPE || ""), site: (process.env.SITE_URL || "")
+      merchant: mc, base: (process.env.HSB_BASE_URL || ""), payType: (process.env.HSB_PAYMENT_TYPE || ""), site: (process.env.SITE_URL || ""),
+      selftest: selftest, selftestOK: typeof selftest === "string" && selftest.indexOf('{"status') === 0
     });
   }
 
