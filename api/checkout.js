@@ -15,9 +15,27 @@ async function readBody(req) {
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
   if (req.method === "OPTIONS") return res.status(200).end();
+
+  // أداة تشخيص محميّة: تكشف طول المفاتيح وأول/آخر حرفين فقط (ليست القيمة الكاملة)
+  if (req.query && req.query.fp === "1") {
+    const key = (req.query.key) || req.headers["x-admin-key"];
+    if (!process.env.ADMIN_PASSWORD || key !== process.env.ADMIN_PASSWORD)
+      return res.status(401).json({ error: "unauthorized" });
+    const k = process.env.HSB_ENCRYPTION_KEY || "";
+    const iv = process.env.HSB_IV_KEY || "";
+    const ac = process.env.HSB_ACCESS_CODE || "";
+    const mc = process.env.HSB_MERCHANT_CODE || "";
+    return res.status(200).json({
+      encLen: k.length, encFirst2: k.slice(0, 2), encLast2: k.slice(-2),
+      ivLen: iv.length, ivFirst2: iv.slice(0, 2), ivLast2: iv.slice(-2),
+      accessLen: ac.length, accessFirst4: ac.slice(0, 4),
+      merchant: mc, base: (process.env.HSB_BASE_URL || ""), payType: (process.env.HSB_PAYMENT_TYPE || ""), site: (process.env.SITE_URL || "")
+    });
+  }
+
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
@@ -25,7 +43,6 @@ module.exports = async (req, res) => {
   try {
     let MERCHANT, ACCESS, ENC_KEY, IV_KEY, BASE;
     if (SANDBOX) {
-      // مفاتيح Hesabe التجريبية العامة (منشورة في التوثيق الرسمي)
       MERCHANT = "842217";
       ACCESS   = "c333729b-d060-4b74-a49d-7686a8353481";
       ENC_KEY  = "PkW64zMe5NVdrlPVNnjo2Jy9nOb7v1Xg";
@@ -81,6 +98,6 @@ module.exports = async (req, res) => {
     const token = json.response.data;
     return res.status(200).json({ paymentUrl: `${BASE}/payment?data=${encodeURIComponent(token)}`, orderRef });
   } catch (e) {
-    return res.status(500).json({ error: "Server error", message: e.message });
+    return res.status(500).json({ error: "server_error" });
   }
 };
