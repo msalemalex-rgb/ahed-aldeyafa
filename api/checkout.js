@@ -96,7 +96,28 @@ module.exports = async (req, res) => {
 
     let decrypted;
     try { decrypted = decrypt(encResp, ENC_KEY, IV_KEY); }
-    catch (err) { return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, rawSample: raw.slice(0, 400) }); }
+    catch (err) {
+      // محاولة بدون padding لقراءة النص الكامل وتشخيص المشكلة
+      let nopad = "";
+      try {
+        const hex = String(encResp).trim().replace(/[^0-9a-fA-F]/g, "");
+        const dd = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENC_KEY, "utf8"), Buffer.from(IV_KEY, "utf8"));
+        dd.setAutoPadding(false);
+        nopad = dd.update(Buffer.from(hex, "hex")).toString("utf8");
+        // محاولة استخراج JSON صالح وإكمال التدفق
+        const m = nopad.match(/\{.*\}/s);
+        if (m) {
+          try {
+            const j2 = JSON.parse(m[0]);
+            if (j2 && j2.response && j2.response.data) {
+              return res.status(200).json({ paymentUrl: `${BASE}/payment?data=${encodeURIComponent(j2.response.data)}`, orderRef, recovered: true });
+            }
+            return res.status(400).json({ error: "hesabe_error", message: j2.message, details: j2 });
+          } catch (_) {}
+        }
+      } catch (e2) { nopad = "nopaderr:" + e2.message; }
+      return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, decErr: err.message, rawLen: raw.length, nopad: nopad.slice(0, 500) });
+    }
 
     let json;
     try { json = JSON.parse(decrypted); }
