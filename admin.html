@@ -126,7 +126,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
   <div class="wrap">
     <div class="tabs">
       <div class="tab active" onclick="showView('orders',this)">📋 الطلبات <span class="badge" id="cntNew">0</span></div>
-      <div class="tab" onclick="showView('res',this)">📅 المواعيد <span class="badge" id="cntRes">0</span></div>
+      <div class="tab" onclick="showView('res',this)">📅 الحجوزات <span class="badge" id="cntRes">0</span></div>
       <div class="tab" onclick="showView('menu',this)">🍲 المنيو</div>
       <div class="tab" onclick="showView('settings',this)">⚙️ الإعدادات</div>
     </div>
@@ -162,8 +162,8 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <input type="file" accept="image/*" onchange="onLogoFile(this)">
         <label class="fld">رقم واتساب (دولي بدون +)</label>
         <input id="setWa" placeholder="9665xxxxxxxx">
-        <label class="fld">نسبة خصم الطلب المباشر (مثال 0.10 = ١٠٪)</label>
-        <input id="setDisc" type="number" step="0.01" placeholder="0.10">
+        <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
+        <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
         <label class="fld">مواعيد العمل</label>
         <div id="hoursBox"></div>
@@ -437,7 +437,7 @@ function delHour(i){DATA.settings.hours.splice(i,1);renderHours();}
 function fillSettings(){
   const s=DATA.settings||{};
   document.getElementById('setWa').value=s.whatsapp||"";
-  document.getElementById('setDisc').value=(s.directDiscount!=null?s.directDiscount:0.10);
+  document.getElementById('setDisc').value=(s.directDiscount==null?10:(s.directDiscount<=1?Math.round(s.directDiscount*100):s.directDiscount));
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
   renderHours();
   const lp=document.getElementById('logoPrev');
@@ -446,7 +446,7 @@ function fillSettings(){
 function onLogoFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=300;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.8);}catch(_){url=rd.result;}DATA.settings.logo=url;const lp=document.getElementById('logoPrev');lp.src=url;lp.style.display='block';toast("✅ تم اختيار الشعار — اضغط حفظ الإعدادات");};img.src=rd.result;};rd.readAsDataURL(f);}
 function saveSettings(){
   DATA.settings.whatsapp=document.getElementById('setWa').value.trim();
-  DATA.settings.directDiscount=parseFloat(document.getElementById('setDisc').value)||0;
+  {let p=parseFloat(document.getElementById('setDisc').value)||0;if(p>1)p=p/100;DATA.settings.directDiscount=Math.max(0,Math.min(p,0.95));}
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
   if(DATA.settings.currency==null)DATA.settings.currency="د.ك";
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})

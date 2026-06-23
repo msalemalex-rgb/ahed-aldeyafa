@@ -282,7 +282,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="field"><label>رقم الهاتف</label><input id="custPhone" type="tel" placeholder="9XXXXXXX"></div>
     <div class="prep-line" id="prepLine">⏱️ أضف أطباقك لمعرفة وقت التحضير</div>
     <div class="sum-line"><span>المجموع</span><span id="sumSubtotal">0.000 د.ك</span></div>
-    <div class="sum-line discount"><span>خصم الأونلاين</span><span id="sumDiscount">0.000 د.ك</span></div>
+    <div class="sum-line discount"><span id="discLabel">خصم الأونلاين</span><span id="sumDiscount">0.000 د.ك</span></div>
     <div class="sum-line" id="feeLine"><span>التوصيل</span><span id="sumFee">—</span></div>
     <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
     <div class="min-warn" id="minWarn" style="display:none"></div>
@@ -375,9 +375,11 @@ function subtotal(){return cartArray().reduce((s,r)=>s+linePrice(r.it,r.opts)*r.
 function maxPrep(arr){return arr.reduce((m,r)=>Math.max(m,Number(r.it.prepTime)||0),0)}
 function count(){return cart.reduce((a,l)=>a+l.q,0)}
 function areaObj(){return (CONFIG.areas||[]).find(a=>a.name===selectedAreaName)||null}
+function discFrac(){let d=Number(CONFIG.directDiscount)||0;if(d>1)d=d/100;return Math.max(0,Math.min(d,0.95));}
+function discPct(){return Math.round(discFrac()*100);}
 function computeTotals(){
   const sub=subtotal();
-  const disc=sub*CONFIG.directDiscount;
+  const disc=sub*discFrac();
   let fee=0,ao=null;
   if(deliveryType==="delivery"&&selectedAreaName){ao=areaObj();if(ao)fee=Number(ao.fee)||0;}
   return {sub,disc,fee,grand:sub-disc+fee,ao};
@@ -437,6 +439,7 @@ function renderTotals(){
   const t=computeTotals();const arr=cartArray();
   document.getElementById('sumSubtotal').textContent=fmt(t.sub);
   document.getElementById('sumDiscount').textContent="-"+fmt(t.disc);
+  document.getElementById('discLabel').textContent="خصم الأونلاين ("+discPct()+"٪)";
   const feeLine=document.getElementById('feeLine');
   if(deliveryType==="pickup"){feeLine.style.display="none";}
   else{feeLine.style.display="flex";document.getElementById('sumFee').textContent=selectedAreaName?(t.fee>0?fmt(t.fee):"مجاني"):"اختر المنطقة";}
@@ -492,7 +495,7 @@ function checkoutWhatsApp(){
   let msg="🍽️ *طلب جديد من موقع عهد الضيافة*%0A%0A";
   v.arr.forEach(r=>{msg+=`• ${r.it.name} ×${r.q}${optsText(r.opts)} — ${(linePrice(r.it,r.opts)*r.q).toFixed(3)} ${CONFIG.currency}%0A`});
   msg+=`%0Aالمجموع: ${t.sub.toFixed(3)} ${CONFIG.currency}%0A`;
-  msg+=`خصم الأونلاين: -${t.disc.toFixed(3)} ${CONFIG.currency}%0A`;
+  msg+=`خصم الأونلاين (${discPct()}٪): -${t.disc.toFixed(3)} ${CONFIG.currency}%0A`;
   if(deliveryType==="delivery")msg+=`التوصيل (${selectedAreaName}): ${t.fee.toFixed(3)} ${CONFIG.currency}%0A`;
   else msg+=`الاستلام من المطعم 🏠%0A`;
   msg+=`*الإجمالي: ${t.grand.toFixed(3)} ${CONFIG.currency}*%0A`;
