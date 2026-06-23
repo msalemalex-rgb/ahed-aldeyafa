@@ -53,6 +53,17 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .st-new{background:#e8fff1;color:#178c44}.st-preparing{background:#fff3d6;color:#9a6b00}.st-done{background:#eee;color:#666}.st-confirmed{background:#e7f0ff;color:#2563c9}.st-cancelled{background:#fde8e8;color:#c0392b}
 .empty{text-align:center;color:var(--muted);padding:60px 20px}
 .empty .big{font-size:60px}
+.today-banner{background:linear-gradient(135deg,#6e1423,#8a1c2e);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(110,20,35,.25)}
+.today-banner .tb-num{font-size:34px;font-weight:800;font-family:'Cairo';line-height:1;color:#f3c969}
+.today-banner .tb-txt{font-family:'Cairo';font-weight:700;font-size:15px}
+.today-banner .tb-sub{font-family:'Tajawal';font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
+.order.is-today{border:2px solid #c8962f;box-shadow:0 2px 12px rgba(200,150,47,.2)}
+.order.is-soon{border-right:4px solid #c0392b}
+.pipeline{display:flex;align-items:center;gap:4px;margin:8px 0 4px;font-family:'Cairo';font-size:11px}
+.pipeline .pstep{flex:1;text-align:center;padding:4px 2px;border-radius:6px;background:#f0f0f0;color:#999;font-weight:700}
+.pipeline .pstep.on{background:#e8fff1;color:#178c44}
+.pipeline .pstep.cancel{background:#fde8e8;color:#c0392b}
+.pipeline .parrow{color:#ccc;font-size:12px}
 .soundbar{background:#fff3d6;color:#9a6b00;padding:10px;text-align:center;font-size:13px;font-family:'Cairo';font-weight:700;cursor:pointer}
 .view{display:none}.view.active{display:block}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(78,13,24,.08)}
@@ -142,6 +153,14 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     </div>
 
     <div class="view" id="view-res">
+      <div id="resToday"></div>
+      <div class="tabs">
+        <div class="tab active" onclick="setRFilter('today',this)">اليوم <span class="badge" id="cntRToday">0</span></div>
+        <div class="tab" onclick="setRFilter('upcoming',this)">القادمة <span class="badge" id="cntRUp">0</span></div>
+        <div class="tab" onclick="setRFilter('all',this)">الكل</div>
+        <div class="tab" onclick="setRFilter('past',this)">منتهية/ملغاة</div>
+        <div class="tab" onclick="loadReservations()">🔄 تحديث</div>
+      </div>
       <div id="reservations"></div>
     </div>
 
@@ -196,7 +215,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 <div class="toast" id="toast"></div>
 
 <script>
-let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true;
+let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today";
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -325,32 +344,70 @@ function loadReservations(){
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ beep(); if(navigator.vibrate)navigator.vibrate([200,100,200]); }
+    if(fresh>0){ beep(); if(navigator.vibrate)navigator.vibrate([200,100,200]); document.title="("+fresh+") حجز جديد!"; setTimeout(()=>{document.title="لوحة التحكم — عهد الضيافة";},8000); }
     resFirst=false; reservations=d.reservations; renderReservations();
   }).catch(()=>{});
 }
+function setRFilter(f,el){rfilter=f;if(el){el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}renderReservations();}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function resDate(r){return new Date(r.date||r.createdAt);}
 function renderReservations(){
   const box=document.getElementById('reservations');
+  const now=new Date();
+  const isActive=r=>(!r.status||r.status==='new'||r.status==='confirmed');
+  // العدّادات
   const pending=reservations.filter(r=>!r.status||r.status==='new').length;
   document.getElementById('cntRes').textContent=pending;
-  const sorted=reservations.slice().sort((a,b)=>new Date(a.date||a.createdAt)-new Date(b.date||b.createdAt));
-  if(!sorted.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات</p></div>';return;}
+  const todayList=reservations.filter(r=>r.date&&sameDay(resDate(r),now)&&isActive(r));
+  const upcoming=reservations.filter(r=>r.date&&resDate(r)>now&&!sameDay(resDate(r),now)&&isActive(r));
+  document.getElementById('cntRToday').textContent=todayList.length;
+  document.getElementById('cntRUp').textContent=upcoming.length;
+  // بانر اليوم
+  const tConf=todayList.filter(r=>r.status==='confirmed').length, tNew=todayList.length-tConf;
+  document.getElementById('resToday').innerHTML=`<div class="today-banner">
+    <div class="tb-num">${todayList.length}</div>
+    <div><div class="tb-txt">حجوزات اليوم</div>
+    <div class="tb-sub">${todayList.length?(tNew+' بانتظار التأكيد • '+tConf+' مؤكد'):'لا توجد حجوزات لهذا اليوم'}</div></div>
+  </div>`;
+  // الفلترة
+  let list;
+  if(rfilter==='today')list=todayList;
+  else if(rfilter==='upcoming')list=upcoming;
+  else if(rfilter==='past')list=reservations.filter(r=>r.status==='done'||r.status==='cancelled'||(r.date&&resDate(r)<now&&!sameDay(resDate(r),now)));
+  else list=reservations.slice();
+  const sorted=list.sort((a,b)=>resDate(a)-resDate(b));
+  if(!sorted.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات في هذا القسم</p></div>';return;}
   box.innerHTML=sorted.map(r=>{
     const stMap={new:['جديد','st-new'],confirmed:['مؤكد','st-confirmed'],done:['تم','st-done'],cancelled:['ملغي','st-cancelled']};
-    const st=stMap[r.status]||stMap.new;
-    const d=r.date?new Date(r.date).toLocaleString('ar-KW',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    const stKey=r.status||'new';
+    const st=stMap[stKey]||stMap.new;
+    const dt=r.date?resDate(r):null;
+    const d=dt?dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'}):'—';
+    const isToday=dt&&sameDay(dt,now);
+    const hrsTo=dt?(dt-now)/3600000:999;
+    const isSoon=isToday&&hrsTo>=0&&hrsTo<=3&&(stKey==='new'||stKey==='confirmed');
+    const dayBadge=isToday?'<span class="status-tag st-confirmed">اليوم</span>':'';
     const meta=[r.type,r.count?('عدد: '+r.count):'',r.notes].filter(Boolean).map(esc).join(' • ');
-    return `<div class="order">
+    // خط المراحل
+    const cancelled=stKey==='cancelled';
+    const pipe=cancelled
+      ?`<div class="pipeline"><span class="pstep cancel">ملغي ✖️</span></div>`
+      :`<div class="pipeline">
+        <span class="pstep on">جديد</span><span class="parrow">←</span>
+        <span class="pstep ${(stKey==='confirmed'||stKey==='done')?'on':''}">مؤكد</span><span class="parrow">←</span>
+        <span class="pstep ${stKey==='done'?'on':''}">تم</span></div>`;
+    return `<div class="order ${isToday?'is-today':''} ${isSoon?'is-soon':''}">
       <div class="top">
-        <div><span class="oid">${esc(r.name||'بدون اسم')}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
+        <div><span class="oid">${esc(r.name||'بدون اسم')}</span> <span class="status-tag ${st[1]}">${st[0]}</span> ${dayBadge}</div>
         <div style="text-align:left"><div class="time">📅 ${d}</div></div>
       </div>
-      <div class="meta">📞 ${esc(r.phone||'—')}</div>
+      <div class="meta">📞 <a href="tel:${esc(r.phone||'')}" style="color:inherit">${esc(r.phone||'—')}</a></div>
       ${meta?`<div class="meta">${meta}</div>`:''}
+      ${pipe}
       <div class="actions">
-        ${r.status!=='confirmed'?`<button class="sbtn done" onclick="updRes('${r.id}','confirmed')">✅ تأكيد</button>`:''}
-        ${r.status!=='done'?`<button class="sbtn prep" onclick="updRes('${r.id}','done')">✔️ تم</button>`:''}
-        ${r.status!=='cancelled'?`<button class="sbtn cancel" onclick="updRes('${r.id}','cancelled')">✖️ إلغاء</button>`:''}
+        ${stKey!=='confirmed'&&stKey!=='done'?`<button class="sbtn done" onclick="updRes('${r.id}','confirmed')">✅ تأكيد</button>`:''}
+        ${stKey!=='done'?`<button class="sbtn prep" onclick="updRes('${r.id}','done')">✔️ تم</button>`:''}
+        ${stKey!=='cancelled'?`<button class="sbtn cancel" onclick="updRes('${r.id}','cancelled')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
   }).join('');
