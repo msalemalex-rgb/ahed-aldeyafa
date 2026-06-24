@@ -306,7 +306,7 @@ function renderOrders(){
     const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
     const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
     const st=stMap[o.status]||stMap.new;
-    const meta=[o.name,o.phone].filter(Boolean).map(esc).join(' • ');
+    const meta=[o.name?esc(o.name):'', o.phone?`<a href="tel:${esc(o.phone)}" style="color:inherit;text-decoration:underline">${esc(o.phone)}</a>`:''].filter(Boolean).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
     const dparts=[];
     if(dtype)dparts.push(dtype);

@@ -326,7 +326,7 @@ function scrollToItems(){const g=document.getElementById('menuGrid');if(g)g.scro
 function showCat(i){
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
   (MENU[i].items||[]).forEach(it=>{const d=document.createElement('div');d.className='card';
-    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${imgTag(it.img)}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div><button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button></div></div>`;
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div><button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button></div></div>`;
     grid.appendChild(d);});
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
@@ -343,7 +343,7 @@ function updateCart(){
   document.getElementById('cartFloat').classList.toggle('show',c>0);
   const box=document.getElementById('cartItems');const arr=cartArray();
   if(!arr.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
-  else{box.innerHTML=arr.map(r=>`<div class="ci">${imgTag(r.it.img,'ci-img')}<div class="info"><h4>${r.it.name}</h4><div class="p">${Number(r.it.price).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${r.it.id},-1)">−</button><span>${r.q}</span><button onclick="changeQty(${r.it.id},1)">＋</button></div></div>`).join('');}
+  else{box.innerHTML=arr.map(r=>`<div class="ci">${imgTag(r.it.img+(r.it.imgV?('&v='+r.it.imgV):''),'ci-img')}<div class="info"><h4>${r.it.name}</h4><div class="p">${Number(r.it.price).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${r.it.id},-1)">−</button><span>${r.q}</span><button onclick="changeQty(${r.it.id},1)">＋</button></div></div>`).join('');}
   document.getElementById('cartTotal').textContent=fmt(total());
 }
 function openCart(){cartOverlay.classList.add('open');cartPanel.classList.add('open')}
@@ -451,7 +451,7 @@ function showToast(t){const e=document.getElementById('toast');e.textContent=t;e
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
-  document.getElementById('phoneText').textContent="+"+CONFIG.whatsapp;
+  document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
@@ -467,7 +467,7 @@ function showResult(kind){
     box.className="res-box ok";
     document.getElementById('resIcon').textContent="✅";
     document.getElementById('resTitle').textContent="شكراً لطلبك! 🌟";
-    document.getElementById('resMsg').textContent="تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك بكل حب.";
+    document.getElementById('resMsg').textContent="تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.";
     if(no){ono.style.display='inline-block';ono.textContent="رقم طلبك: "+no;}else ono.style.display='none';
     document.getElementById('resSub').textContent="سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼";
     acts.innerHTML=`<a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">📲 تواصل معنا على واتساب</a><button class="btn btn-gold" onclick="closeResult()">تمام</button>`;
@@ -493,7 +493,7 @@ function initPaymentStatus(){
 }
 async function loadMenu(){
   try{
-    const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
+    const r=await fetch('/api/menu');const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
     if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;}
   }catch(e){}
