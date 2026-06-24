@@ -1,7 +1,6 @@
 // POST /api/checkout — ينشئ طلب دفع Hesabe ويرجّع رابط صفحة الدفع
 // (وضع تجربة: أضف ?sandbox=1 لاستخدام مفاتيح Hesabe التجريبية العامة)
 const { encrypt, decrypt } = require("../lib/hesabeCrypt");
-const crypto = require("crypto");
 
 async function readBody(req) {
   if (req.body !== undefined && req.body !== null) {
@@ -16,10 +15,9 @@ async function readBody(req) {
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
-
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
@@ -27,6 +25,7 @@ module.exports = async (req, res) => {
   try {
     let MERCHANT, ACCESS, ENC_KEY, IV_KEY, BASE;
     if (SANDBOX) {
+      // مفاتيح Hesabe التجريبية العامة (منشورة في التوثيق الرسمي)
       MERCHANT = "842217";
       ACCESS   = "c333729b-d060-4b74-a49d-7686a8353481";
       ENC_KEY  = "PkW64zMe5NVdrlPVNnjo2Jy9nOb7v1Xg";
@@ -41,6 +40,8 @@ module.exports = async (req, res) => {
     }
     const SITE     = (process.env.SITE_URL || "").trim().replace(/\/+$/, "");
     const PAY_TYPE = (process.env.HSB_PAYMENT_TYPE || "1").trim();
+    // في وضع التجربة نمرر sandbox=1 للـ callback ليفك التشفير بمفاتيح التجربة
+    const CB = `${SITE}/api/callback${SANDBOX ? "?sandbox=1" : ""}`;
 
     if (!MERCHANT || !ACCESS || !ENC_KEY || !IV_KEY || !SITE)
       return res.status(500).json({ error: "Missing env" });
@@ -54,7 +55,7 @@ module.exports = async (req, res) => {
 
     const payload = {
       merchantCode: MERCHANT, amount, currency: "KWD", paymentType: PAY_TYPE, version: "2.0",
-      orderReferenceNumber: orderRef, responseUrl: `${SITE}/api/callback`, failureUrl: `${SITE}/api/callback`, variable1: orderRef,
+      orderReferenceNumber: orderRef, responseUrl: CB, failureUrl: CB, variable1: orderRef,
     };
 
     const encrypted = encrypt(JSON.stringify(payload), ENC_KEY, IV_KEY);
@@ -70,28 +71,7 @@ module.exports = async (req, res) => {
 
     let decrypted;
     try { decrypted = decrypt(encResp, ENC_KEY, IV_KEY); }
-    catch (err) {
-      // محاولة بدون padding لقراءة النص الكامل وتشخيص المشكلة
-      let nopad = "";
-      try {
-        const hex = String(encResp).trim().replace(/[^0-9a-fA-F]/g, "");
-        const dd = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENC_KEY, "utf8"), Buffer.from(IV_KEY, "utf8"));
-        dd.setAutoPadding(false);
-        nopad = dd.update(Buffer.from(hex, "hex")).toString("utf8");
-        // محاولة استخراج JSON صالح وإكمال التدفق
-        const m = nopad.match(/\{.*\}/s);
-        if (m) {
-          try {
-            const j2 = JSON.parse(m[0]);
-            if (j2 && j2.response && j2.response.data) {
-              return res.status(200).json({ paymentUrl: `${BASE}/payment?data=${encodeURIComponent(j2.response.data)}`, orderRef, recovered: true });
-            }
-            return res.status(400).json({ error: "hesabe_error", message: j2.message, details: j2 });
-          } catch (_) {}
-        }
-      } catch (e2) { nopad = "nopaderr:" + e2.message; }
-      return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, decErr: err.message, rawLen: raw.length, nopad: nopad.slice(0, 500) });
-    }
+    catch (err) { return res.status(502).json({ error: "decrypt_failed", hesabeStatus: r.status, rawSample: raw.slice(0, 400) }); }
 
     let json;
     try { json = JSON.parse(decrypted); }
@@ -103,6 +83,6 @@ module.exports = async (req, res) => {
     const token = json.response.data;
     return res.status(200).json({ paymentUrl: `${BASE}/payment?data=${encodeURIComponent(token)}`, orderRef });
   } catch (e) {
-    return res.status(500).json({ error: "server_error" });
+    return res.status(500).json({ error: "Server error", message: e.message });
   }
 };

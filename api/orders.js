@@ -1,6 +1,6 @@
 // /api/orders — POST: إنشاء طلب | GET: قائمة الطلبات (أدمن) | PATCH: تحديث الحالة (أدمن)
-const { addOrder, listOrders, setOrderStatus, rateHit } = require("../lib/kv");
-const clientIp = (req) => ((req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || "x";
+// GET ?debug=1 (أدمن): يرجّع آخر تشخيصات الدفع (pay_debug) لمتابعة عمليات Hesabe
+const { addOrder, listOrders, setOrderStatus, cmd } = require("../lib/kv");
 
 function readBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
@@ -21,28 +21,20 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const b = await readBody(req);
       if (!b.items || b.total == null) return res.status(400).json({ error: "missing items/total" });
-      // طلب KNET يُنشأ كـ pending ولا يظهر في اللوحة إلا بعد تأكيد الدفع في callback
-      const status = b.channel === "knet" ? "pending" : "new";
       const order = await addOrder({
-        items: b.items, total: b.total, subtotal: b.subtotal != null ? b.subtotal : null,
-        channel: b.channel || "web", status,
+        items: b.items, total: b.total, channel: b.channel || "web",
         name: b.name || "", phone: b.phone || "", note: b.note || "",
-        deliveryType: b.deliveryType || "", area: b.area || "",
-        deliveryFee: b.deliveryFee != null ? b.deliveryFee : 0,
-        prepTime: b.prepTime != null ? b.prepTime : null,
-        address: b.address || "",
       });
       return res.status(200).json({ ok: true, id: order.id });
     }
     if (req.method === "GET") {
-      if (!isAdmin(req)) {
-        const blocked = await rateHit("auth:" + clientIp(req), 20, 900);
-        return res.status(blocked ? 429 : 401).json({ error: blocked ? "too_many_attempts" : "unauthorized" });
+      if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
+      if (req.query && (req.query.debug === "1" || req.query.debug === "true")) {
+        const rows = await cmd(["LRANGE", "pay_debug", "0", "49"]);
+        const debug = (rows || []).map((s) => { try { return JSON.parse(s); } catch { return s; } });
+        return res.status(200).json({ debug });
       }
-      const all = await listOrders(300);
-      // إخفاء الطلبات المعلّقة (لم يتأكد دفعها) والفاشلة
-      const visible = all.filter(o => o.status !== "pending" && o.status !== "failed");
-      return res.status(200).json({ orders: visible });
+      return res.status(200).json({ orders: await listOrders(200) });
     }
     if (req.method === "PATCH") {
       if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
@@ -51,5 +43,5 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, order: o });
     }
     return res.status(405).json({ error: "method" });
-  } catch (e) { return res.status(500).json({ error: "server_error" }); }
+  } catch (e) { return res.status(500).json({ error: e.message }); }
 };
