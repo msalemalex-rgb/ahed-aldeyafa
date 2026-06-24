@@ -288,7 +288,8 @@ function loadOrders(){
   fetch('/api/orders',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.orders)return;
     let fresh=0;
-    d.orders.forEach(o=>{ if(!seen.has(o.id)){ seen.add(o.id); if(!first && o.status==="new") fresh++; } });
+    // نبّه عند ظهور طلب بحالة "new" لأول مرة (سواء طلب جديد مباشر أو طلب KNET بعد نجاح الدفع)
+    d.orders.forEach(o=>{ if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); } });
     if(fresh>0){ beep(); if(navigator.vibrate)navigator.vibrate([200,100,200]); document.title="("+fresh+") طلب جديد!"; }
     first=false; orders=d.orders; renderOrders();
   }).catch(()=>{});
@@ -303,7 +304,7 @@ function renderOrders(){
   if(!list.length){box.innerHTML='<div class="empty"><div class="big">📭</div><p>لا توجد طلبات</p></div>';return;}
   box.innerHTML=list.map(o=>{
     const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
-    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done']};
+    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],failed:['فشل الدفع','st-cancelled']};
     const st=stMap[o.status]||stMap.new;
     const meta=[o.name,o.phone].filter(Boolean).map(esc).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
@@ -316,6 +317,7 @@ function renderOrders(){
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
     const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web'})[o.channel]||'web';
     const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':esc(o.channel));
+    const showActions=(o.status==='new'||o.status==='preparing');
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
         <div><span class="oid">${esc(o.id)}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
@@ -325,10 +327,10 @@ function renderOrders(){
       <div class="total">${Number(o.total).toFixed(3)} د.ك</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
-      <div class="actions">
+      ${showActions?`<div class="actions">
         ${o.status!=='preparing'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
         ${o.status!=='done'?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
-      </div>
+      </div>`:''}
     </div>`;
   }).join('');
 }
