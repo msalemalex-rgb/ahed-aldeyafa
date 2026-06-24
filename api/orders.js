@@ -24,6 +24,8 @@ module.exports = async (req, res) => {
       const order = await addOrder({
         items: b.items, total: b.total, channel: b.channel || "web",
         name: b.name || "", phone: b.phone || "", note: b.note || "",
+        // طلبات KNET تبدأ "بانتظار الدفع" ولا تدخل الطابور إلا بعد نجاح الدفع
+        status: (b.channel === "knet") ? "pending" : "new",
       });
       return res.status(200).json({ ok: true, id: order.id });
     }

@@ -97,7 +97,13 @@ module.exports = async (req, res) => {
     dbg.decision = ok ? "success" : "failed:result";
     await logDebug(dbg);
 
-    const ref    = encodeURIComponent(r.orderReferenceNumber || r.variable1 || "");
+    // اربط نتيجة الدفع بالطلب في لوحة التحكم: ناجح → "new" (يدخل الطابور)، فاشل → "failed"
+    const orderId = r.orderReferenceNumber || r.variable1 || "";
+    if (orderId && kv && kv.setOrderStatus) {
+      try { await kv.setOrderStatus(orderId, ok ? "new" : "failed"); } catch (_) {}
+    }
+
+    const ref    = encodeURIComponent(orderId);
     const payId  = encodeURIComponent(r.paymentId || "");
     const amount = encodeURIComponent(r.amount || "");
 
