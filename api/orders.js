@@ -24,10 +24,12 @@ module.exports = async (req, res) => {
       const order = await addOrder({
         items: b.items, total: b.total, channel: b.channel || "web",
         name: b.name || "", phone: b.phone || "", note: b.note || "",
+        deliveryType: b.deliveryType || "", area: b.area || "",
+        address: b.address || "", deliveryFee: Number(b.deliveryFee) || 0,
         // طلبات KNET تبدأ "بانتظار الدفع" ولا تدخل الطابور إلا بعد نجاح الدفع
         status: (b.channel === "knet") ? "pending" : "new",
       });
-      return res.status(200).json({ ok: true, id: order.id });
+      return res.status(200).json({ ok: true, id: order.id, no: order.no });
     }
     if (req.method === "GET") {
       if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
