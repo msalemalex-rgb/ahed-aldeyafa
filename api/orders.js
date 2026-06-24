@@ -26,8 +26,8 @@ module.exports = async (req, res) => {
         name: b.name || "", phone: b.phone || "", note: b.note || "",
         deliveryType: b.deliveryType || "", area: b.area || "",
         address: b.address || "", deliveryFee: Number(b.deliveryFee) || 0,
-        // طلبات KNET تبدأ "بانتظار الدفع" ولا تدخل الطابور إلا بعد نجاح الدفع
-        status: (b.channel === "knet") ? "pending" : "new",
+        // KNET: "pending" حتى نجاح الدفع | واتساب: "awaiting" (بانتظار تأكيد الأدمن) | غيرهم: "new"
+        status: (b.channel === "knet") ? "pending" : (b.channel === "whatsapp") ? "awaiting" : "new",
       });
       return res.status(200).json({ ok: true, id: order.id, no: order.no });
     }
