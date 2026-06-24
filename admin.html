@@ -116,6 +116,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 </style>
 </head>
 <body>
+<div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
 
 <div class="login" id="loginScreen">
   <form class="login-box" onsubmit="return doLogin(event)">
@@ -215,7 +216,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 <div class="toast" id="toast"></div>
 
 <script>
-let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today";
+let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null;
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -279,6 +280,18 @@ function beep(){
     }
   }catch(_){}
 }
+// تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
+function startAlarm(){
+  const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
+  beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);
+  if(alarmTimer)return;
+  alarmTimer=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
+}
+function stopAlarm(){
+  if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+  const bar=document.getElementById('alarmBar');if(bar)bar.style.display='none';
+  document.title="لوحة التحكم — عهد الضيافة";
+}
 // استئناف الصوت عند أي تفاعل
 document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();});
 
@@ -290,7 +303,7 @@ function loadOrders(){
     let fresh=0;
     // نبّه عند ظهور طلب بحالة "new" لأول مرة (سواء طلب جديد مباشر أو طلب KNET بعد نجاح الدفع)
     d.orders.forEach(o=>{ if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); } });
-    if(fresh>0){ beep(); if(navigator.vibrate)navigator.vibrate([200,100,200]); document.title="("+fresh+") طلب جديد!"; }
+    if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; }
     first=false; orders=d.orders; renderOrders();
   }).catch(()=>{});
 }
@@ -351,7 +364,7 @@ function loadReservations(){
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ beep(); if(navigator.vibrate)navigator.vibrate([200,100,200]); document.title="("+fresh+") حجز جديد!"; setTimeout(()=>{document.title="لوحة التحكم — عهد الضيافة";},8000); }
+    if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; }
     resFirst=false; reservations=d.reservations; renderReservations();
   }).catch(()=>{});
 }
