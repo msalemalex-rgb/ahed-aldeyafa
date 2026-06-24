@@ -1,21 +1,21 @@
 // =====================================================================
 //  /api/callback   (responseUrl + failureUrl)
-//  يستقبل نتيجة Hesabe (مشفّرة في data)، يفكّها، يتحقق، ويحوّل المستخدم
-//  لصفحة نجاح/فشل على الموقع.
-//  - قراءة جسم الطلب بشكل متين (POST form / GET / raw stream) لتفادي
-//    فقدان data وبالتالي اعتبار دفعة ناجحة "فاشلة".
-//  - كشف نجاح متسامح مع اختلاف بنية رد Hesabe.
-//  - تشخيص يُحفظ في KV (pay_debug) لمراجعة آخر العمليات.
-//  - وضع تجربة (?sandbox=1) يستخدم مفاتيح Hesabe التجريبية العامة.
+//  Receives Hesabe result (encrypted in `data`), decrypts, verifies,
+//  and redirects the user to a success/failure page on the site.
+//  - Robust body reading (POST form / GET / raw stream).
+//  - Deep search for result fields regardless of Hesabe response nesting.
+//  - Diagnostics stored in KV (pay_debug) incl. a sample of the decrypted
+//    payload to reveal its real structure.
+//  - Links the payment result to the order in the dashboard
+//    (paid -> new, failed -> failed).
+//  - Sandbox mode (?sandbox=1) uses Hesabe public test keys.
 // =====================================================================
 const { decrypt } = require("../lib/hesabeCrypt");
 let kv = null;
 try { kv = require("../lib/kv"); } catch (_) {}
 
-// مفاتيح Hesabe التجريبية العامة (للـ sandbox فقط — منشورة في التوثيق الرسمي)
 const SANDBOX_KEYS = { ENC: "PkW64zMe5NVdrlPVNnjo2Jy9nOb7v1Xg", IV: "5NVdrlPVNnjo2Jy9" };
 
-// قراءة الجسم بأي صيغة: object جاهز، أو نقرأه من الـ stream لو Vercel ما فكّه
 async function readRawBody(req) {
   if (req.body !== undefined && req.body !== null && req.body !== "") return req.body;
   return await new Promise((resolve) => {
@@ -26,7 +26,6 @@ async function readRawBody(req) {
   });
 }
 
-// استخراج قيمة data من query أو body (object / urlencoded string / hex خام)
 function extractData(req, body) {
   if (req.query && req.query.data) return req.query.data;
   if (body && typeof body === "object" && body.data) return body.data;
@@ -35,6 +34,22 @@ function extractData(req, body) {
     if (/^[0-9a-fA-F]{32,}$/.test(body.trim())) return body.trim();
   }
   return null;
+}
+
+// Deep search: first non-object value for any of the given keys, at any depth
+function deepFind(obj, keyNames) {
+  const targets = keyNames.map((k) => k.toLowerCase());
+  const out = {};
+  (function walk(o) {
+    if (!o || typeof o !== "object") return;
+    for (const k of Object.keys(o)) {
+      const lk = k.toLowerCase();
+      const v = o[k];
+      if (targets.includes(lk) && out[lk] === undefined && (v === null || typeof v !== "object")) out[lk] = v;
+      if (v && typeof v === "object") walk(v);
+    }
+  })(obj);
+  return out;
 }
 
 async function logDebug(entry) {
@@ -76,36 +91,42 @@ module.exports = async (req, res) => {
     let json;
     try { json = JSON.parse(decrypted); }
     catch (err) {
-      dbg.decision = "failed:parse"; dbg.sample = String(decrypted).slice(0, 120);
+      dbg.decision = "failed:parse"; dbg.sample = String(decrypted).slice(0, 200);
       await logDebug(dbg);
       return res.redirect(302, `${SITE}/?payment=failed`);
     }
 
-    // بنية Hesabe المعتادة: { status, response: { data: {...} } } — مع تسامح للبدائل
-    const r = (json.response && json.response.data) ? json.response.data
-            : (json.data && typeof json.data === "object") ? json.data
-            : json;
-    const code = String(r.resultCode || r.result || "").toUpperCase();
+    // Deep search for result fields regardless of response structure
+    const f = deepFind(json, ["resultcode", "result", "paymentid", "amount", "orderreferencenumber", "variable1", "paymenttoken", "code", "message"]);
+    const code = String(f.resultcode || f.result || "").toUpperCase();
     const statusOk = json.status === true || json.status === "true" || json.status === 1;
-    const ok = statusOk && ["CAPTURED", "ACCEPT", "SUCCESS", "PAID"].includes(code);
+    const SUCCESS_CODES = ["CAPTURED", "ACCEPT", "ACCEPTED", "SUCCESS", "PAID", "APPROVED"];
+    // Strict success: require an explicit Hesabe resultCode (avoid marking a failed payment as paid)
+    const ok = statusOk && SUCCESS_CODES.includes(code);
 
+    const orderId = f.orderreferencenumber || f.variable1 || "";
+
+    // Detailed diagnostics (sample of decrypted payload to learn real structure)
     dbg.status = json.status;
     dbg.resultCode = code;
-    dbg.paymentId = r.paymentId || "";
-    dbg.amount = r.amount || "";
-    dbg.ref = r.orderReferenceNumber || r.variable1 || "";
+    dbg.paymentId = f.paymentid || "";
+    dbg.amount = f.amount || "";
+    dbg.ref = orderId;
+    dbg.jsonKeys = Object.keys(json);
+    dbg.respType = json.response == null ? "none" : (typeof json.response === "object" ? "obj" : typeof json.response);
+    dbg.foundFields = f;
+    dbg.decrypted = String(decrypted).slice(0, 700);
     dbg.decision = ok ? "success" : "failed:result";
     await logDebug(dbg);
 
-    // اربط نتيجة الدفع بالطلب في لوحة التحكم: ناجح → "new" (يدخل الطابور)، فاشل → "failed"
-    const orderId = r.orderReferenceNumber || r.variable1 || "";
+    // Link payment result to the order in the dashboard
     if (orderId && kv && kv.setOrderStatus) {
       try { await kv.setOrderStatus(orderId, ok ? "new" : "failed"); } catch (_) {}
     }
 
     const ref    = encodeURIComponent(orderId);
-    const payId  = encodeURIComponent(r.paymentId || "");
-    const amount = encodeURIComponent(r.amount || "");
+    const payId  = encodeURIComponent(f.paymentid || "");
+    const amount = encodeURIComponent(f.amount || "");
 
     if (ok) return res.redirect(302, `${SITE}/?payment=success&ref=${ref}&pid=${payId}&amt=${amount}`);
     return res.redirect(302, `${SITE}/?payment=failed&ref=${ref}`);
