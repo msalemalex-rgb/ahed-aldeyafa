@@ -26,6 +26,7 @@ module.exports = async (req, res) => {
         name: b.name || "", phone: b.phone || "", note: b.note || "",
         deliveryType: b.deliveryType || "", area: b.area || "",
         address: b.address || "", deliveryFee: Number(b.deliveryFee) || 0,
+        mapUrl: b.mapUrl || "",
         // KNET: "pending" حتى نجاح الدفع | واتساب: "awaiting" (بانتظار تأكيد الأدمن) | غيرهم: "new"
         status: (b.channel === "knet") ? "pending" : (b.channel === "whatsapp") ? "awaiting" : "new",
       });
