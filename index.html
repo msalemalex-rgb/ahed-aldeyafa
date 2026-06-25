@@ -163,6 +163,22 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .opt-choice{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:6px;cursor:pointer;font-size:15px}
 .opt-choice:hover{background:var(--cream-2)}
 .opt-choice input{width:auto;margin:0;transform:scale(1.25);accent-color:var(--maroon)}
+.inv{font-family:'Cairo',sans-serif;color:#2a1a13;max-width:430px;margin:0 auto;background:#fff;padding:18px}
+.inv-head{display:flex;align-items:center;gap:12px;justify-content:center}
+.inv-logo{width:48px;height:48px;border-radius:50%;background:var(--maroon);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid var(--gold)}
+.inv-name{font-family:'Aref Ruqaa';font-size:24px;color:var(--maroon);font-weight:700}
+.inv-sub{font-size:11px;color:#888}
+.inv-badge{text-align:center;background:var(--cream-2);color:var(--maroon);font-weight:700;border-radius:6px;padding:6px;margin:10px 0;border:1px dashed var(--gold)}
+.inv-meta{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;flex-wrap:wrap;gap:4px}
+.inv-cust{font-size:13px;line-height:1.9;border-top:1px solid #eee;border-bottom:1px solid #eee;padding:8px 0;margin-bottom:8px}
+.inv-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.inv-tbl th{background:var(--maroon);color:#fff;padding:8px 6px;font-size:12px}
+.inv-totals .r{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+.inv-totals .r.grand{font-weight:900;font-size:18px;color:var(--maroon);border-top:2px solid var(--maroon);padding-top:8px;margin-top:4px}
+.inv-pay{text-align:center;background:rgba(31,170,84,.12);color:#178c44;font-weight:700;font-size:13px;padding:8px;border-radius:6px;margin:12px 0}
+.inv-foot{text-align:center;font-size:12px;color:#888;line-height:1.8}
+#invPrint{display:none}
+@media print{ body>*:not(#invPrint){display:none!important} #invPrint{display:block!important} }
 .co-err{color:#c0392b;font-family:'Cairo';font-weight:700;font-size:14px;min-height:20px;margin-bottom:8px}
 .co-body .btn{width:100%;justify-content:center}
 .res-overlay{position:fixed;inset:0;background:rgba(40,8,12,.65);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
@@ -318,6 +334,16 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     </div>
   </div>
 </div>
+<div class="co-overlay" id="invOverlay" onclick="if(event.target.id==='invOverlay')closeInvoice()">
+  <div class="co-box" style="width:470px">
+    <div class="co-head"><h3>فاتورتك</h3><button class="co-close" onclick="closeInvoice()">×</button></div>
+    <div class="co-body" style="padding:0">
+      <div id="invView"></div>
+      <div style="padding:14px"><button class="btn btn-gold" style="width:100%;justify-content:center" onclick="printInvoice()">🖨️ طباعة / حفظ PDF</button></div>
+    </div>
+  </div>
+</div>
+<div id="invPrint"></div>
 <div class="res-overlay" id="resOverlay">
   <div class="res-box" id="resBox">
     <div class="icon" id="resIcon">✅</div>
@@ -513,12 +539,16 @@ async function submitCheckout(){
   }
   err.textContent='';
   const food=Number(total().toFixed(3));const grand=Number((food+fee).toFixed(3));
+  const lines=cart.map(l=>({name:l.name,opts:lineOptsText(l),qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
+  const itemsSub=Number(subtotal().toFixed(3));
+  const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
   const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent="⏳ جارٍ التحويل للدفع...";
   let orderRef,orderNo;
   try{
     const o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       items:orderItemsText(arr),total:grand,channel:"knet",
-      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,mapUrl:coMapUrl
+      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,mapUrl:coMapUrl,
+      lines:lines,itemsSubtotal:itemsSub,discountPct:discPct
     })}).then(r=>r.json());
     orderRef=o&&o.id;orderNo=o&&o.no;
   }catch(_){}
@@ -551,6 +581,50 @@ function applySettings(){
 function initScroll(){
   const h=document.getElementById('header');const onS=()=>h.classList.toggle('scrolled',window.scrollY>40);window.addEventListener('scroll',onS);onS();
 }
+/* ===== الفاتورة ===== */
+let _invHTML="";
+function escH(s){return (''+(s==null?'':s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function buildInvoiceHTML(o,pid){
+  const cur=CONFIG.currency;
+  const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const lines=(o.lines&&o.lines.length)?o.lines:null;
+  let rows;
+  if(lines){rows=lines.map(l=>`<tr><td style="text-align:right;padding:7px 6px;border-bottom:1px solid #eee"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
+  else{rows=`<tr><td colspan="4" style="padding:8px;text-align:right">${escH(o.items||'')}</td></tr>`;}
+  const sub=Number(o.itemsSubtotal)||0;
+  const disc=o.discountPct?sub*(o.discountPct/100):0;
+  const fee=Number(o.deliveryFee)||0;
+  const tot=Number(o.total)||0;
+  return `<div class="inv">
+    <div class="inv-head"><div class="inv-logo">🍽️</div><div><div class="inv-name">عهد الضيافة</div><div class="inv-sub">المأكولات الكويتية الأصيلة • حولي</div></div></div>
+    <div class="inv-badge">فاتورة طلب</div>
+    <div class="inv-meta"><span><b>رقم الفاتورة:</b> ${escH(o.no)}</span><span><b>التاريخ:</b> ${dt}</span></div>
+    <div class="inv-cust">
+      ${o.name?`<div><b>العميل:</b> ${escH(o.name)}</div>`:''}
+      ${o.phone?`<div><b>الهاتف:</b> ${escH(o.phone)}</div>`:''}
+      ${dtype?`<div><b>طريقة الاستلام:</b> ${dtype}</div>`:''}
+      ${o.area?`<div><b>المنطقة:</b> ${escH(o.area)}</div>`:''}
+      ${o.address?`<div><b>العنوان:</b> ${escH(o.address)}</div>`:''}
+    </div>
+    <table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="inv-totals">
+      <div class="r"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>
+      ${disc>0?`<div class="r" style="color:#178c44"><span>الخصم (${o.discountPct}٪)</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`:''}
+      ${fee>0?`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
+      <div class="r grand"><span>الإجمالي المدفوع</span><span>${tot.toFixed(3)} ${cur}</span></div>
+    </div>
+    <div class="inv-pay">✅ مدفوعة بنجاح عبر KNET${pid?(' • رقم العملية: '+escH(pid)):''}</div>
+    <div class="inv-foot">شكراً لطلبك من عهد الضيافة 🌟<br>للتواصل والاستفسار: +${escH(CONFIG.whatsapp)}</div>
+  </div>`;
+}
+async function loadInvoice(ref,pid){
+  if(!ref)return;
+  try{const r=await fetch('/api/order?id='+encodeURIComponent(ref));const j=await r.json();if(j&&j.order){_invHTML=buildInvoiceHTML(j.order,pid||'');}}catch(_){}
+}
+function showInvoice(){ if(!_invHTML){showToast('الفاتورة قيد التحضير، حاول بعد لحظة');return;} document.getElementById('invView').innerHTML=_invHTML; document.getElementById('invOverlay').classList.add('open'); }
+function closeInvoice(){document.getElementById('invOverlay').classList.remove('open');}
+function printInvoice(){ if(!_invHTML)return; document.getElementById('invPrint').innerHTML=_invHTML; window.print(); }
 function showResult(kind){
   const box=document.getElementById('resBox');
   const ono=document.getElementById('resOno');
@@ -563,7 +637,7 @@ function showResult(kind){
     document.getElementById('resMsg').textContent="تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.";
     if(no){ono.style.display='inline-block';ono.textContent="رقم طلبك: "+no;}else ono.style.display='none';
     document.getElementById('resSub').textContent="سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼";
-    acts.innerHTML=`<a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">📲 تواصل معنا على واتساب</a><button class="btn btn-gold" onclick="closeResult()">تمام</button>`;
+    acts.innerHTML=`<button class="btn btn-gold" onclick="showInvoice()">🧾 عرض / حفظ الفاتورة</button><a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">📲 تواصل واتساب</a><button class="btn" style="background:#eee;color:#555" onclick="closeResult()">إغلاق</button>`;
     try{cart=[];updateCart();}catch(_){}
     try{sessionStorage.removeItem('lastOrderNo');}catch(_){}
   }else{
@@ -580,7 +654,7 @@ function showResult(kind){
 function closeResult(){document.getElementById('resOverlay').classList.remove('open');}
 function initPaymentStatus(){
   const q=new URLSearchParams(location.search);const p=q.get("payment");if(!p)return;
-  if(p==="success")showResult('success');
+  if(p==="success"){loadInvoice(q.get("ref"),q.get("pid"));showResult('success');}
   else if(p==="failed")showResult('failed');
   history.replaceState({},"",location.pathname);
 }

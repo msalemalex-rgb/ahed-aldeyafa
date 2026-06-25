@@ -366,32 +366,38 @@ function cancelOrder(id){
 }
 function printOrder(id){
   const o=orders.find(x=>x.id===id); if(!o)return;
-  const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'});
-  const dt=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const cur='د.ك';
+  const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
   const chan=o.channel==='knet'?'KNET (مدفوع)':(o.channel==='whatsapp'?'واتساب':esc(o.channel||''));
-  const row=(l,v)=>v?`<div style="margin:2px 0"><b>${l}:</b> ${v}</div>`:'';
-  const html=`<div style="font-family:'Cairo',sans-serif;max-width:340px;margin:0 auto;color:#000;font-size:14px;line-height:1.7">
-    <div style="text-align:center"><div style="font-size:22px;font-weight:900">عهد الضيافة</div><div style="font-size:12px">إيصال طلب</div></div>
-    <hr>
-    ${row('رقم الطلب', esc(o.no||o.id))}
-    ${row('التاريخ', t)}
-    ${row('القناة', chan)}
-    ${row('الحالة', ({new:'جديد',preparing:'قيد التحضير',done:'مكتمل',awaiting:'بانتظار التأكيد',pending:'بانتظار الدفع',cancelled:'ملغي',failed:'فشل الدفع'})[o.status]||esc(o.status||''))}
-    <hr>
-    ${row('الاسم', o.name?esc(o.name):'')}
-    ${row('الهاتف', o.phone?esc(o.phone):'')}
-    ${row('الاستلام', dt)}
-    ${row('المنطقة', o.area?esc(o.area):'')}
-    ${row('العنوان', o.address?esc(o.address):'')}
-    ${row('الموقع', o.mapUrl?esc(o.mapUrl):'')}
-    <hr>
-    <div><b>الأصناف:</b></div>
-    <div style="white-space:pre-wrap">${esc(o.items||'')}</div>
-    <hr>
-    ${o.deliveryFee?`<div>رسوم التوصيل: ${Number(o.deliveryFee).toFixed(3)} د.ك</div>`:''}
-    <div style="font-size:18px;font-weight:900;margin-top:4px">الإجمالي: ${Number(o.total).toFixed(3)} د.ك</div>
-    <hr>
-    <div style="text-align:center;font-size:12px">شكراً لطلبكم 🌟</div>
+  const st=({new:'جديد',preparing:'قيد التحضير',done:'مكتمل',awaiting:'بانتظار التأكيد',pending:'بانتظار الدفع',cancelled:'ملغي',failed:'فشل الدفع'})[o.status]||esc(o.status||'');
+  const lines=(o.lines&&o.lines.length)?o.lines:null;
+  let rows;
+  if(lines){rows=lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
+  else{rows=`<tr><td colspan="4" style="padding:8px;text-align:right">${esc(o.items||'')}</td></tr>`;}
+  const sub=Number(o.itemsSubtotal)||0, disc=o.discountPct?sub*(o.discountPct/100):0, fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
+    <div style="text-align:center"><div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي</div></div>
+    <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:5px;margin:8px 0">فاتورة طلب</div>
+    <div style="font-size:13px"><b>رقم الفاتورة:</b> ${esc(o.no||o.id)}</div>
+    <div style="font-size:13px"><b>التاريخ:</b> ${dt}</div>
+    <div style="font-size:13px"><b>القناة:</b> ${chan} • ${st}</div>
+    <div style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:6px 0;margin:6px 0;font-size:13px;line-height:1.8">
+      ${o.name?`<div><b>العميل:</b> ${esc(o.name)}</div>`:''}
+      ${o.phone?`<div><b>الهاتف:</b> ${esc(o.phone)}</div>`:''}
+      ${dtype?`<div><b>الاستلام:</b> ${dtype}</div>`:''}
+      ${o.area?`<div><b>المنطقة:</b> ${esc(o.area)}</div>`:''}
+      ${o.address?`<div><b>العنوان:</b> ${esc(o.address)}</div>`:''}
+      ${o.mapUrl?`<div><b>الموقع:</b> ${esc(o.mapUrl)}</div>`:''}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="margin-top:8px;font-size:14px">
+      <div style="display:flex;justify-content:space-between"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>
+      ${disc>0?`<div style="display:flex;justify-content:space-between;color:#178c44"><span>الخصم (${o.discountPct}٪)</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`:''}
+      ${fee>0?`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
+      <div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#888;margin-top:10px">شكراً لطلبكم 🌟</div>
   </div>`;
   document.getElementById('printArea').innerHTML=html;
   window.print();
