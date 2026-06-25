@@ -478,7 +478,7 @@ function filterAreas(){
   const areas=CONFIG.areas||[];
   const matches=areas.map((a,i)=>({a,i})).filter(o=>!q||(o.a.name||'').indexOf(q)>=0).slice(0,40);
   if(!matches.length){list.innerHTML='<div class="ar-item" style="color:var(--muted)">لا توجد منطقة بهذا الاسم</div>';list.classList.add('show');return;}
-  list.innerHTML=matches.map(o=>`<div class="ar-item" onclick="selectArea(${o.i})">${o.a.name}${(Number(o.a.fee)>0)?(' <span style="color:var(--muted);font-size:12px">— توصيل '+Number(o.a.fee).toFixed(3)+' د.ك</span>'):''}</div>`).join('');
+  list.innerHTML=matches.map(o=>`<div class="ar-item" onclick="selectArea(${o.i})">${o.a.name}${(Number(o.a.fee)>0)?(' <span style="color:var(--muted);font-size:12px">— توصيل '+Number(o.a.fee).toFixed(3)+' د.ك</span>'):''}${o.a.time?(' <span style="color:var(--muted);font-size:12px">• ⏱️ '+o.a.time+'</span>'):''}</div>`).join('');
   list.classList.add('show');
 }
 function selectArea(i){
@@ -521,6 +521,7 @@ function updateCoTotals(){
   const min=curMinOrder();
   let rows=`<div class="r"><span>إجمالي الأصناف (بعد الخصم)</span><span>${food.toFixed(3)} ${CONFIG.currency}</span></div>`;
   if(coDType==='delivery')rows+=`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${CONFIG.currency}</span></div>`;
+  if(coDType==='delivery'){const a=areaByIndex(coAreaIdx);if(a&&a.time)rows+=`<div class="r" style="color:var(--maroon)"><span>⏱️ وقت التوصيل المتوقع</span><span>${a.time}</span></div>`;}
   rows+=`<div class="r grand"><span>الإجمالي للدفع</span><span>${grand.toFixed(3)} ${CONFIG.currency}</span></div>`;
   document.getElementById('coSummary').innerHTML=rows;
   document.getElementById('coPayAmt').textContent=grand.toFixed(3)+" "+CONFIG.currency;
@@ -535,7 +536,7 @@ async function submitCheckout(){
   const err=document.getElementById('coErr');
   if(!name){err.textContent="فضلاً اكتب الاسم";return;}
   if(!/^\d{6,}$/.test(phone.replace(/\D/g,''))){err.textContent="فضلاً اكتب رقم تواصل صحيح";return;}
-  let area="",address="",fee=0;
+  let area="",address="",fee=0,dtime="";
   if(coDType==='delivery'){
     const a=areaByIndex(coAreaIdx);
     if(!a){err.textContent="فضلاً اختر المنطقة من القائمة";return;}
@@ -543,7 +544,7 @@ async function submitCheckout(){
     if(!address){err.textContent="فضلاً اكتب عنوان التوصيل";return;}
     const min=Number(a.minOrder)||0;
     if(min>0&&subtotal()<min){err.textContent=`الحد الأدنى للتوصيل في ${a.name} هو ${min.toFixed(3)} د.ك`;return;}
-    area=a.name;fee=Number(a.fee)||0;
+    area=a.name;fee=Number(a.fee)||0;dtime=a.time||"";
   }
   err.textContent='';
   const food=Number(total().toFixed(3));const grand=Number((food+fee).toFixed(3));
@@ -555,7 +556,7 @@ async function submitCheckout(){
   try{
     const o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       items:orderItemsText(arr),total:grand,channel:"knet",
-      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,mapUrl:coMapUrl,
+      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,deliveryTime:dtime,mapUrl:coMapUrl,
       lines:lines,itemsSubtotal:itemsSub,discountPct:discPct
     })}).then(r=>r.json());
     orderRef=o&&o.id;orderNo=o&&o.no;
@@ -622,7 +623,7 @@ function buildInvoiceHTML(o,pid){
   return `<div class="inv">
     <div style="text-align:center">${logo}<div class="inv-name">عهد الضيافة</div><div class="inv-sub">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
     <div class="inv-badge">🧾 فاتورة طلب</div>
-    <div class="inv-info">${info('رقم الفاتورة',o.no)}${info('التاريخ',dt)}${info('العميل',o.name)}${info('الهاتف',o.phone)}${info('طريقة الاستلام',dtype)}${info('المنطقة',o.area)}${info('العنوان',o.address)}</div>
+    <div class="inv-info">${info('رقم الفاتورة',o.no)}${info('التاريخ',dt)}${info('العميل',o.name)}${info('الهاتف',o.phone)}${info('طريقة الاستلام',dtype)}${info('المنطقة',o.area)}${info('العنوان',o.address)}${info('وقت التوصيل المتوقع',o.deliveryTime)}</div>
     ${itemsBlock}
     <div class="inv-totals">${totals}</div>
     <div class="inv-pay">✅ تم الدفع بنجاح عبر KNET${pid?(' • رقم العملية '+escH(pid)):''}</div>

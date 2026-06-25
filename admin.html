@@ -99,8 +99,8 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 @media(max-width:680px){.item-head{display:none}.item-block{grid-template-columns:36px 1fr 1fr;gap:5px}.item-block .ib-thumb{grid-row:1/3}.item-block .avail-btn,.item-block .iconbtn{grid-row:auto}}
 .delx{background:#fde8e8;color:#c0392b;border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0}
 .addbtn{background:rgba(31,170,84,.12);color:#178c44;border:1.5px dashed var(--green);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Cairo';font-weight:700;font-size:13px}
-.area-head{display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:8px;font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
-.area-row{display:grid;grid-template-columns:1fr 1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
+.area-head{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
+.area-row{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .area-row input{margin:0;padding:9px;font-size:14px}
 .hour-row{display:grid;grid-template-columns:1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .hour-row input{margin:0;padding:9px;font-size:14px}
@@ -195,7 +195,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
       <div class="card">
         <label class="fld">مناطق التوصيل — الرسوم والحد الأدنى لكل منطقة (بالدينار)</label>
         <input id="areaFilter" placeholder="🔎 ابحث عن منطقة..." oninput="renderAreas(this.value)">
-        <div class="area-head"><span>المنطقة</span><span>رسوم التوصيل</span><span>الحد الأدنى</span><span></span></div>
+        <div class="area-head"><span>المنطقة</span><span>رسوم التوصيل</span><span>الحد الأدنى</span><span>وقت التوصيل</span><span></span></div>
         <div id="areasBox"></div>
         <button class="addbtn" onclick="addArea()" style="margin-top:8px">+ إضافة منطقة</button>
       </div>
@@ -332,6 +332,7 @@ function renderOrders(){
     if(o.address)dparts.push(esc(o.address));
     if(o.mapUrl)dparts.push('<a href="'+esc(o.mapUrl)+'" target="_blank" style="color:#2563c9;text-decoration:underline;font-weight:700">📍 فتح الموقع على الخريطة</a>');
     if(o.deliveryFee)dparts.push('رسوم التوصيل: '+Number(o.deliveryFee).toFixed(3)+' د.ك');
+    if(o.deliveryTime)dparts.push('🕒 وقت التوصيل: '+esc(o.deliveryTime));
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
     const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web'})[o.channel]||'web';
@@ -400,6 +401,7 @@ function printOrder(id){
       ${info('طريقة الاستلام', dtype)}
       ${info('المنطقة', o.area?esc(o.area):'')}
       ${info('العنوان', o.address?esc(o.address):'')}
+      ${info('وقت التوصيل المتوقع', o.deliveryTime?esc(o.deliveryTime):'')}
     </div>
     ${itemsBlock}
     <div style="margin-top:8px;font-size:14px">${totals}</div>
@@ -549,10 +551,11 @@ function renderAreas(filter){
     <input value="${(a.name||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.areas[${i}].name=this.value" placeholder="المنطقة">
     <input type="number" step="0.25" value="${a.fee!=null?a.fee:0}" oninput="DATA.settings.areas[${i}].fee=parseFloat(this.value)||0" placeholder="توصيل">
     <input type="number" step="0.5" value="${a.minOrder!=null?a.minOrder:0}" oninput="DATA.settings.areas[${i}].minOrder=parseFloat(this.value)||0" placeholder="حد أدنى">
+    <input value="${(a.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.areas[${i}].time=this.value" placeholder="مثال: 45 دقيقة">
     <button class="delx" onclick="delArea(${i})">🗑</button>
   </div>`;}).join('');
 }
-function addArea(){DATA.settings.areas.unshift({name:"منطقة جديدة",fee:0,minOrder:0});document.getElementById('areaFilter').value='';renderAreas('');}
+function addArea(){DATA.settings.areas.unshift({name:"منطقة جديدة",fee:0,minOrder:0,time:""});document.getElementById('areaFilter').value='';renderAreas('');}
 function delArea(i){if(!confirm("حذف هذه المنطقة؟"))return;DATA.settings.areas.splice(i,1);renderAreas(document.getElementById('areaFilter').value);}
 
 /* ===== الإعدادات ===== */
