@@ -247,9 +247,9 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div style="text-align:center"><span class="eyebrow">المناسبات</span><h2 class="section-title">الكاترينج والديوانيات</h2><div class="ornament">❖</div><p class="section-sub">أطباق مشتركة بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p></div>
   <div class="cat-wrap">
     <div class="cat-info">
-      <div class="pack"><div class="n">١٠</div><div><h4>صينية تكفّي ١٠ أشخاص</h4><p>مجبوس لحم/دجاج + أرز + سلطات</p></div></div>
-      <div class="pack"><div class="n">٢٠</div><div><h4>صينية تكفّي ٢٠ شخص</h4><p>تشكيلة أطباق كويتية لليلة الديوانية</p></div></div>
-      <div class="pack"><div class="n">٣٠</div><div><h4>بوفيه ٣٠ شخص فأكثر</h4><p>منيو متكامل + حلى للأعراس والمناسبات</p></div></div>
+      <div class="pack"><div class="n">10</div><div><h4>صينية تكفّي 10 أشخاص</h4><p>مجبوس لحم/دجاج + أرز + سلطات</p></div></div>
+      <div class="pack"><div class="n">20</div><div><h4>صينية تكفّي 20 شخص</h4><p>تشكيلة أطباق كويتية لليلة الديوانية</p></div></div>
+      <div class="pack"><div class="n">30</div><div><h4>بوفيه 30 شخص فأكثر</h4><p>منيو متكامل + حلى للأعراس والمناسبات</p></div></div>
       <div class="discount-tag" style="margin-top:8px">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
     </div>
     <form class="cat-form" id="cateringForm" onsubmit="return submitCatering(event)">
@@ -258,7 +258,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="field"><label>الاسم</label><input required id="catName" placeholder="اسمك الكريم"></div>
       <div class="field"><label>رقم التواصل</label><input required id="catPhone" type="tel" placeholder="9XXXXXXX"></div>
       <div class="field"><label>نوع المناسبة</label><select id="catType"><option>ديوانية</option><option>عرس</option><option>عزيمة عائلية</option><option>مناسبة شركة</option><option>أخرى</option></select></div>
-      <div class="field"><label>عدد الأشخاص</label><select id="catCount"><option>١٠ أشخاص</option><option>٢٠ شخص</option><option>٣٠ شخص</option><option>٥٠ فأكثر</option></select></div>
+      <div class="field"><label>عدد الأشخاص</label><select id="catCount"><option>10 أشخاص</option><option>20 شخص</option><option>30 شخص</option><option>50 فأكثر</option></select></div>
       <div class="field"><label>التاريخ المطلوب</label><input id="catDate" type="date"></div>
       <div class="field"><label>تفاصيل إضافية</label><textarea id="catNotes" rows="2" placeholder="الأطباق المطلوبة، وقت التسليم..."></textarea></div>
       <button type="submit" class="btn btn-wa">📲 أرسل طلب الحجز على واتساب</button>
@@ -283,8 +283,8 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="info-row"><span class="ic">📞</span><div class="t"><strong>الهاتف / واتساب</strong><span id="phoneText">—</span></div></div>
       <div class="info-row"><span class="ic">📷</span><div class="t"><strong>إنستجرام</strong><span>@ahedaldeyafa</span></div></div>
       <h3 style="margin-top:26px">أوقات العمل</h3>
-      <div class="hours-row"><span>السبت - الخميس</span><strong>١١ ص - ١٢ م</strong></div>
-      <div class="hours-row"><span>الجمعة</span><strong>١ ظ - ١٢ م</strong></div>
+      <div class="hours-row"><span>السبت - الخميس</span><strong>11 ص - 12 م</strong></div>
+      <div class="hours-row"><span>الجمعة</span><strong>1 ظ - 12 م</strong></div>
       <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap"><a href="#menu" class="btn btn-red">🍽️ اطلب الآن</a><a id="waContactBtn" class="btn btn-wa" target="_blank">📲 واتساب</a></div>
     </div>
     <iframe class="map-embed" loading="lazy" allowfullscreen src="https://www.google.com/maps?q=Hawalli+Sharhabeel+bin+Hasna+Street+Kuwait&output=embed"></iframe>
@@ -301,7 +301,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div class="cart-head"><h3>🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="discount-tag" id="discTag">✅ خصم ١٠٪ مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="discount-tag" id="discTag">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
     <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
     <p class="cart-note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
     <button class="btn btn-gold" onclick="openCheckout()">💳 ادفع الآن بـ KNET</button>
@@ -371,6 +371,7 @@ let coDType="delivery";
 let coAreaIdx=-1;
 let coMapUrl="";
 const fmt=n=>Number(n).toFixed(3)+" "+CONFIG.currency;
+const toEn=s=>(''+s).replace(/[٠-٩]/g,d=>''+'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
 function renderMenu(){
   const tabs=document.getElementById('menuTabs');tabs.innerHTML='';
@@ -582,7 +583,7 @@ function applySettings(){
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
   const dt=document.getElementById('discTag');
-  if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct.toLocaleString('ar-EG')+'٪ مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
+  if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct+'% مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){
@@ -593,29 +594,37 @@ let _invHTML="";
 function escH(s){return (''+(s==null?'':s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function buildInvoiceHTML(o,pid){
   const cur=CONFIG.currency;
-  const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
   const logo=CONFIG.logo?`<img src="${CONFIG.logo}" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:0 auto 6px;display:block">`:`<div class="inv-logo" style="margin:0 auto 6px">🍽️</div>`;
-  let rows;
-  if(o.lines&&o.lines.length){
-    rows=o.lines.map(l=>`<tr><td class="inv-c1"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td class="inv-cc">${l.qty}</td><td class="inv-cc">${Number(l.unit).toFixed(3)}</td><td class="inv-cc">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+  const hasLines=o.lines&&o.lines.length;
+  const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  let sub=Number(o.itemsSubtotal)||0, itemsBlock;
+  const findP=nm=>{const t=(nm||'').trim();for(const c of (MENU||[]))for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
+  if(hasLines){
+    const rows=o.lines.map(l=>`<tr><td class="inv-c1"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td class="inv-cc">${l.qty}</td><td class="inv-cc">${Number(l.unit).toFixed(3)}</td><td class="inv-cc">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+    itemsBlock=`<table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>`;
   }else{
     const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);
-    rows=parts.length?parts.map(p=>`<tr><td class="inv-c1" style="font-weight:700">${escH(p)}</td><td class="inv-cc">—</td><td class="inv-cc">—</td><td class="inv-cc">—</td></tr>`).join(''):`<tr><td colspan="4" style="padding:8px">—</td></tr>`;
+    let computed=0,anyP=false;
+    const rows=parts.map(p=>{const qm=p.match(/×\s*(\d+)/);const qty=qm?parseInt(qm[1]):1;const nm=p.split('×')[0].trim();const u=findP(nm);if(u!=null){anyP=true;computed+=u*qty;}return `<tr><td class="inv-c1" style="font-weight:700">${escH(p)}</td><td class="inv-cc">${qty}</td><td class="inv-cc">${u!=null?u.toFixed(3):'—'}</td><td class="inv-cc">${u!=null?(u*qty).toFixed(3):'—'}</td></tr>`;}).join('');
+    itemsBlock=`<table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows||'<tr><td colspan=4 style=\"padding:8px\">—</td></tr>'}</tbody></table>`;
+    if(!sub&&anyP)sub=computed;
   }
-  const sub=Number(o.itemsSubtotal)||0, disc=o.discountPct?sub*(o.discountPct/100):0, fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  let disc=o.discountPct?sub*(o.discountPct/100):0;
+  const discLbl=o.discountPct?('الخصم ('+o.discountPct+'%)'):'الخصم';
+  if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
+  let totals='';
+  if(sub>0){ totals+=`<div class="r"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>`; if(disc>0.001)totals+=`<div class="r" style="color:#178c44"><span>${discLbl}</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`; }
+  if(fee>0)totals+=`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`;
+  totals+=`<div class="r grand"><span>الإجمالي المدفوع</span><span>${tot.toFixed(3)} ${cur}</span></div>`;
   const info=(l,v)=>v?`<div class="ir"><span>${l}</span><b>${escH(v)}</b></div>`:'';
   return `<div class="inv">
     <div style="text-align:center">${logo}<div class="inv-name">عهد الضيافة</div><div class="inv-sub">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
     <div class="inv-badge">🧾 فاتورة طلب</div>
     <div class="inv-info">${info('رقم الفاتورة',o.no)}${info('التاريخ',dt)}${info('العميل',o.name)}${info('الهاتف',o.phone)}${info('طريقة الاستلام',dtype)}${info('المنطقة',o.area)}${info('العنوان',o.address)}</div>
-    <table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="inv-totals">
-      <div class="r"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>
-      ${disc>0?`<div class="r" style="color:#178c44"><span>الخصم (${o.discountPct}٪)</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`:''}
-      ${fee>0?`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
-      <div class="r grand"><span>الإجمالي المدفوع</span><span>${tot.toFixed(3)} ${cur}</span></div>
-    </div>
+    ${itemsBlock}
+    <div class="inv-totals">${totals}</div>
     <div class="inv-pay">✅ تم الدفع بنجاح عبر KNET${pid?(' • رقم العملية '+escH(pid)):''}</div>
     <div class="inv-foot">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية وعودة قريبة<br>للتواصل والاستفسار: +${escH(CONFIG.whatsapp)}</div>
   </div>`;

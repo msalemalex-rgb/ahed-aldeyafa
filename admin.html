@@ -224,6 +224,7 @@ let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function toEn(s){return (''+s).replace(/[٠-٩]/g,function(d){return ''+'٠١٢٣٤٥٦٧٨٩'.indexOf(d);});}
 function akHdr(){return {'x-admin-key':KEY};}
 
 function doLogin(e){
@@ -320,7 +321,7 @@ function renderOrders(){
   else if(ofilter==="preparing")list=orders.filter(o=>o.status==="preparing");
   if(!list.length){box.innerHTML='<div class="empty"><div class="big">📭</div><p>لا توجد طلبات</p></div>';return;}
   box.innerHTML=list.map(o=>{
-    const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+    const t=toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}));
     const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],awaiting:['واتساب — بانتظار التأكيد','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
     const st=stMap[o.status]||stMap.new;
     const meta=[o.name?esc(o.name):'', o.phone?`<a href="tel:${esc(o.phone)}" style="color:inherit;text-decoration:underline">${esc(o.phone)}</a>`:''].filter(Boolean).join(' • ');
@@ -367,13 +368,26 @@ function cancelOrder(id){
 function printOrder(id){
   const o=orders.find(x=>x.id===id); if(!o)return;
   const cur='د.ك';
-  const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
   const lg=(DATA&&DATA.settings&&DATA.settings.logo)?`<img src="${DATA.settings.logo}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #c8962f;display:block;margin:0 auto 6px">`:'';
-  let rows;
-  if(o.lines&&o.lines.length){rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
-  else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);rows=parts.length?parts.map(p=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td></tr>`).join(''):''}
-  const sub=Number(o.itemsSubtotal)||0, disc=o.discountPct?sub*(o.discountPct/100):0, fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  const hasLines=o.lines&&o.lines.length;
+  const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  let sub=Number(o.itemsSubtotal)||0, itemsBlock;
+  const findP=nm=>{const t=(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
+  const TH='<thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead>';
+  if(hasLines){const rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;}
+  else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);let computed=0,anyP=false;
+    const rows=parts.map(p=>{const qm=p.match(/×\s*(\d+)/);const qty=qm?parseInt(qm[1]):1;const nm=p.split('×')[0].trim();const u=findP(nm);if(u!=null){anyP=true;computed+=u*qty;}return `<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?u.toFixed(3):'—'}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?(u*qty).toFixed(3):'—'}</td></tr>`;}).join('');
+    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;
+    if(!sub&&anyP)sub=computed;}
+  let disc=o.discountPct?sub*(o.discountPct/100):0;const discLbl=o.discountPct?('الخصم ('+o.discountPct+'%)'):'الخصم';
+  if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
+  let totals='';
+  if(sub>0){ totals+=`<div style="display:flex;justify-content:space-between"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>`; if(disc>0.001)totals+=`<div style="display:flex;justify-content:space-between;color:#178c44"><span>${discLbl}</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`; }
+  if(fee>0)totals+=`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`;
+  totals+=`<div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>`;
   const info=(l,v)=>v?`<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #eee"><span style="color:#888">${l}</span><b>${esc(v)}</b></div>`:'';
   const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
     <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
@@ -387,13 +401,8 @@ function printOrder(id){
       ${info('المنطقة', o.area?esc(o.area):'')}
       ${info('العنوان', o.address?esc(o.address):'')}
     </div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
-    <div style="margin-top:8px;font-size:14px">
-      <div style="display:flex;justify-content:space-between"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>
-      ${disc>0?`<div style="display:flex;justify-content:space-between;color:#178c44"><span>الخصم (${o.discountPct}٪)</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`:''}
-      ${fee>0?`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
-      <div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>
-    </div>
+    ${itemsBlock}
+    <div style="margin-top:8px;font-size:14px">${totals}</div>
     <div style="text-align:center;font-size:12px;color:#888;margin-top:12px;line-height:1.8">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية</div>
   </div>`;
   document.getElementById('printArea').innerHTML=html;
@@ -445,7 +454,7 @@ function renderReservations(){
     const stKey=r.status||'new';
     const st=stMap[stKey]||stMap.new;
     const dt=r.date?resDate(r):null;
-    const d=dt?dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'}):'—';
+    const d=dt?toEn(dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'})):'—';
     const isToday=dt&&sameDay(dt,now);
     const hrsTo=dt?(dt-now)/3600000:999;
     const isSoon=isToday&&hrsTo>=0&&hrsTo<=3&&(stKey==='new'||stKey==='confirmed');
