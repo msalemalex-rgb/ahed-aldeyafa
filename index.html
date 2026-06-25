@@ -153,6 +153,11 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .co-summary{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;margin:6px 0 14px;font-family:'Cairo'}
 .co-summary .r{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:6px}
 .co-summary .r.grand{font-size:19px;font-weight:900;color:var(--maroon);border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
+.co-arealist{border:1.5px solid var(--line);border-radius:6px;margin-top:6px;max-height:200px;overflow-y:auto;background:#fff;display:none}
+.co-arealist.show{display:block}
+.co-arealist .ar-item{padding:11px 13px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--line)}
+.co-arealist .ar-item:last-child{border-bottom:none}
+.co-arealist .ar-item:hover,.co-arealist .ar-item:active{background:var(--cream-2)}
 .co-err{color:#c0392b;font-family:'Cairo';font-weight:700;font-size:14px;min-height:20px;margin-bottom:8px}
 .co-body .btn{width:100%;justify-content:center}
 .res-overlay{position:fixed;inset:0;background:rgba(40,8,12,.65);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
@@ -268,7 +273,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div class="cart-head"><h3>🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="discount-tag">✅ خصم ١٠٪ مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="discount-tag" id="discTag">✅ خصم ١٠٪ مطبّق تلقائياً على الطلب الأونلاين</div>
     <div class="cart-total"><span>الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
     <p class="cart-note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
     <button class="btn btn-gold" onclick="openCheckout()">💳 ادفع الآن بـ KNET</button>
@@ -289,8 +294,9 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
         </div>
       </div>
       <div id="deliveryFields">
-        <div class="field"><label>المنطقة *</label><select id="coArea" onchange="updateCoTotals()"></select></div>
+        <div class="field"><label>المنطقة *</label><input id="coAreaSearch" autocomplete="off" placeholder="🔎 اكتب اسم منطقتك..." oninput="filterAreas()" onfocus="filterAreas()"><div id="coAreaList" class="co-arealist"></div></div>
         <div class="field"><label>عنوان التوصيل *</label><textarea id="coAddress" rows="2" placeholder="القطعة، الشارع، رقم المنزل، علامة مميزة..."></textarea></div>
+        <div class="field"><button type="button" id="coLocBtn" onclick="getLocation()" style="background:var(--maroon);color:var(--gold-light);border:none;border-radius:6px;width:100%;padding:12px;font-family:'Cairo';font-weight:700;font-size:15px;cursor:pointer">📍 حدد موقعي على الخريطة (يساعد المندوب)</button><div id="coLocStatus" style="font-size:13px;margin-top:8px;color:var(--muted)"></div></div>
       </div>
       <div class="co-summary" id="coSummary"></div>
       <div class="co-err" id="coErr"></div>
@@ -314,6 +320,8 @@ let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",
 let MENU=[];
 let cart={};
 let coDType="delivery";
+let coAreaIdx=-1;
+let coMapUrl="";
 const fmt=n=>Number(n).toFixed(3)+" "+CONFIG.currency;
 const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
 function renderMenu(){
@@ -362,15 +370,40 @@ function checkoutWhatsApp(){
 function areaByIndex(i){return (CONFIG.areas||[])[i];}
 function openCheckout(){
   const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
-  const sel=document.getElementById('coArea');
-  const areas=CONFIG.areas||[];
-  sel.innerHTML = areas.length
-    ? areas.map((a,i)=>`<option value="${i}">${a.name}${(Number(a.fee)>0)?(' (توصيل '+Number(a.fee).toFixed(3)+' د.ك)'):''}</option>`).join('')
-    : '<option value="-1">— لا توجد مناطق محددة —</option>';
+  coAreaIdx=-1; coMapUrl="";
+  document.getElementById('coAreaSearch').value='';
+  document.getElementById('coAreaList').classList.remove('show');
+  document.getElementById('coLocStatus').textContent='';
   document.getElementById('segPickup').style.display = CONFIG.pickupEnabled ? '' : 'none';
   setDType('delivery');
   document.getElementById('coErr').textContent='';
   document.getElementById('coOverlay').classList.add('open');
+}
+function filterAreas(){
+  const q=(document.getElementById('coAreaSearch').value||'').trim();
+  const list=document.getElementById('coAreaList');
+  const areas=CONFIG.areas||[];
+  const matches=areas.map((a,i)=>({a,i})).filter(o=>!q||(o.a.name||'').indexOf(q)>=0).slice(0,40);
+  if(!matches.length){list.innerHTML='<div class="ar-item" style="color:var(--muted)">لا توجد منطقة بهذا الاسم</div>';list.classList.add('show');return;}
+  list.innerHTML=matches.map(o=>`<div class="ar-item" onclick="selectArea(${o.i})">${o.a.name}${(Number(o.a.fee)>0)?(' <span style="color:var(--muted);font-size:12px">— توصيل '+Number(o.a.fee).toFixed(3)+' د.ك</span>'):''}</div>`).join('');
+  list.classList.add('show');
+}
+function selectArea(i){
+  coAreaIdx=i;
+  const a=(CONFIG.areas||[])[i];
+  document.getElementById('coAreaSearch').value=a?a.name:'';
+  document.getElementById('coAreaList').classList.remove('show');
+  updateCoTotals();
+}
+function getLocation(){
+  const st=document.getElementById('coLocStatus');
+  if(!navigator.geolocation){st.textContent="المتصفح لا يدعم تحديد الموقع";return;}
+  st.textContent="⏳ جارٍ تحديد موقعك...";
+  navigator.geolocation.getCurrentPosition(function(p){
+    const lat=p.coords.latitude.toFixed(6), lng=p.coords.longitude.toFixed(6);
+    coMapUrl="https://www.google.com/maps?q="+lat+","+lng;
+    st.innerHTML='✅ تم تحديد موقعك — <a href="'+coMapUrl+'" target="_blank" style="color:#178c44;text-decoration:underline">عرض على الخريطة</a>';
+  },function(){ st.textContent="تعذّر تحديد الموقع — تأكد من السماح للموقع بالوصول لموقعك"; },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
 }
 function closeCheckout(){document.getElementById('coOverlay').classList.remove('open');}
 function setDType(t){
@@ -382,12 +415,12 @@ function setDType(t){
 }
 function curDeliveryFee(){
   if(coDType!=='delivery')return 0;
-  const a=areaByIndex(parseInt(document.getElementById('coArea').value));
+  const a=areaByIndex(coAreaIdx);
   return a?(Number(a.fee)||0):0;
 }
 function curMinOrder(){
   if(coDType!=='delivery')return 0;
-  const a=areaByIndex(parseInt(document.getElementById('coArea').value));
+  const a=areaByIndex(coAreaIdx);
   return a?(Number(a.minOrder)||0):0;
 }
 function updateCoTotals(){
@@ -411,8 +444,8 @@ async function submitCheckout(){
   if(!/^\d{6,}$/.test(phone.replace(/\D/g,''))){err.textContent="فضلاً اكتب رقم تواصل صحيح";return;}
   let area="",address="",fee=0;
   if(coDType==='delivery'){
-    const a=areaByIndex(parseInt(document.getElementById('coArea').value));
-    if(!a){err.textContent="فضلاً اختر المنطقة";return;}
+    const a=areaByIndex(coAreaIdx);
+    if(!a){err.textContent="فضلاً اختر المنطقة من القائمة";return;}
     address=document.getElementById('coAddress').value.trim();
     if(!address){err.textContent="فضلاً اكتب عنوان التوصيل";return;}
     const min=Number(a.minOrder)||0;
@@ -426,7 +459,7 @@ async function submitCheckout(){
   try{
     const o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       items:orderItemsText(arr),total:grand,channel:"knet",
-      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee
+      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,mapUrl:coMapUrl
     })}).then(r=>r.json());
     orderRef=o&&o.id;orderNo=o&&o.no;
   }catch(_){}
@@ -452,6 +485,8 @@ function applySettings(){
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
+  const dt=document.getElementById('discTag');
+  if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct.toLocaleString('ar-EG')+'٪ مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){

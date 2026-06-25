@@ -325,6 +325,7 @@ function renderOrders(){
     if(dtype)dparts.push(dtype);
     if(o.area)dparts.push('📍 '+esc(o.area));
     if(o.address)dparts.push(esc(o.address));
+    if(o.mapUrl)dparts.push('<a href="'+esc(o.mapUrl)+'" target="_blank" style="color:#2563c9;text-decoration:underline;font-weight:700">📍 فتح الموقع على الخريطة</a>');
     if(o.deliveryFee)dparts.push('رسوم التوصيل: '+Number(o.deliveryFee).toFixed(3)+' د.ك');
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
