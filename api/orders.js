@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
         name: b.name || "", phone: b.phone || "", note: b.note || "",
         deliveryType: b.deliveryType || "", area: b.area || "",
         address: b.address || "", deliveryFee: Number(b.deliveryFee) || 0,
-        mapUrl: b.mapUrl || "",
+        deliveryTime: b.deliveryTime || "", mapUrl: b.mapUrl || "",
         lines: Array.isArray(b.lines) ? b.lines : [],
         itemsSubtotal: Number(b.itemsSubtotal) || 0,
         discountPct: Number(b.discountPct) || 0,
