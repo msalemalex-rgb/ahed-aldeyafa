@@ -120,6 +120,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 </head>
 <body>
 <div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
+<div id="failBar" onclick="stopFailAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:301;background:#b5460f;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت</div>
 
 <div class="login" id="loginScreen">
   <form class="login-box" onsubmit="return doLogin(event)">
@@ -220,7 +221,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 <div id="printArea"></div>
 
 <script>
-let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null;
+let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null, seenFail=new Set(), failAlarmTimer=null;
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -297,6 +298,34 @@ function stopAlarm(){
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='none';
   document.title="لوحة التحكم — عهد الضيافة";
 }
+/* ===== صوت فشل الدفع (نغمة مختلفة منخفضة هابطة) ===== */
+function beepFail(){
+  try{
+    if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended")audioCtx.resume();
+    const master=audioCtx.createGain(); master.gain.value=0.9; master.connect(audioCtx.destination);
+    const seq=[440,392,349,294,262]; // نغمات هابطة منخفضة تختلف عن تنبيه الطلب الجديد
+    for(let k=0;k<seq.length;k++){
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.connect(g); g.connect(master); o.type="sawtooth"; o.frequency.value=seq[k];
+      const t=audioCtx.currentTime + k*0.55;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.85,t+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
+      o.start(t); o.stop(t+0.52);
+    }
+  }catch(_){}
+}
+function startFailAlarm(){
+  const bar=document.getElementById('failBar');if(bar)bar.style.display='block';
+  beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
+  if(failAlarmTimer)return;
+  failAlarmTimer=setInterval(()=>{beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
+}
+function stopFailAlarm(){
+  if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
+  const bar=document.getElementById('failBar');if(bar)bar.style.display='none';
+}
 // استئناف الصوت عند أي تفاعل
 document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();});
 
@@ -305,10 +334,13 @@ function loadOrders(){
   if(!KEY)return;
   fetch('/api/orders',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.orders)return;
-    let fresh=0;
-    // نبّه عند ظهور طلب بحالة "new" لأول مرة (سواء طلب جديد مباشر أو طلب KNET بعد نجاح الدفع)
-    d.orders.forEach(o=>{ if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); } });
+    let fresh=0, freshFail=0;
+    d.orders.forEach(o=>{
+      if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); }
+      if(o.status==="failed" && !seenFail.has(o.id)){ if(!first) freshFail++; seenFail.add(o.id); }
+    });
     if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; }
+    if(freshFail>0){ startFailAlarm(); }
     first=false; orders=d.orders; renderOrders();
   }).catch(()=>{});
 }
