@@ -113,6 +113,9 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .chk{display:flex;align-items:center;gap:10px;font-family:'Cairo';font-weight:700;color:var(--maroon);margin-bottom:14px}
 .chk input{width:auto;margin:0;transform:scale(1.4)}
 .snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer}
+.sbtn.print{background:#e7f0ff;color:#2563c9}
+#printArea{display:none}
+@media print{ body>*:not(#printArea){display:none!important} #printArea{display:block!important;padding:6px} }
 </style>
 </head>
 <body>
@@ -214,6 +217,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="printArea"></div>
 
 <script>
 let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null;
@@ -341,12 +345,13 @@ function renderOrders(){
       <div class="total">${Number(o.total).toFixed(3)} د.ك</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
-      ${showActions?`<div class="actions">
+      <div class="actions">
+        <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ طباعة</button>
         ${o.status==='awaiting'?`<button class="sbtn done" onclick="updOrder('${o.id}','new')">✅ أكّد الطلب</button>`:''}
         ${o.status==='new'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
         ${(o.status==='new'||o.status==='preparing')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
-        <button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>
-      </div>`:''}
+        ${(o.status==='new'||o.status==='preparing'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -358,6 +363,38 @@ function updOrder(id,status){
 function cancelOrder(id){
   if(!confirm("متأكد من إلغاء هذا الطلب؟"))return;
   updOrder(id,'cancelled');
+}
+function printOrder(id){
+  const o=orders.find(x=>x.id===id); if(!o)return;
+  const t=new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'});
+  const dt=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const chan=o.channel==='knet'?'KNET (مدفوع)':(o.channel==='whatsapp'?'واتساب':esc(o.channel||''));
+  const row=(l,v)=>v?`<div style="margin:2px 0"><b>${l}:</b> ${v}</div>`:'';
+  const html=`<div style="font-family:'Cairo',sans-serif;max-width:340px;margin:0 auto;color:#000;font-size:14px;line-height:1.7">
+    <div style="text-align:center"><div style="font-size:22px;font-weight:900">عهد الضيافة</div><div style="font-size:12px">إيصال طلب</div></div>
+    <hr>
+    ${row('رقم الطلب', esc(o.no||o.id))}
+    ${row('التاريخ', t)}
+    ${row('القناة', chan)}
+    ${row('الحالة', ({new:'جديد',preparing:'قيد التحضير',done:'مكتمل',awaiting:'بانتظار التأكيد',pending:'بانتظار الدفع',cancelled:'ملغي',failed:'فشل الدفع'})[o.status]||esc(o.status||''))}
+    <hr>
+    ${row('الاسم', o.name?esc(o.name):'')}
+    ${row('الهاتف', o.phone?esc(o.phone):'')}
+    ${row('الاستلام', dt)}
+    ${row('المنطقة', o.area?esc(o.area):'')}
+    ${row('العنوان', o.address?esc(o.address):'')}
+    ${row('الموقع', o.mapUrl?esc(o.mapUrl):'')}
+    <hr>
+    <div><b>الأصناف:</b></div>
+    <div style="white-space:pre-wrap">${esc(o.items||'')}</div>
+    <hr>
+    ${o.deliveryFee?`<div>رسوم التوصيل: ${Number(o.deliveryFee).toFixed(3)} د.ك</div>`:''}
+    <div style="font-size:18px;font-weight:900;margin-top:4px">الإجمالي: ${Number(o.total).toFixed(3)} د.ك</div>
+    <hr>
+    <div style="text-align:center;font-size:12px">شكراً لطلبكم 🌟</div>
+  </div>`;
+  document.getElementById('printArea').innerHTML=html;
+  window.print();
 }
 
 /* ===== الحجوزات ===== */
