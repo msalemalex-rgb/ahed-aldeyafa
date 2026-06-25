@@ -369,26 +369,23 @@ function printOrder(id){
   const cur='د.ك';
   const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
-  const chan=o.channel==='knet'?'KNET (مدفوع)':(o.channel==='whatsapp'?'واتساب':esc(o.channel||''));
-  const st=({new:'جديد',preparing:'قيد التحضير',done:'مكتمل',awaiting:'بانتظار التأكيد',pending:'بانتظار الدفع',cancelled:'ملغي',failed:'فشل الدفع'})[o.status]||esc(o.status||'');
-  const lines=(o.lines&&o.lines.length)?o.lines:null;
+  const lg=(DATA&&DATA.settings&&DATA.settings.logo)?`<img src="${DATA.settings.logo}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #c8962f;display:block;margin:0 auto 6px">`:'';
   let rows;
-  if(lines){rows=lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
-  else{rows=`<tr><td colspan="4" style="padding:8px;text-align:right">${esc(o.items||'')}</td></tr>`;}
+  if(o.lines&&o.lines.length){rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
+  else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);rows=parts.length?parts.map(p=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">—</td></tr>`).join(''):''}
   const sub=Number(o.itemsSubtotal)||0, disc=o.discountPct?sub*(o.discountPct/100):0, fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  const info=(l,v)=>v?`<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #eee"><span style="color:#888">${l}</span><b>${esc(v)}</b></div>`:'';
   const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
-    <div style="text-align:center"><div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي</div></div>
-    <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:5px;margin:8px 0">فاتورة طلب</div>
-    <div style="font-size:13px"><b>رقم الفاتورة:</b> ${esc(o.no||o.id)}</div>
-    <div style="font-size:13px"><b>التاريخ:</b> ${dt}</div>
-    <div style="font-size:13px"><b>القناة:</b> ${chan} • ${st}</div>
-    <div style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:6px 0;margin:6px 0;font-size:13px;line-height:1.8">
-      ${o.name?`<div><b>العميل:</b> ${esc(o.name)}</div>`:''}
-      ${o.phone?`<div><b>الهاتف:</b> ${esc(o.phone)}</div>`:''}
-      ${dtype?`<div><b>الاستلام:</b> ${dtype}</div>`:''}
-      ${o.area?`<div><b>المنطقة:</b> ${esc(o.area)}</div>`:''}
-      ${o.address?`<div><b>العنوان:</b> ${esc(o.address)}</div>`:''}
-      ${o.mapUrl?`<div><b>الموقع:</b> ${esc(o.mapUrl)}</div>`:''}
+    <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
+    <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:6px;margin:10px 0">🧾 فاتورة طلب</div>
+    <div style="border:1px solid #e8d9bf;border-radius:8px;padding:8px 12px;margin-bottom:10px;background:#fdf6ea;font-size:13px">
+      ${info('رقم الفاتورة', esc(o.no||o.id))}
+      ${info('التاريخ', dt)}
+      ${info('العميل', o.name?esc(o.name):'')}
+      ${info('الهاتف', o.phone?esc(o.phone):'')}
+      ${info('طريقة الاستلام', dtype)}
+      ${info('المنطقة', o.area?esc(o.area):'')}
+      ${info('العنوان', o.address?esc(o.address):'')}
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
     <div style="margin-top:8px;font-size:14px">
@@ -397,7 +394,7 @@ function printOrder(id){
       ${fee>0?`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
       <div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>
     </div>
-    <div style="text-align:center;font-size:11px;color:#888;margin-top:10px">شكراً لطلبكم 🌟</div>
+    <div style="text-align:center;font-size:12px;color:#888;margin-top:12px;line-height:1.8">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية</div>
   </div>`;
   document.getElementById('printArea').innerHTML=html;
   window.print();

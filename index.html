@@ -173,6 +173,13 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .inv-cust{font-size:13px;line-height:1.9;border-top:1px solid #eee;border-bottom:1px solid #eee;padding:8px 0;margin-bottom:8px}
 .inv-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
 .inv-tbl th{background:var(--maroon);color:#fff;padding:8px 6px;font-size:12px}
+.inv-tbl .inv-c1{text-align:right;padding:7px 6px;border-bottom:1px solid #eee}
+.inv-tbl .inv-cc{text-align:center;padding:7px 6px;border-bottom:1px solid #eee}
+.inv-info{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:10px;background:var(--cream)}
+.inv-info .ir{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:4px 0;border-bottom:1px dashed #eee}
+.inv-info .ir:last-child{border-bottom:none}
+.inv-info .ir span{color:#888}
+.inv-info .ir b{text-align:left;font-weight:700}
 .inv-totals .r{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
 .inv-totals .r.grand{font-weight:900;font-size:18px;color:var(--maroon);border-top:2px solid var(--maroon);padding-top:8px;margin-top:4px}
 .inv-pay{text-align:center;background:rgba(31,170,84,.12);color:#178c44;font-weight:700;font-size:13px;padding:8px;border-radius:6px;margin:12px 0}
@@ -588,25 +595,20 @@ function buildInvoiceHTML(o,pid){
   const cur=CONFIG.currency;
   const dt=o.createdAt?new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
-  const lines=(o.lines&&o.lines.length)?o.lines:null;
+  const logo=CONFIG.logo?`<img src="${CONFIG.logo}" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:0 auto 6px;display:block">`:`<div class="inv-logo" style="margin:0 auto 6px">🍽️</div>`;
   let rows;
-  if(lines){rows=lines.map(l=>`<tr><td style="text-align:right;padding:7px 6px;border-bottom:1px solid #eee"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:7px 6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');}
-  else{rows=`<tr><td colspan="4" style="padding:8px;text-align:right">${escH(o.items||'')}</td></tr>`;}
-  const sub=Number(o.itemsSubtotal)||0;
-  const disc=o.discountPct?sub*(o.discountPct/100):0;
-  const fee=Number(o.deliveryFee)||0;
-  const tot=Number(o.total)||0;
+  if(o.lines&&o.lines.length){
+    rows=o.lines.map(l=>`<tr><td class="inv-c1"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td class="inv-cc">${l.qty}</td><td class="inv-cc">${Number(l.unit).toFixed(3)}</td><td class="inv-cc">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+  }else{
+    const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);
+    rows=parts.length?parts.map(p=>`<tr><td class="inv-c1" style="font-weight:700">${escH(p)}</td><td class="inv-cc">—</td><td class="inv-cc">—</td><td class="inv-cc">—</td></tr>`).join(''):`<tr><td colspan="4" style="padding:8px">—</td></tr>`;
+  }
+  const sub=Number(o.itemsSubtotal)||0, disc=o.discountPct?sub*(o.discountPct/100):0, fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
+  const info=(l,v)=>v?`<div class="ir"><span>${l}</span><b>${escH(v)}</b></div>`:'';
   return `<div class="inv">
-    <div class="inv-head"><div class="inv-logo">🍽️</div><div><div class="inv-name">عهد الضيافة</div><div class="inv-sub">المأكولات الكويتية الأصيلة • حولي</div></div></div>
-    <div class="inv-badge">فاتورة طلب</div>
-    <div class="inv-meta"><span><b>رقم الفاتورة:</b> ${escH(o.no)}</span><span><b>التاريخ:</b> ${dt}</span></div>
-    <div class="inv-cust">
-      ${o.name?`<div><b>العميل:</b> ${escH(o.name)}</div>`:''}
-      ${o.phone?`<div><b>الهاتف:</b> ${escH(o.phone)}</div>`:''}
-      ${dtype?`<div><b>طريقة الاستلام:</b> ${dtype}</div>`:''}
-      ${o.area?`<div><b>المنطقة:</b> ${escH(o.area)}</div>`:''}
-      ${o.address?`<div><b>العنوان:</b> ${escH(o.address)}</div>`:''}
-    </div>
+    <div style="text-align:center">${logo}<div class="inv-name">عهد الضيافة</div><div class="inv-sub">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
+    <div class="inv-badge">🧾 فاتورة طلب</div>
+    <div class="inv-info">${info('رقم الفاتورة',o.no)}${info('التاريخ',dt)}${info('العميل',o.name)}${info('الهاتف',o.phone)}${info('طريقة الاستلام',dtype)}${info('المنطقة',o.area)}${info('العنوان',o.address)}</div>
     <table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="inv-totals">
       <div class="r"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>
@@ -614,8 +616,8 @@ function buildInvoiceHTML(o,pid){
       ${fee>0?`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`:''}
       <div class="r grand"><span>الإجمالي المدفوع</span><span>${tot.toFixed(3)} ${cur}</span></div>
     </div>
-    <div class="inv-pay">✅ مدفوعة بنجاح عبر KNET${pid?(' • رقم العملية: '+escH(pid)):''}</div>
-    <div class="inv-foot">شكراً لطلبك من عهد الضيافة 🌟<br>للتواصل والاستفسار: +${escH(CONFIG.whatsapp)}</div>
+    <div class="inv-pay">✅ تم الدفع بنجاح عبر KNET${pid?(' • رقم العملية '+escH(pid)):''}</div>
+    <div class="inv-foot">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية وعودة قريبة<br>للتواصل والاستفسار: +${escH(CONFIG.whatsapp)}</div>
   </div>`;
 }
 async function loadInvoice(ref,pid){
