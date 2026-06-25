@@ -158,6 +158,11 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .co-arealist .ar-item{padding:11px 13px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--line)}
 .co-arealist .ar-item:last-child{border-bottom:none}
 .co-arealist .ar-item:hover,.co-arealist .ar-item:active{background:var(--cream-2)}
+.opt-group{margin-bottom:14px;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
+.opt-glabel{font-family:'Cairo';font-weight:700;margin-bottom:8px;color:var(--maroon);font-size:15px}
+.opt-choice{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:6px;cursor:pointer;font-size:15px}
+.opt-choice:hover{background:var(--cream-2)}
+.opt-choice input{width:auto;margin:0;transform:scale(1.25);accent-color:var(--maroon)}
 .co-err{color:#c0392b;font-family:'Cairo';font-weight:700;font-size:14px;min-height:20px;margin-bottom:8px}
 .co-body .btn{width:100%;justify-content:center}
 .res-overlay{position:fixed;inset:0;background:rgba(40,8,12,.65);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
@@ -281,6 +286,15 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </aside>
 <button class="cart-float" id="cartFloat" onclick="openCart()">🛒<span class="cf-count" id="cfCount">0</span></button>
 <a class="wa-float" id="waFloat" target="_blank" title="واتساب" aria-label="واتساب"><svg viewBox="0 0 24 24" width="34" height="34" fill="#fff" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z"/></svg></a>
+<div class="co-overlay" id="optOverlay" onclick="if(event.target.id==='optOverlay')closeOpt()">
+  <div class="co-box">
+    <div class="co-head"><h3 id="optTitle"></h3><button class="co-close" onclick="closeOpt()">×</button></div>
+    <div class="co-body">
+      <div id="optBody"></div>
+      <button class="btn btn-gold" onclick="confirmOptions()">＋ أضف للسلة <span id="optPrice"></span></button>
+    </div>
+  </div>
+</div>
 <div class="co-overlay" id="coOverlay" onclick="if(event.target.id==='coOverlay')closeCheckout()">
   <div class="co-box">
     <div class="co-head"><h3>تفاصيل الطلب</h3><button class="co-close" onclick="closeCheckout()">×</button></div>
@@ -318,7 +332,8 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 <script>
 let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,knet:{enabled:true,endpoint:"/api/checkout"}};
 let MENU=[];
-let cart={};
+let cart=[];
+let optItem=null;
 let coDType="delivery";
 let coAreaIdx=-1;
 let coMapUrl="";
@@ -337,27 +352,71 @@ function showCat(i){
     grid.appendChild(d);});
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
-function addItem(id){cart[id]=(cart[id]||0)+1;updateCart();const it=findItem(id);showToast(`✓ أُضيف ${it?it.name:''}`)}
-function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart()}
-function cartArray(){return Object.keys(cart).map(id=>({it:findItem(+id),q:cart[id]})).filter(r=>r.it)}
-function subtotal(){return cartArray().reduce((s,r)=>s+r.it.price*r.q,0)}
+function itemHasOptions(it){return it&&Array.isArray(it.options)&&it.options.length>0;}
+function normChoice(c){return (typeof c==='string')?{name:c,price:0}:{name:(c&&c.name)||'',price:Number(c&&c.price)||0};}
+function addItem(id){const it=findItem(id);if(!it)return;if(itemHasOptions(it)){openOptions(it);}else{addLine(it,[]);showToast('✓ أُضيف '+it.name);}}
+function lineKey(id,opts){return id+'|'+opts.map(o=>o.label+'='+o.choice).join('|');}
+function addLine(it,opts){
+  const key=lineKey(it.id,opts);
+  const ex=cart.find(l=>l.key===key);
+  if(ex){ex.qty++;}else{cart.push({key:key,id:it.id,name:it.name,base:Number(it.price)||0,opts:opts,qty:1});}
+  updateCart();
+}
+function lineUnit(l){return l.base+l.opts.reduce((s,o)=>s+(Number(o.price)||0),0);}
+function lineOptsText(l){return l.opts.length?l.opts.map(o=>o.choice).join('، '):'';}
+function cartArray(){return cart;}
+function subtotal(){return cart.reduce((s,l)=>s+lineUnit(l)*l.qty,0);}
 function total(){return subtotal()*(1-CONFIG.directDiscount)}
-function count(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+function count(){return cart.reduce((a,l)=>a+l.qty,0);}
+function changeQty(key,d){const l=cart.find(x=>x.key===key);if(!l)return;l.qty+=d;if(l.qty<=0)cart=cart.filter(x=>x.key!==key);updateCart();}
+/* ===== نافذة اختيارات الصنف ===== */
+function openOptions(it){
+  optItem=it;
+  document.getElementById('optTitle').textContent=it.name;
+  document.getElementById('optBody').innerHTML=(it.options||[]).map((g,gi)=>{
+    const choices=(g.choices||[]).map((c,ci)=>{const cc=normChoice(c);const extra=cc.price>0?(' <span style="color:var(--muted);font-size:12px">(+'+cc.price.toFixed(3)+')</span>'):'';
+      return `<label class="opt-choice"><input type="radio" name="opt-${gi}" value="${ci}" ${ci===0?'checked':''} onchange="updateOptPrice()"> <span>${cc.name}${extra}</span></label>`;
+    }).join('');
+    return `<div class="opt-group"><div class="opt-glabel">${g.label||'اختيار'} ${g.required?'<span style="color:#c0392b">*</span>':''}</div>${choices}</div>`;
+  }).join('')||'<div style="color:var(--muted)">لا توجد اختيارات</div>';
+  updateOptPrice();
+  document.getElementById('optOverlay').classList.add('open');
+}
+function closeOpt(){document.getElementById('optOverlay').classList.remove('open');optItem=null;}
+function gatherOpts(){
+  const opts=[];
+  (optItem.options||[]).forEach((g,gi)=>{
+    const sel=document.querySelector('input[name="opt-'+gi+'"]:checked');
+    if(sel){const cc=normChoice((g.choices||[])[parseInt(sel.value)]);opts.push({label:g.label||'اختيار',choice:cc.name,price:cc.price||0});}
+  });
+  return opts;
+}
+function updateOptPrice(){
+  if(!optItem)return;
+  const unit=(Number(optItem.price)||0)+gatherOpts().reduce((s,o)=>s+(Number(o.price)||0),0);
+  document.getElementById('optPrice').textContent='('+unit.toFixed(3)+' '+CONFIG.currency+')';
+}
+function confirmOptions(){
+  if(!optItem)return;
+  const it=optItem;const opts=gatherOpts();
+  addLine(it,opts);showToast('✓ أُضيف '+it.name);closeOpt();
+}
 function updateCart(){
   const c=count();
   document.getElementById('cartCount').textContent=c;
   document.getElementById('cfCount').textContent=c;
   document.getElementById('cartFloat').classList.toggle('show',c>0);
-  const box=document.getElementById('cartItems');const arr=cartArray();
-  if(!arr.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
-  else{box.innerHTML=arr.map(r=>`<div class="ci">${imgTag(r.it.img+(r.it.imgV?('&v='+r.it.imgV):''),'ci-img')}<div class="info"><h4>${r.it.name}</h4><div class="p">${Number(r.it.price).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty(${r.it.id},-1)">−</button><span>${r.q}</span><button onclick="changeQty(${r.it.id},1)">＋</button></div></div>`).join('');}
+  const box=document.getElementById('cartItems');
+  if(!cart.length){box.innerHTML=`<div class="cart-empty"><div class="big">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p></div>`;}
+  else{box.innerHTML=cart.map(l=>{const it=findItem(l.id);const img=it?(it.img+(it.imgV?('&v='+it.imgV):'')):'';const o=lineOptsText(l);
+    return `<div class="ci">${imgTag(img,'ci-img')}<div class="info"><h4>${l.name}</h4>${o?`<div style="font-size:12px;color:var(--muted);line-height:1.5">${o}</div>`:''}<div class="p">${lineUnit(l).toFixed(3)} ${CONFIG.currency}</div></div><div class="qty"><button onclick="changeQty('${l.key}',-1)">−</button><span>${l.qty}</span><button onclick="changeQty('${l.key}',1)">＋</button></div></div>`;}).join('');}
   document.getElementById('cartTotal').textContent=fmt(total());
 }
 function openCart(){cartOverlay.classList.add('open');cartPanel.classList.add('open')}
 function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.remove('open')}
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
-function orderItemsText(a){return a.map(r=>`${r.it.name} ×${r.q}`).join("، ")}
+function orderItemsText(a){return a.map(l=>{const o=lineOptsText(l);return l.name+' ×'+l.qty+(o?(' ('+o+')'):'');}).join("، ");}
 function saveOrder(channel){const a=cartArray();if(!a.length)return;try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:orderItemsText(a),total:Number(total().toFixed(3)),channel:channel})});}catch(_){}}
 function checkoutWhatsApp(){
   const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
@@ -505,7 +564,7 @@ function showResult(kind){
     if(no){ono.style.display='inline-block';ono.textContent="رقم طلبك: "+no;}else ono.style.display='none';
     document.getElementById('resSub').textContent="سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼";
     acts.innerHTML=`<a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">📲 تواصل معنا على واتساب</a><button class="btn btn-gold" onclick="closeResult()">تمام</button>`;
-    try{cart={};updateCart();}catch(_){}
+    try{cart=[];updateCart();}catch(_){}
     try{sessionStorage.removeItem('lastOrderNo');}catch(_){}
   }else{
     box.className="res-box bad";
