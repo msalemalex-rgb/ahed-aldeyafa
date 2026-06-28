@@ -201,6 +201,17 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .res-box .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
 .res-box .acts{display:flex;flex-direction:column;gap:10px}
 .res-box .acts .btn{width:100%;justify-content:center}
+.closed-box{background:#fff;border-radius:16px;width:420px;max-width:94vw;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.45);animation:pop .3s ease}
+.closed-top{background:linear-gradient(135deg,var(--maroon-dark),var(--maroon));padding:28px 20px 22px;text-align:center;color:#fff;position:relative}
+.closed-top::after{content:"";position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold))}
+.closed-logo{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#a8242b,var(--maroon-dark));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:32px;border:2px solid var(--gold);margin:0 auto 10px;overflow:hidden}
+.closed-logo img{width:100%;height:100%;object-fit:cover}
+.closed-brand{font-family:'Aref Ruqaa';font-size:28px;color:var(--gold-light)}
+.closed-sub2{font-size:12px;opacity:.85;margin-top:2px}
+.closed-body{padding:24px 22px;text-align:center}
+.closed-status{display:inline-flex;align-items:center;gap:8px;background:var(--cream-2);color:var(--maroon);font-family:'Cairo';font-weight:700;font-size:17px;padding:9px 22px;border-radius:50px;border:1px solid var(--gold)}
+.closed-hours{font-family:'Cairo';font-weight:700;color:var(--ink);font-size:15px;margin:16px 0 4px}
+.closed-msg{color:var(--muted);font-size:14px;line-height:1.9;margin:8px 0 20px}
 @media(max-width:980px){.hero .container,.about .container,.cat-wrap,.contact-grid{grid-template-columns:1fr}.hero h1{font-size:44px}.menu-grid{grid-template-columns:repeat(2,1fr)}.nav-links{position:fixed;top:78px;right:0;left:0;background:var(--maroon-dark);flex-direction:column;padding:24px;gap:18px;display:none;border-top:1px solid var(--gold)}.nav-links.open{display:flex}.menu-toggle{display:block}.about-img{order:-1}.section-title{font-size:34px}}
 @media(max-width:560px){.menu-grid{grid-template-columns:1fr}.hero h1{font-size:36px}.hero .frame{padding:34px 24px}.quote-band .q{font-size:24px}.section{padding:64px 0}}
 </style>
@@ -351,6 +362,21 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   </div>
 </div>
 <div id="invPrint"></div>
+<div class="res-overlay" id="closedOverlay">
+  <div class="closed-box">
+    <div class="closed-top">
+      <span class="closed-logo" id="closedLogo">🍽️</span>
+      <div class="closed-brand">عهد الضيافة</div>
+      <div class="closed-sub2">المأكولات الكويتية الأصيلة</div>
+    </div>
+    <div class="closed-body">
+      <div class="closed-status">🌙 المطعم مغلق حالياً</div>
+      <div class="closed-hours" id="closedMsg"></div>
+      <p class="closed-msg">يسعدنا تصفّحكم لقائمتنا، ويمكنكم تقديم طلبكم أو حجزكم الآن وسيبدأ تجهيزه فور بدء أوقات العمل.<br>نشكر لكم اختياركم مطعم عهد الضيافة.</p>
+      <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="closeClosed()">تصفّح القائمة وأكمل طلبك</button>
+    </div>
+  </div>
+</div>
 <div class="res-overlay" id="resOverlay">
   <div class="res-box" id="resBox">
     <div class="icon" id="resIcon">✅</div>
@@ -363,7 +389,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 let MENU=[];
 let cart=[];
 let optItem=null;
@@ -590,6 +616,26 @@ function applySettings(){
 function initScroll(){
   const h=document.getElementById('header');const onS=()=>h.classList.toggle('scrolled',window.scrollY>40);window.addEventListener('scroll',onS);onS();
 }
+/* ===== حالة المطعم مفتوح/مغلق ===== */
+function parseHM(s){const m=(''+s).match(/(\d{1,2}):(\d{2})/);return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):null;}
+function fmtHM(s){const m=(''+s).match(/(\d{1,2}):(\d{2})/);if(!m)return s;let h=parseInt(m[1],10);const mm=m[2];const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;return h12+':'+mm+' '+ap;}
+function isOpenNow(){
+  const o=parseHM(CONFIG.openTime), c=parseHM(CONFIG.closeTime);
+  if(o==null||c==null)return true;
+  const d=new Date(Date.now()+3*3600*1000);
+  let now=d.getUTCHours()*60+d.getUTCMinutes();
+  let oo=o, cc=c; if(cc<=oo)cc+=1440;
+  let n=now; if(n<oo)n+=1440;
+  return n>=oo && n<cc;
+}
+function closeClosed(){document.getElementById('closedOverlay').classList.remove('open');}
+function checkOpenStatus(){
+  if(isOpenNow())return;
+  if(CONFIG.logo){const cl=document.getElementById('closedLogo');if(cl)cl.innerHTML='<img src="'+CONFIG.logo+'">';}
+  const el=document.getElementById('closedMsg');
+  el.textContent=(CONFIG.openTime&&CONFIG.closeTime)?('🕒 ساعات العمل: من '+fmtHM(CONFIG.openTime)+' إلى '+fmtHM(CONFIG.closeTime)):'';
+  document.getElementById('closedOverlay').classList.add('open');
+}
 /* ===== الفاتورة ===== */
 let _invHTML="";
 function escH(s){return (''+(s==null?'':s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -674,9 +720,9 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu');const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}
-  renderMenu();updateCart();applySettings();
+  renderMenu();updateCart();applySettings();checkOpenStatus();
 }
 applySettings();initScroll();initPaymentStatus();loadMenu();
 </script>

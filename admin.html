@@ -189,9 +189,15 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
         <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
-        <label class="fld">مواعيد العمل</label>
+        <label class="fld">مواعيد العمل (تظهر للعميل)</label>
         <div id="hoursBox"></div>
         <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
+        <label class="fld" style="margin-top:16px">وقت الفتح والإغلاق (لتنبيه العميل لو دخل خارج أوقات العمل)</label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-family:'Cairo';font-weight:700">من</span><input id="setOpen" type="time" style="flex:1;margin:0">
+          <span style="font-family:'Cairo';font-weight:700">إلى</span><input id="setClose" type="time" style="flex:1;margin:0">
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">سيبهم فاضيين لو عايز تشيل التنبيه. العميل يقدر يطلب ويحجز في كل الأوقات.</div>
       </div>
       <div class="card">
         <label class="fld">مناطق التوصيل — الرسوم والحد الأدنى لكل منطقة (بالدينار)</label>
@@ -607,6 +613,8 @@ function fillSettings(){
   document.getElementById('setWa').value=s.whatsapp||"";
   document.getElementById('setDisc').value=(s.directDiscount==null?10:(s.directDiscount<=1?Math.round(s.directDiscount*100):s.directDiscount));
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
+  document.getElementById('setOpen').value=s.openTime||"";
+  document.getElementById('setClose').value=s.closeTime||"";
   renderHours();
   const lp=document.getElementById('logoPrev');
   if(s.logo){lp.src=s.logo;lp.style.display='block';}else{lp.style.display='none';}
@@ -616,6 +624,8 @@ function saveSettings(){
   DATA.settings.whatsapp=document.getElementById('setWa').value.trim();
   {let p=parseFloat(document.getElementById('setDisc').value)||0;if(p>1)p=p/100;DATA.settings.directDiscount=Math.max(0,Math.min(p,0.95));}
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
+  DATA.settings.openTime=document.getElementById('setOpen').value||"";
+  DATA.settings.closeTime=document.getElementById('setClose').value||"";
   if(DATA.settings.currency==null)DATA.settings.currency="د.ك";
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ الإعدادات":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
