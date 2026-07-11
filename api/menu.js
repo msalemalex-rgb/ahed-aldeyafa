@@ -142,7 +142,7 @@ const data = ensureFields(JSON.parse(raw));
 // ترحيل لمرة واحدة: انقل صور base64 القديمة لروابط مخدومة
 const changed = await offloadImages(data);
 if(changed){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
-res.setHeader("Cache-Control","public, s-maxage=60, stale-while-revalidate=300");
+res.setHeader("Cache-Control","no-store");
 return res.status(200).json(data);
 }
 if(req.method==="POST"){
