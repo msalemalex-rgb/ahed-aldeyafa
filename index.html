@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>مطعم عهد الضيافة | المأكولات الكويتية الأصيلة</title>
-<meta name="description" content="مطعم عهد الضيافة - الأطباق الكويتية الأصيلة بحولي. طلب أونلاين، توصيل، وكاترينج للديوانيات والمناسبات.">
+<meta name="description" content="مطعم عهد الضيافة - الأطباق الكويتية الأصيلة بحولي. طلب أونلاين، توصيل، وخدمة المناسبات والديوانيات.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -224,7 +224,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="brand"><span class="logo" id="brandLogo">🍽️</span> عهد الضيافة</div>
     <nav class="nav-links" id="navLinks">
       <a href="#menu" onclick="closeNav()">المنيو</a>
-      <a href="#catering" onclick="closeNav()">الكاترينج والديوانيات</a>
+      <a href="#catering" onclick="closeNav()">المناسبات والديوانيات</a>
       <a href="#about" onclick="closeNav()">عن المطعم</a>
       <a href="#contact" onclick="closeNav()">الموقع والتواصل</a>
     </nav>
@@ -257,21 +257,21 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </div></section>
 <div class="quote-band"><div class="container"><p class="q">في عهد الضيافة، الأكل ليس مجرد وجبة… بل كرمٌ وضيافة على أصول الكويت</p></div></div>
 <section class="section catering" id="catering"><div class="container">
-  <div style="text-align:center"><span class="eyebrow">المناسبات</span><h2 class="section-title">الكاترينج والديوانيات</h2><div class="ornament">❖</div><p class="section-sub">أطباق مشتركة بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p></div>
+  <div style="text-align:center"><span class="eyebrow">المناسبات</span><h2 class="section-title">المناسبات والديوانيات</h2><div class="ornament">❖</div><p class="section-sub">صواني بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p></div>
   <div class="cat-wrap">
     <div class="cat-info">
-      <div class="pack"><div class="n">10</div><div><h4>صينية تكفّي 10 أشخاص</h4><p>مجبوس لحم/دجاج + أرز + سلطات</p></div></div>
-      <div class="pack"><div class="n">20</div><div><h4>صينية تكفّي 20 شخص</h4><p>تشكيلة أطباق كويتية لليلة الديوانية</p></div></div>
-      <div class="pack"><div class="n">30</div><div><h4>بوفيه 30 شخص فأكثر</h4><p>منيو متكامل + حلى للأعراس والمناسبات</p></div></div>
+      <div class="pack"><div class="n">2-5</div><div><h4>صواني تكفّي من شخصين حتى 5 أشخاص</h4><p>مجبوس لحم/دجاج، برياني، مطبق وروبيان</p></div></div>
+      <div class="pack"><div class="n">10</div><div><h4>صواني استيل تكفّي 7 و 10 أشخاص</h4><p>للديوانيات والعزائم الكبيرة</p></div></div>
+      <div class="pack"><div class="n">★</div><div><h4>قوزي استرالي كامل</h4><p>لأفخم المناسبات والولائم</p></div></div>
       <div class="discount-tag" style="margin-top:8px">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
     </div>
     <form class="cat-form" id="cateringForm" onsubmit="return submitCatering(event)">
-      <h3>احجز عرض كاترينج</h3>
+      <h3>احجز للمناسبات والديوانيات</h3>
       <div class="deposit">💡 يتطلب عربون مقدّم لتأكيد الحجز</div>
       <div class="field"><label>الاسم</label><input required id="catName" placeholder="اسمك الكريم"></div>
       <div class="field"><label>رقم التواصل</label><input required id="catPhone" type="tel" placeholder="9XXXXXXX"></div>
       <div class="field"><label>نوع المناسبة</label><select id="catType"><option>ديوانية</option><option>عرس</option><option>عزيمة عائلية</option><option>مناسبة شركة</option><option>أخرى</option></select></div>
-      <div class="field"><label>عدد الأشخاص</label><select id="catCount"><option>10 أشخاص</option><option>20 شخص</option><option>30 شخص</option><option>50 فأكثر</option></select></div>
+      <div class="field"><label>عدد الأشخاص</label><select id="catCount"><option>شخصين</option><option>3 أشخاص</option><option>4 أشخاص</option><option>5 أشخاص</option><option>7 أشخاص</option><option>10 أشخاص</option></select></div>
       <div class="field"><label>التاريخ المطلوب</label><input id="catDate" type="date"></div>
       <div class="field"><label>تفاصيل إضافية</label><textarea id="catNotes" rows="2" placeholder="الأطباق المطلوبة، وقت التسليم..."></textarea></div>
       <button type="submit" class="btn btn-wa">📲 أرسل طلب الحجز على واتساب</button>
@@ -601,7 +601,7 @@ async function submitCheckout(){
 function submitCatering(e){
   e.preventDefault();
   const n=catName.value,p=catPhone.value,t=catType.value,c=catCount.value,d=catDate.value||"غير محدد",notes=catNotes.value||"لا يوجد";
-  let msg=`🍲 *طلب حجز كاترينج - عهد الضيافة*%0A%0Aالاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A(أرغب بتأكيد الحجز ومعرفة العربون)`;
+  let msg=`🍲 *طلب حجز مناسبة - عهد الضيافة*%0A%0Aالاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A(أرغب بتأكيد الحجز ومعرفة العربون)`;
   try{fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
