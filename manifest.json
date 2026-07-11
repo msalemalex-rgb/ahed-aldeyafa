@@ -1,0 +1,18 @@
+{
+  "name": "لوحة تحكم عهد الضيافة",
+  "short_name": "عهد الضيافة",
+  "description": "لوحة تحكم مطعم عهد الضيافة — إدارة الطلبات والمنيو",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#6e1423",
+  "theme_color": "#6e1423",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

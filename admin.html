@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة تحكم - عهد الضيافة</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6e1423">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -268,7 +271,17 @@ function enableSound(test){
     if(audioCtx.state==="suspended")audioCtx.resume();
     soundOn=true;
     document.getElementById('soundbar').style.display='none';
+    try{ if('Notification' in window && Notification.permission==='default') Notification.requestPermission(); }catch(_){}
     if(test)beep();
+  }catch(_){}
+}
+function notify(title,body){
+  try{
+    if('Notification' in window && Notification.permission==='granted'){
+      const ic=(DATA&&DATA.settings&&DATA.settings.logo)||undefined;
+      const n=new Notification(title,{body:body,icon:ic,tag:'ahed-order',renotify:true});
+      n.onclick=function(){try{window.focus();}catch(_){}this.close();};
+    }
   }catch(_){}
 }
 function beep(){
@@ -349,8 +362,8 @@ function loadOrders(){
       if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); }
       if(o.status==="failed" && !seenFail.has(o.id)){ if(!first) freshFail++; seenFail.add(o.id); }
     });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; }
-    if(freshFail>0){ startFailAlarm(); }
+    if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد'); }
+    if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); }
     first=false; orders=d.orders; renderOrders();
   }).catch(()=>{});
 }
@@ -785,6 +798,7 @@ function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,
 
 /* استعادة الجلسة */
 (function(){try{const k=sessionStorage.getItem('ak');if(k){document.getElementById('pass').value=k;}}catch(_){}})();
+if('serviceWorker' in navigator){try{navigator.serviceWorker.register('/sw.js').catch(function(){});}catch(_){}}
 </script>
 </body>
 </html>
