@@ -67,6 +67,8 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .card .thumb img{width:100%;height:100%;object-fit:cover;transition:.5s}
 .card:hover .thumb img{transform:scale(1.08)}
 .card .thumb .badge-cat{position:absolute;top:12px;right:12px;z-index:2;background:rgba(78,13,24,.85);color:var(--gold-light);font-family:'Cairo';font-size:12px;font-weight:700;padding:5px 12px;border-radius:3px;border:1px solid var(--gold)}
+.card.unavailable{opacity:.7}
+.card .soldout{position:absolute;inset:0;z-index:3;background:rgba(40,8,12,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cairo';font-weight:700;font-size:16px}
 .card .body{padding:20px 22px;display:flex;flex-direction:column;flex:1}
 .card h3{font-size:23px;color:var(--maroon);margin-bottom:6px}
 .card .desc{color:var(--muted);font-size:13px;margin-bottom:18px;flex:1}
@@ -407,14 +409,14 @@ function renderMenu(){
 function scrollToItems(){const g=document.getElementById('menuGrid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'});}
 function showCat(i){
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
-  (MENU[i].items||[]).forEach(it=>{const d=document.createElement('div');d.className='card';
-    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div><button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button></div></div>`;
+  (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${MENU[i].cat}</span>${un?'<span class="soldout">غير متوفر حالياً</span>':''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${it.name}</h3><div class="desc">${it.desc||''}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CONFIG.currency}</small></div>${un?'<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">غير متوفر</span>':`<button class="add-btn" onclick="addItem(${it.id})">＋ أضف للسلة</button>`}</div></div>`;
     grid.appendChild(d);});
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
 function itemHasOptions(it){return it&&Array.isArray(it.options)&&it.options.length>0;}
 function normChoice(c){return (typeof c==='string')?{name:c,price:0}:{name:(c&&c.name)||'',price:Number(c&&c.price)||0};}
-function addItem(id){const it=findItem(id);if(!it)return;if(itemHasOptions(it)){openOptions(it);}else{addLine(it,[]);showToast('✓ أُضيف '+it.name);}}
+function addItem(id){const it=findItem(id);if(!it)return;if(it.available===false){showToast('هذا الصنف غير متوفر حالياً');return;}if(itemHasOptions(it)){openOptions(it);}else{addLine(it,[]);showToast('✓ أُضيف '+it.name);}}
 function lineKey(id,opts){return id+'|'+opts.map(o=>o.label+'='+o.choice).join('|');}
 function addLine(it,opts){
   const key=lineKey(it.id,opts);
