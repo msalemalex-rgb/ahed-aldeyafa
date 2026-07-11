@@ -720,7 +720,7 @@ function initPaymentStatus(){
 }
 async function loadMenu(){
   try{
-    const r=await fetch('/api/menu');const d=await r.json();
+    const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
     if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}

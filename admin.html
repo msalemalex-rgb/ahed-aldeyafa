@@ -535,7 +535,7 @@ function updRes(id,status){
 
 /* ===== محرّر المنيو ===== */
 function loadMenuData(){
-  fetch('/api/menu').then(r=>r.json()).then(d=>{
+  fetch('/api/menu?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(d=>{
     DATA.menu=d.menu||[]; DATA.settings=d.settings||{};
     if(!Array.isArray(DATA.settings.areas))DATA.settings.areas=[];
     if(!Array.isArray(DATA.settings.hours)||!DATA.settings.hours.length)DATA.settings.hours=[{days:"السبت - الخميس",time:"١١ ص - ١٢ م"},{days:"الجمعة",time:"١ ظ - ١٢ م"}];
