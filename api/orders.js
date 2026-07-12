@@ -38,6 +38,7 @@ module.exports = async (req, res) => {
       // إشعار Push للأدمن حسب حالة الطلب
       try {
         if (push && push.sendPush) {
+          try { if (order.status === "new" || order.status === "awaiting") await push.addActive(order.id); } catch (_) {}
           if (order.status === "awaiting")
             await push.sendPush({ title: "🟡 طلب بانتظار التأكيد", body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك", url: "/admin.html" });
           else if (order.status === "new")
