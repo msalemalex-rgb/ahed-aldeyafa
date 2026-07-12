@@ -271,7 +271,14 @@ function enableSound(test){
     if(audioCtx.state==="suspended")audioCtx.resume();
     soundOn=true;
     document.getElementById('soundbar').style.display='none';
-    try{ if('Notification' in window && Notification.permission==='default') Notification.requestPermission(); }catch(_){}
+    try{
+      if('Notification' in window){
+        if(Notification.permission==='granted'){ subscribePush(); }
+        else if(Notification.permission==='default'){
+          Notification.requestPermission().then(function(p){ if(p==='granted') subscribePush(); });
+        }
+      }
+    }catch(_){}
     if(test)beep();
   }catch(_){}
 }
@@ -282,6 +289,27 @@ function notify(title,body){
       const n=new Notification(title,{body:body,icon:ic,tag:'ahed-order',renotify:true});
       n.onclick=function(){try{window.focus();}catch(_){}this.close();};
     }
+  }catch(_){}
+}
+/* ===== اشتراك Push (إشعارات تصل حتى والتطبيق مقفول) ===== */
+function urlB64ToUint8(b){
+  const pad='='.repeat((4-b.length%4)%4);
+  const s=(b+pad).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(s); const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+async function subscribePush(){
+  try{
+    if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      const r=await fetch('/api/push'); const j=await r.json();
+      if(!j||!j.publicKey)return;
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(j.publicKey)});
+    }
+    await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',subscription:sub})});
   }catch(_){}
 }
 function beep(){
@@ -798,7 +826,7 @@ function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,
 
 /* استعادة الجلسة */
 (function(){try{const k=sessionStorage.getItem('ak');if(k){document.getElementById('pass').value=k;}}catch(_){}})();
-if('serviceWorker' in navigator){try{navigator.serviceWorker.register('/sw.js').catch(function(){});}catch(_){}}
+if('serviceWorker' in navigator){try{navigator.serviceWorker.register('/sw.js').then(function(){try{if('Notification' in window && Notification.permission==='granted') subscribePush();}catch(_){}}).catch(function(){});}catch(_){}}
 </script>
 </body>
 </html>
