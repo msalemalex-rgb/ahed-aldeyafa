@@ -1,6 +1,8 @@
 // /api/orders — POST: إنشاء طلب | GET: قائمة الطلبات (أدمن) | PATCH: تحديث الحالة (أدمن)
 // GET ?debug=1 (أدمن): يرجّع آخر تشخيصات الدفع (pay_debug) لمتابعة عمليات Hesabe
 const { addOrder, listOrders, setOrderStatus, cmd } = require("../lib/kv");
+let push = null;
+try { push = require("../lib/push"); } catch (_) {}
 
 function readBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
@@ -33,6 +35,15 @@ module.exports = async (req, res) => {
         // KNET: "pending" حتى نجاح الدفع | واتساب: "awaiting" (بانتظار تأكيد الأدمن) | غيرهم: "new"
         status: (b.channel === "knet") ? "pending" : (b.channel === "whatsapp") ? "awaiting" : "new",
       });
+      // إشعار Push للأدمن حسب حالة الطلب
+      try {
+        if (push && push.sendPush) {
+          if (order.status === "awaiting")
+            await push.sendPush({ title: "🟡 طلب بانتظار التأكيد", body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك", url: "/admin.html" });
+          else if (order.status === "new")
+            await push.sendPush({ title: "🔔 طلب جديد — عهد الضيافة", body: "وصلك طلب جديد، تابعه من لوحة التحكم", url: "/admin.html" });
+        }
+      } catch (_) {}
       return res.status(200).json({ ok: true, id: order.id, no: order.no });
     }
     if (req.method === "GET") {

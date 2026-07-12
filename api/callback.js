@@ -13,6 +13,8 @@
 const { decrypt } = require("../lib/hesabeCrypt");
 let kv = null;
 try { kv = require("../lib/kv"); } catch (_) {}
+let push = null;
+try { push = require("../lib/push"); } catch (_) {}
 
 const SANDBOX_KEYS = { ENC: "PkW64zMe5NVdrlPVNnjo2Jy9nOb7v1Xg", IV: "5NVdrlPVNnjo2Jy9" };
 
@@ -122,6 +124,14 @@ module.exports = async (req, res) => {
     // Link payment result to the order in the dashboard
     if (orderId && kv && kv.setOrderStatus) {
       try { await kv.setOrderStatus(orderId, ok ? "new" : "failed"); } catch (_) {}
+    }
+
+    // إشعار دفع (Push) لكل أجهزة لوحة التحكم — حتى لو التطبيق مقفول
+    if (push && push.sendPush) {
+      try {
+        if (ok) await push.sendPush({ title: "\uD83D\uDD14 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u2014 \u0639\u0647\u062F \u0627\u0644\u0636\u064A\u0627\u0641\u0629", body: "\u0648\u0635\u0644\u0643 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u0645\u062F\u0641\u0648\u0639 \u2014 \u062A\u0627\u0628\u0639\u0647 \u0645\u0646 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", url: "/admin.html" });
+        else await push.sendPush({ title: "\uD83D\uDCB3 \u0645\u062D\u0627\u0648\u0644\u0629 \u062F\u0641\u0639 \u0641\u0627\u0634\u0644\u0629", body: "\u0639\u0645\u064A\u0644 \u062D\u0627\u0648\u0644 \u0627\u0644\u062F\u0641\u0639 \u0648\u0644\u0645 \u064A\u0643\u062A\u0645\u0644 \u2014 \u0642\u062F \u062A\u062D\u062A\u0627\u062C \u0645\u062A\u0627\u0628\u0639\u062A\u0647", url: "/admin.html" });
+      } catch (_) {}
     }
 
     const ref    = encodeURIComponent(orderId);
