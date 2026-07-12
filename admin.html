@@ -316,20 +316,24 @@ function beep(){
   try{
     if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
     if(audioCtx.state==="suspended")audioCtx.resume();
+    // ضاغط ديناميكي لرفع الصوت لأقصى حد بدون تشويش
+    const comp=audioCtx.createDynamicsCompressor();
+    comp.threshold.value=-24; comp.knee.value=30; comp.ratio.value=12; comp.attack.value=0.003; comp.release.value=0.25;
     const master=audioCtx.createGain();
-    master.gain.value=0.95; master.connect(audioCtx.destination);
+    master.gain.value=6.0; // صوت عالي جداً
+    master.connect(comp); comp.connect(audioCtx.destination);
     const N=10; // تنبيه عالي وطويل (~4.5 ثانية)
     for(let k=0;k<N;k++){
       const o=audioCtx.createOscillator(), o2=audioCtx.createOscillator(), g=audioCtx.createGain();
       o.connect(g); o2.connect(g); g.connect(master);
-      o.type="square"; o2.type="sine";
+      o.type="square"; o2.type="square";
       const f=(k%2===0)?880:1245;
       o.frequency.value=f; o2.frequency.value=f*2;
       const t=audioCtx.currentTime + k*0.45;
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.9,t+0.04);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.38);
-      o.start(t); o2.start(t); o.stop(t+0.4); o2.stop(t+0.4);
+      g.gain.exponentialRampToValueAtTime(1.0,t+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
+      o.start(t); o2.start(t); o.stop(t+0.42); o2.stop(t+0.42);
     }
   }catch(_){}
 }
@@ -340,17 +344,21 @@ function startAlarm(){
   if(alarmTimer)return;
   alarmTimer=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
 }
+function ackServer(){ try{ if(KEY) fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}}
 function stopAlarm(){
   if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='none';
   document.title="لوحة التحكم — عهد الضيافة";
+  ackServer(); // إيقاف التنبيه من اللوحة يوقفه على كل الأجهزة (بما فيها التطبيق)
 }
 /* ===== صوت فشل الدفع (نغمة مختلفة منخفضة هابطة) ===== */
 function beepFail(){
   try{
     if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
     if(audioCtx.state==="suspended")audioCtx.resume();
-    const master=audioCtx.createGain(); master.gain.value=1.0; master.connect(audioCtx.destination);
+    const comp=audioCtx.createDynamicsCompressor();
+    comp.threshold.value=-24; comp.knee.value=30; comp.ratio.value=12; comp.attack.value=0.003; comp.release.value=0.25;
+    const master=audioCtx.createGain(); master.gain.value=6.0; master.connect(comp); comp.connect(audioCtx.destination);
     const reps=5; // صفّارة إنذار عالية صاعدة/هابطة — مميّزة وواضحة (مختلفة عن تنبيه الطلب الجديد)
     for(let k=0;k<reps;k++){
       const o=audioCtx.createOscillator(), g=audioCtx.createGain();
@@ -376,6 +384,7 @@ function startFailAlarm(){
 function stopFailAlarm(){
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
   const bar=document.getElementById('failBar');if(bar)bar.style.display='none';
+  ackServer();
 }
 // استئناف الصوت عند أي تفاعل
 document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();});
@@ -392,6 +401,8 @@ function loadOrders(){
     });
     if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد'); }
     if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); }
+    // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
+    try{ if(document.visibilityState==='visible') fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
     first=false; orders=d.orders; renderOrders();
   }).catch(()=>{});
 }
