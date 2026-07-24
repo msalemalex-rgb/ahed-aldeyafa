@@ -119,6 +119,44 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .sbtn.print{background:#e7f0ff;color:#2563c9}
 #printArea{display:none}
 @media print{ body>*:not(#printArea){display:none!important} #printArea{display:block!important;padding:6px} }
+/* ===== إحصائيات ===== */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.scard{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(78,13,24,.06)}
+.scard .sic{font-size:22px}
+.scard .sval{font-size:24px;font-weight:900;color:#6e1423;font-family:'Cairo',sans-serif;margin:4px 0}
+.scard .slbl{font-size:13px;color:#666}
+.scard .ssub{font-size:12px;color:#999;margin-top:4px}
+.spanel{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 4px 14px rgba(78,13,24,.06)}
+.spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:'Cairo',sans-serif}
+.bars{display:flex;gap:8px;align-items:flex-end;height:170px}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.barwrap{position:relative;width:100%;height:130px;display:flex;align-items:flex-end;justify-content:center;gap:3px}
+.bar{width:42%;border-radius:5px 5px 0 0;min-height:2px}
+.bar-v{background:linear-gradient(#c8962f,#e6c061)}
+.bar-pv{background:#e7d9bf}
+.barn{font-size:13px;font-weight:800;color:#6e1423}
+.barlbl{font-size:11px;color:#999}
+.leg{display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12px;color:#666}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-left:4px}
+.leg .dv{background:#c8962f}.leg .dpv{background:#e7d9bf}
+.funnel{display:flex;gap:8px;flex-wrap:wrap}
+.fstep{flex:1;min-width:110px;background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:12px;text-align:center}
+.fstep span{display:block;font-size:12px;color:#666}
+.fstep b{display:block;font-size:22px;color:#6e1423;font-family:'Cairo',sans-serif}
+.fstep small{color:#c8962f;font-weight:700}
+.stwo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.stwo{grid-template-columns:1fr}}
+.toplist{display:flex;flex-direction:column;gap:9px}
+.toprow{display:flex;align-items:center;gap:10px;font-size:14px}
+.toprow .topn{flex:0 0 42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toprow .topbar{flex:1;height:9px;background:#f0e8d8;border-radius:6px;overflow:hidden}
+.toprow .topbar span{display:block;height:100%;background:linear-gradient(90deg,#c8962f,#e6c061)}
+.toprow b{min-width:28px;text-align:left;color:#6e1423}
+.empty{color:#999;font-size:13px;padding:10px 0}
+.sgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
+.stbox{background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:10px;text-align:center}
+.stbox b{display:block;font-size:20px;color:#6e1423;font-family:'Cairo',sans-serif}
+.stbox span{font-size:12px;color:#666}
 </style>
 </head>
 <body>
@@ -147,6 +185,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
       <div class="tab active" onclick="showView('orders',this)">📋 الطلبات <span class="badge" id="cntNew">0</span></div>
       <div class="tab" onclick="showView('res',this)">📅 الحجوزات <span class="badge" id="cntRes">0</span></div>
       <div class="tab" onclick="showView('menu',this)">🍲 المنيو</div>
+      <div class="tab" onclick="showView('stats',this)">📊 الإحصائيات</div>
       <div class="tab" onclick="showView('settings',this)">⚙️ الإعدادات</div>
     </div>
 
@@ -212,6 +251,17 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
       <div class="savebar"><button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button></div>
     </div>
 
+    <div class="view" id="view-stats">
+      <div class="tabs" id="statsRangeTabs">
+        <div class="tab" onclick="loadStats(1,this)">اليوم</div>
+        <div class="tab active" onclick="loadStats(7,this)">أسبوع</div>
+        <div class="tab" onclick="loadStats(30,this)">شهر</div>
+        <div class="tab" onclick="loadStats(90,this)">3 شهور</div>
+        <div class="tab" onclick="loadStats(0,null)">🔄 تحديث</div>
+      </div>
+      <div id="statsBox"><div style="padding:30px;text-align:center;color:var(--muted)">جارٍ التحميل…</div></div>
+    </div>
+
   </div>
 </div>
 
@@ -262,6 +312,7 @@ function showView(v,el){
   if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
+  if(v==='stats')loadStats();
 }
 
 /* ===== الصوت (متين) ===== */
@@ -834,6 +885,60 @@ function addOEChoice(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choic
 function delOEChoice(gi,xi){DATA.menu[optCtx.ci].items[optCtx.ii].options[gi].choices.splice(xi,1);renderOptEditor();}
 function addOEGroup(){DATA.menu[optCtx.ci].items[optCtx.ii].options.push({label:"",required:true,choices:[]});renderOptEditor();}
 function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,1);renderOptEditor();}
+
+/* ===== الإحصائيات ===== */
+let statsRange=7;
+async function loadStats(range,el){
+  if(range){statsRange=range;}
+  if(el){[...el.parentNode.children].forEach(x=>x.classList.remove('active'));el.classList.add('active');}
+  const box=document.getElementById('statsBox');if(!box)return;
+  if(!KEY){box.innerHTML='<div style="padding:20px">سجّل الدخول أولاً</div>';return;}
+  box.innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">جارٍ التحميل…</div>';
+  let d;try{d=await fetch('/api/stats?days='+statsRange,{headers:akHdr()}).then(r=>r.json());}catch(_){box.innerHTML='<div style="padding:20px;color:#b00">تعذّر تحميل الإحصائيات</div>';return;}
+  if(!d||d.error){box.innerHTML='<div style="padding:20px;color:#b00">خطأ في الإحصائيات</div>';return;}
+  const o=d.orders||{},t=d.traffic||{};
+  const rangeLbl=({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||'';
+  const KWD=v=>Number(v||0).toFixed(3)+' د.ك';
+  const card=(ic,lb,vl,sb)=>`<div class="scard"><div class="sic">${ic}</div><div class="sval">${vl}</div><div class="slbl">${lb}</div>${sb?`<div class="ssub">${sb}</div>`:''}</div>`;
+  let h='<div style="font-family:\'Cairo\';font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
+  h+=card('💰','الإيرادات (مدفوعة)',KWD(o.revenue),'اليوم: '+KWD(o.revToday));
+  h+=card('🧾','الطلبات',o.total||0);
+  h+=card('✅','طلبات مدفوعة',o.paidCount||0);
+  h+=card('👥','زيارات',t.visits||0,'الكل: '+(t.visitsTotal||0));
+  h+=card('👁️','مشاهدات',t.pv||0);
+  h+=card('🛒','إضافة للسلة',t.atc||0);
+  h+='</div>';
+  const labels=t.chartLabels||[],vs=t.chartVisits||[],pv=t.chartPv||[];
+  const maxv=Math.max(1,...vs,...pv);
+  h+='<div class="spanel"><h3>الزيارات ('+(d.bucket>1?'أسبوعياً':'يومياً')+')</h3><div class="bars">';
+  for(let i=0;i<labels.length;i++){
+    const hv=Math.round((vs[i]/maxv)*100),hp=Math.round((pv[i]/maxv)*100);
+    h+=`<div class="barcol"><div class="barwrap"><div class="bar bar-pv" style="height:${hp}%"></div><div class="bar bar-v" style="height:${hv}%"></div></div><div class="barn">${vs[i]||0}</div><div class="barlbl">${labels[i]||''}</div></div>`;
+  }
+  h+='</div><div class="leg"><span><i class="dv"></i> زيارات</span><span><i class="dpv"></i> مشاهدات</span></div></div>';
+  const fv=t.visits||0,fa=t.atc||0,fc=t.co||0,fo=o.paidCount||0,pct=(a,b)=>b?Math.round(a/b*100):0;
+  h+='<div class="spanel"><h3>مسار التحويل ('+rangeLbl+')</h3><div class="funnel">';
+  h+=`<div class="fstep"><span>زيارات</span><b>${fv}</b></div>`;
+  h+=`<div class="fstep"><span>إضافة للسلة</span><b>${fa}</b><small>${pct(fa,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>بدء الدفع</span><b>${fc}</b><small>${pct(fc,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>طلبات مدفوعة</span><b>${fo}</b><small>${pct(fo,fv)}%</small></div>`;
+  h+='</div></div>';
+  h+='<div class="stwo">';
+  h+='<div class="spanel"><h3>أكثر الأصناف مبيعاً</h3>';
+  const ti=o.topItems||[];
+  if(ti.length){const mx=Math.max(1,...ti.map(x=>x.qty));h+='<div class="toplist">';ti.forEach((it,i)=>{h+=`<div class="toprow"><span class="topn">${i+1}. ${it.name}</span><span class="topbar"><span style="width:${Math.round(it.qty/mx*100)}%"></span></span><b>${it.qty}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات كافية بعد</div>';
+  h+='</div>';
+  h+='<div class="spanel"><h3>مصادر الزيارة</h3>';
+  const sN={instagram:'📷 إنستجرام',google:'🔍 جوجل',facebook:'👍 فيسبوك',tiktok:'🎵 تيك توك',snapchat:'👻 سناب شات',whatsapp:'💬 واتساب',twitter:'🐦 X',direct:'🔗 مباشر',internal:'↩️ داخلي',other:'🌐 أخرى'};
+  const src=t.sources||[];
+  if(src.length){const tt=src.reduce((s,x)=>s+x.count,0)||1;h+='<div class="toplist">';src.forEach(s=>{h+=`<div class="toprow"><span class="topn">${sN[s.name]||s.name}</span><span class="topbar"><span style="width:${Math.round(s.count/tt*100)}%"></span></span><b>${s.count}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات بعد</div>';
+  h+='</div></div>';
+  const c=o.counts||{},stN={new:'جديد',preparing:'قيد التحضير',done:'مكتمل',pending:'بانتظار الدفع',awaiting:'واتساب',failed:'فشل دفع',cancelled:'ملغي'};
+  h+='<div class="spanel"><h3>حالات الطلبات</h3><div class="sgrid2">';
+  Object.keys(stN).forEach(k=>{if(c[k])h+=`<div class="stbox"><b>${c[k]}</b><span>${stN[k]}</span></div>`;});
+  h+='</div></div>';
+  box.innerHTML=h;
+}
 
 /* استعادة الجلسة */
 (function(){try{const k=sessionStorage.getItem('ak');if(k){document.getElementById('pass').value=k;}}catch(_){}})();

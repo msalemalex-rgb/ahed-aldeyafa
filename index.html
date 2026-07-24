@@ -482,6 +482,39 @@ function showCat(i){
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
 function itemHasOptions(it){return it&&Array.isArray(it.options)&&it.options.length>0;}
 function normChoice(c){return (typeof c==='string')?{name:c,price:0}:{name:(c&&c.name)||'',price:Number(c&&c.price)||0};}
+/* ===== تتبّع الإحصائيات ===== */
+function trafficSrc(){
+  try{
+    const p=new URLSearchParams(location.search);const utm=(p.get('utm_source')||'').toLowerCase().replace(/[^a-z0-9_]/g,'');
+    if(utm)return utm.slice(0,20);
+    const r=document.referrer||'';if(!r)return 'direct';
+    const h=new URL(r).hostname.toLowerCase();
+    if(h.indexOf('instagram')>-1)return 'instagram';
+    if(h.indexOf('google')>-1)return 'google';
+    if(h.indexOf('facebook')>-1||h.indexOf('fb.')>-1)return 'facebook';
+    if(h.indexOf('tiktok')>-1)return 'tiktok';
+    if(h.indexOf('snapchat')>-1)return 'snapchat';
+    if(h.indexOf('whatsapp')>-1||h.indexOf('wa.me')>-1)return 'whatsapp';
+    if(h==='x.com'||h.indexOf('twitter')>-1||h.indexOf('t.co')>-1)return 'twitter';
+    if(h.indexOf('ahed-aldeyafa')>-1)return 'internal';
+    return 'other';
+  }catch(_){return 'direct';}
+}
+function trk(type,src){
+  try{
+    const body=JSON.stringify(src?{type:type,src:src}:{type:type});
+    if(navigator.sendBeacon){navigator.sendBeacon('/api/track',new Blob([body],{type:'application/json'}));}
+    else{fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});}
+  }catch(_){}
+}
+function trackVisit(){
+  try{
+    trk('view');
+    let seen=false;try{seen=sessionStorage.getItem('trk_v')==='1';}catch(_){}
+    if(!seen){trk('visit',trafficSrc());try{sessionStorage.setItem('trk_v','1');}catch(_){}}
+  }catch(_){}
+}
+window.addEventListener('load',trackVisit);
 function addItem(id){const it=findItem(id);if(!it)return;if(it.available===false){showToast('هذا الصنف غير متوفر حالياً');return;}if(itemHasOptions(it)){openOptions(it);}else{addLine(it,[]);showToast('✓ أُضيف '+it.name);}}
 function lineKey(id,opts){return id+'|'+opts.map(o=>o.label+'='+o.choice).join('|');}
 function addLine(it,opts){
@@ -489,6 +522,7 @@ function addLine(it,opts){
   const ex=cart.find(l=>l.key===key);
   if(ex){ex.qty++;}else{cart.push({key:key,id:it.id,name:it.name,base:Number(it.price)||0,opts:opts,qty:1});}
   updateCart();
+  trk('add_to_cart');
 }
 function lineUnit(l){return l.base+l.opts.reduce((s,o)=>s+(Number(o.price)||0),0);}
 function lineOptsText(l){return l.opts.length?l.opts.map(o=>o.choice).join('، '):'';}
@@ -557,6 +591,7 @@ function checkoutWhatsApp(){
 function areaByIndex(i){return (CONFIG.areas||[])[i];}
 function openCheckout(){
   const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
+  trk('checkout');
   coAreaIdx=-1; coMapUrl="";
   document.getElementById('coAreaSearch').value='';
   document.getElementById('coAreaList').classList.remove('show');
