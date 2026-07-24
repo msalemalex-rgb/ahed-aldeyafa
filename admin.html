@@ -131,10 +131,10 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .bars{display:flex;gap:5px;align-items:flex-end;height:170px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;max-width:100%}
 .barcol{flex:1 0 20px;min-width:20px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .barlbl{white-space:nowrap}
-.daterow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:700;color:#6e1423}
-.daterow label{color:#666}
-.daterow input[type=date]{padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:'Cairo',sans-serif}
-.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+.daterow{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:9px;padding:6px 10px;margin-bottom:14px;font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:700;color:#6e1423;width:fit-content;max-width:100%}
+.daterow label{color:#666;font-size:12px}
+.daterow input[type=date]{padding:4px 7px;border:1px solid #ddd;border-radius:7px;font-family:'Cairo',sans-serif;font-size:12px;max-width:132px}
+.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:5px 13px;border-radius:7px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12.5px}
 .barwrap{position:relative;width:100%;height:130px;display:flex;align-items:flex-end;justify-content:center;gap:3px}
 .bar{width:42%;border-radius:5px 5px 0 0;min-height:2px}
 .bar-v{background:linear-gradient(#c8962f,#e6c061)}
@@ -259,8 +259,8 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     <div class="view" id="view-stats">
       <div class="tabs" id="statsRangeTabs">
         <div class="tab" onclick="loadStats(1,this)">اليوم</div>
-        <div class="tab active" onclick="loadStats(7,this)">آخر 7 أيام</div>
-        <div class="tab" onclick="loadStats(30,this)">آخر 30 يوم</div>
+        <div class="tab active" onclick="loadPeriod('week',this)">الأسبوع الحالي</div>
+        <div class="tab" onclick="loadPeriod('month',this)">الشهر الحالي</div>
         <div class="tab" onclick="loadStats(90,this)">آخر 3 شهور</div>
         <div class="tab" onclick="loadStats(0,null)">🔄 تحديث</div>
       </div>
@@ -323,7 +323,7 @@ function showView(v,el){
   if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  if(v==='stats')loadStats();
+  if(v==='stats')initStats();
 }
 
 /* ===== الصوت (متين) ===== */
@@ -906,6 +906,18 @@ function applyCustomRange(){
   const tabs=document.getElementById('statsRangeTabs');if(tabs)[...tabs.children].forEach(x=>x.classList.remove('active'));
   loadStats(0,null);
 }
+let statsInit=false;
+function kwNowD(){return new Date(Date.now()+3*3600*1000);}
+function ymdD(d){return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0');}
+function loadPeriod(kind,el){
+  const now=kwNowD(),today=ymdD(now);let from;
+  if(kind==='month'){from=now.getUTCFullYear()+String(now.getUTCMonth()+1).padStart(2,'0')+'01';}
+  else{const back=(now.getUTCDay()+1)%7;from=ymdD(new Date(now.getTime()-back*86400000));} /* السبت بداية الأسبوع */
+  statsCustom={from:from,to:today,label:(kind==='month'?'الشهر الحالي':'الأسبوع الحالي (من السبت)')};
+  if(el){[...el.parentNode.children].forEach(x=>x.classList.remove('active'));el.classList.add('active');}
+  loadStats(0,null);
+}
+function initStats(){ if(!statsInit){statsInit=true;loadPeriod('week',document.querySelector('#statsRangeTabs .tab.active'));} else {loadStats(0,null);} }
 async function loadStats(range,el){
   if(range){statsRange=range;statsCustom=null;}
   if(el){[...el.parentNode.children].forEach(x=>x.classList.remove('active'));el.classList.add('active');}
@@ -917,7 +929,7 @@ async function loadStats(range,el){
   if(!d||d.error){box.innerHTML='<div style="padding:20px;color:#b00">خطأ في الإحصائيات</div>';return;}
   const o=d.orders||{},t=d.traffic||{};
   const fmt=s=>s?s.slice(6)+'/'+s.slice(4,6)+'/'+s.slice(0,4):'';
-  const rangeLbl=d.mode==='custom'?('من '+fmt(d.from)+' إلى '+fmt(d.to)):(({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||'');
+  const rangeLbl=(statsCustom&&statsCustom.label)?statsCustom.label:(d.mode==='custom'?('من '+fmt(d.from)+' إلى '+fmt(d.to)):(({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||''));
   const KWD=v=>Number(v||0).toFixed(3)+' د.ك';
   const card=(ic,lb,vl,sb)=>`<div class="scard"><div class="sic">${ic}</div><div class="sval">${vl}</div><div class="slbl">${lb}</div>${sb?`<div class="ssub">${sb}</div>`:''}</div>`;
   let h='<div style="font-family:\'Cairo\';font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';

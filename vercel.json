@@ -1,4 +1,13 @@
 {
   "cleanUrls": true,
-  "functions": { "api/*.js": { "maxDuration": 15 } }
+  "functions": { "api/*.js": { "maxDuration": 15 } },
+  "redirects": [
+    { "source": "/ig", "destination": "/?utm_source=instagram", "permanent": false },
+    { "source": "/insta", "destination": "/?utm_source=instagram", "permanent": false },
+    { "source": "/wa", "destination": "/?utm_source=whatsapp", "permanent": false },
+    { "source": "/snap", "destination": "/?utm_source=snapchat", "permanent": false },
+    { "source": "/tt", "destination": "/?utm_source=tiktok", "permanent": false },
+    { "source": "/fb", "destination": "/?utm_source=facebook", "permanent": false },
+    { "source": "/x", "destination": "/?utm_source=twitter", "permanent": false }
+  ]
 }
