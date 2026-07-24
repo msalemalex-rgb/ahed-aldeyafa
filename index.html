@@ -9,6 +9,23 @@
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());gtag('config','G-MW5NZSZLSC');
 </script>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '__FB_PIXEL_ID__');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=__FB_PIXEL_ID__&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel -->
 <title>مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل</title>
 <meta name="description" content="مطعم عهد الضيافة في حولي - مجبوس، برياني، مطبق وأطباق كويتية أصيلة طازجة يومياً. طلب أونلاين، توصيل سريع، وخدمة المناسبات والديوانيات في الكويت.">
 <meta name="keywords" content="مطعم كويتي, مجبوس, برياني, مطبق, روبيان, أكل كويتي, مطعم حولي, توصيل طعام الكويت, مطعم عهد الضيافة, ديوانيات, مناسبات, أطباق شعبية كويتية">
@@ -513,6 +530,7 @@ function trk(type,src){
     else{fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});}
   }catch(_){}
 }
+function fbTrack(ev,params){try{if(typeof fbq==='function'){params?fbq('track',ev,params):fbq('track',ev);}}catch(_){}}
 function trackVisit(){
   try{
     trk('view');
@@ -529,6 +547,7 @@ function addLine(it,opts){
   if(ex){ex.qty++;}else{cart.push({key:key,id:it.id,name:it.name,base:Number(it.price)||0,opts:opts,qty:1});}
   updateCart();
   trk('add_to_cart');
+  fbTrack('AddToCart',{content_name:it.name,content_ids:[String(it.id)],content_type:'product',value:(Number(it.price)||0)+opts.reduce((s,o)=>s+(Number(o.price)||0),0),currency:'KWD'});
 }
 function lineUnit(l){return l.base+l.opts.reduce((s,o)=>s+(Number(o.price)||0),0);}
 function lineOptsText(l){return l.opts.length?l.opts.map(o=>o.choice).join('، '):'';}
@@ -598,6 +617,7 @@ function areaByIndex(i){return (CONFIG.areas||[])[i];}
 function openCheckout(){
   const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
   trk('checkout');
+  fbTrack('InitiateCheckout',{value:Number(total().toFixed(3)),currency:'KWD',num_items:cart.reduce((s,l)=>s+l.qty,0)});
   coAreaIdx=-1; coMapUrl="";
   document.getElementById('coAreaSearch').value='';
   document.getElementById('coAreaList').classList.remove('show');
@@ -710,12 +730,14 @@ function submitCatering(e){
   const n=catName.value,p=catPhone.value,t=catType.value,c=catCount.value,d=catDate.value||"غير محدد",notes=catNotes.value||"لا يوجد";
   let msg=`🍲 *طلب حجز مناسبة - عهد الضيافة*%0A%0Aالاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A(أرغب بتأكيد الحجز ومعرفة العربون)`;
   try{fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
+  fbTrack('Lead',{content_category:'catering',content_name:t});
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
 function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
+  try{[waFloat,waFooter,waContactBtn].forEach(el=>{if(el&&!el._fbc){el._fbc=1;el.addEventListener('click',()=>fbTrack('Contact',{content_category:'whatsapp'}));}});}catch(_){}
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
   const dt=document.getElementById('discTag');
@@ -786,8 +808,12 @@ function buildInvoiceHTML(o,pid){
   </div>`;
 }
 async function loadInvoice(ref,pid){
-  if(!ref)return;
-  try{const r=await fetch('/api/order?id='+encodeURIComponent(ref));const j=await r.json();if(j&&j.order){_invHTML=buildInvoiceHTML(j.order,pid||'');}}catch(_){}
+  if(!ref){fbTrack('Purchase',{value:0,currency:'KWD'});return;}
+  try{
+    const r=await fetch('/api/order?id='+encodeURIComponent(ref));const j=await r.json();
+    if(j&&j.order){_invHTML=buildInvoiceHTML(j.order,pid||'');fbTrack('Purchase',{value:Number(j.order.total)||0,currency:'KWD'});}
+    else{fbTrack('Purchase',{value:0,currency:'KWD'});}
+  }catch(_){fbTrack('Purchase',{value:0,currency:'KWD'});}
 }
 function showInvoice(){ if(!_invHTML){showToast('الفاتورة قيد التحضير، حاول بعد لحظة');return;} document.getElementById('invView').innerHTML=_invHTML; document.getElementById('invOverlay').classList.add('open'); }
 function closeInvoice(){document.getElementById('invOverlay').classList.remove('open');}
