@@ -128,8 +128,13 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .scard .ssub{font-size:12px;color:#999;margin-top:4px}
 .spanel{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 4px 14px rgba(78,13,24,.06)}
 .spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:'Cairo',sans-serif}
-.bars{display:flex;gap:8px;align-items:flex-end;height:170px}
-.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bars{display:flex;gap:5px;align-items:flex-end;height:170px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;max-width:100%}
+.barcol{flex:1 0 20px;min-width:20px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.barlbl{white-space:nowrap}
+.daterow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:700;color:#6e1423}
+.daterow label{color:#666}
+.daterow input[type=date]{padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:'Cairo',sans-serif}
+.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
 .barwrap{position:relative;width:100%;height:130px;display:flex;align-items:flex-end;justify-content:center;gap:3px}
 .bar{width:42%;border-radius:5px 5px 0 0;min-height:2px}
 .bar-v{background:linear-gradient(#c8962f,#e6c061)}
@@ -254,10 +259,16 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     <div class="view" id="view-stats">
       <div class="tabs" id="statsRangeTabs">
         <div class="tab" onclick="loadStats(1,this)">اليوم</div>
-        <div class="tab active" onclick="loadStats(7,this)">أسبوع</div>
-        <div class="tab" onclick="loadStats(30,this)">شهر</div>
-        <div class="tab" onclick="loadStats(90,this)">3 شهور</div>
+        <div class="tab active" onclick="loadStats(7,this)">آخر 7 أيام</div>
+        <div class="tab" onclick="loadStats(30,this)">آخر 30 يوم</div>
+        <div class="tab" onclick="loadStats(90,this)">آخر 3 شهور</div>
         <div class="tab" onclick="loadStats(0,null)">🔄 تحديث</div>
+      </div>
+      <div class="daterow">
+        <span>📅 مدى مخصّص —</span>
+        <label>من</label><input type="date" id="stFrom">
+        <label>إلى</label><input type="date" id="stTo">
+        <button onclick="applyCustomRange()">تطبيق</button>
       </div>
       <div id="statsBox"><div style="padding:30px;text-align:center;color:var(--muted)">جارٍ التحميل…</div></div>
     </div>
@@ -887,17 +898,26 @@ function addOEGroup(){DATA.menu[optCtx.ci].items[optCtx.ii].options.push({label:
 function delOEGroup(gi){DATA.menu[optCtx.ci].items[optCtx.ii].options.splice(gi,1);renderOptEditor();}
 
 /* ===== الإحصائيات ===== */
-let statsRange=7;
+let statsRange=7,statsCustom=null;
+function applyCustomRange(){
+  const f=(document.getElementById('stFrom')||{}).value,t=(document.getElementById('stTo')||{}).value;
+  if(!f||!t){alert('اختر تاريخ البداية وتاريخ النهاية');return;}
+  statsCustom={from:f.replace(/-/g,''),to:t.replace(/-/g,'')};
+  const tabs=document.getElementById('statsRangeTabs');if(tabs)[...tabs.children].forEach(x=>x.classList.remove('active'));
+  loadStats(0,null);
+}
 async function loadStats(range,el){
-  if(range){statsRange=range;}
+  if(range){statsRange=range;statsCustom=null;}
   if(el){[...el.parentNode.children].forEach(x=>x.classList.remove('active'));el.classList.add('active');}
   const box=document.getElementById('statsBox');if(!box)return;
   if(!KEY){box.innerHTML='<div style="padding:20px">سجّل الدخول أولاً</div>';return;}
   box.innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">جارٍ التحميل…</div>';
-  let d;try{d=await fetch('/api/stats?days='+statsRange,{headers:akHdr()}).then(r=>r.json());}catch(_){box.innerHTML='<div style="padding:20px;color:#b00">تعذّر تحميل الإحصائيات</div>';return;}
+  const url=statsCustom?('/api/stats?from='+statsCustom.from+'&to='+statsCustom.to):('/api/stats?days='+statsRange);
+  let d;try{d=await fetch(url,{headers:akHdr()}).then(r=>r.json());}catch(_){box.innerHTML='<div style="padding:20px;color:#b00">تعذّر تحميل الإحصائيات</div>';return;}
   if(!d||d.error){box.innerHTML='<div style="padding:20px;color:#b00">خطأ في الإحصائيات</div>';return;}
   const o=d.orders||{},t=d.traffic||{};
-  const rangeLbl=({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||'';
+  const fmt=s=>s?s.slice(6)+'/'+s.slice(4,6)+'/'+s.slice(0,4):'';
+  const rangeLbl=d.mode==='custom'?('من '+fmt(d.from)+' إلى '+fmt(d.to)):(({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||'');
   const KWD=v=>Number(v||0).toFixed(3)+' د.ك';
   const card=(ic,lb,vl,sb)=>`<div class="scard"><div class="sic">${ic}</div><div class="sval">${vl}</div><div class="slbl">${lb}</div>${sb?`<div class="ssub">${sb}</div>`:''}</div>`;
   let h='<div style="font-family:\'Cairo\';font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
