@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
     const data = JSON.parse(raw);
     const rep = applyI18nFix(data);
     rep.mode = apply ? "APPLIED ✅ تم الحفظ" : "DRY-RUN 👀 معاينة فقط — أضف &apply=1 للتنفيذ";
-    if (apply) { data._i18nFixed = 1; await cmd(["SET", "menu_data", JSON.stringify(data)]); }
+    if (apply) { data._i18nFixed = 1; data._i18nFixed2 = 1; await cmd(["SET", "menu_data", JSON.stringify(data)]); }
     rep.summary = {
       "أقسام اتسمّت إنجليزي": rep.cats.length,
       "أصناف اتنقل اسمها من الوصف": rep.fromDesc.length,
@@ -30,6 +30,8 @@ module.exports = async (req, res) => {
       "أسماء اتصلّحت": rep.fixedExisting.length,
       "كانت سليمة من الأول": rep.alreadyOk,
       "لسه ناقصة (كمّلها من لوحة التحكم)": rep.stillMissing.length,
+      "أوصاف اتترجمت": rep.descTranslated.length,
+      "أوصاف عربية من غير ترجمة": rep.descMissing.length,
     };
     return res.status(200).json(rep);
   } catch (e) { return res.status(500).json({ error: e.message }); }
