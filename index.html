@@ -438,6 +438,12 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
         <div class="field"><button type="button" id="coLocBtn" onclick="getLocation()" style="background:var(--maroon);color:var(--gold-light);border:none;border-radius:6px;width:100%;padding:12px;font-family:'Cairo';font-weight:700;font-size:15px;cursor:pointer">📍 حدد موقعي على الخريطة (يساعد المندوب)</button><div id="coLocStatus" style="font-size:13px;margin-top:8px;color:var(--muted)"></div></div>
       </div>
       <div class="co-summary" id="coSummary"></div>
+      <div class="field" id="coPaySegWrap" style="display:none"><label>طريقة الدفع</label>
+        <div class="co-seg">
+          <button type="button" class="co-seg-btn active" id="segPayKnet" onclick="setPayMethod('knet')">💳 KNET</button>
+          <button type="button" class="co-seg-btn" id="segPayCod" onclick="setPayMethod('cod')">💵 كاش عند الاستلام</button>
+        </div>
+      </div>
       <div class="co-err" id="coErr"></div>
       <button class="btn btn-gold" id="coPayBtn" onclick="submitCheckout()">💳 ادفع <span id="coPayAmt"></span></button>
     </div>
@@ -614,6 +620,20 @@ function checkoutWhatsApp(){
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');
 }
 function areaByIndex(i){return (CONFIG.areas||[])[i];}
+/* دفع كاش عند الاستلام — مفعّل فقط عبر رابط الاختبار ?cod=1 */
+let coPayMethod='knet';
+const COD_ENABLED=(function(){try{return new URLSearchParams(location.search).get('cod')==='1';}catch(_){return false;}})();
+function updPayBtn(){
+  const btn=document.getElementById('coPayBtn');if(!btn)return;
+  const sp=document.getElementById('coPayAmt');const amt=sp?sp.textContent:'';
+  btn.innerHTML=(coPayMethod==='cod'?'💵 أكّد الطلب — الدفع عند الاستلام ':'💳 ادفع ')+'<span id="coPayAmt">'+amt+'</span>';
+}
+function setPayMethod(m){
+  coPayMethod=m;
+  document.getElementById('segPayKnet').classList.toggle('active',m==='knet');
+  document.getElementById('segPayCod').classList.toggle('active',m==='cod');
+  updPayBtn();
+}
 function openCheckout(){
   const arr=cartArray();if(!arr.length){showToast("السلة فارغة 🛒");return;}
   trk('checkout');
@@ -624,6 +644,8 @@ function openCheckout(){
   document.getElementById('coLocStatus').textContent='';
   document.getElementById('segPickup').style.display = CONFIG.pickupEnabled ? '' : 'none';
   setDType('delivery');
+  document.getElementById('coPaySegWrap').style.display=COD_ENABLED?'':'none';
+  if(COD_ENABLED)setPayMethod('knet');
   document.getElementById('coErr').textContent='';
   document.getElementById('coOverlay').classList.add('open');
 }
@@ -706,17 +728,25 @@ async function submitCheckout(){
   const lines=cart.map(l=>({name:l.name,opts:lineOptsText(l),qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
   const itemsSub=Number(subtotal().toFixed(3));
   const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
-  const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent="⏳ جارٍ التحويل للدفع...";
+  const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent=(coPayMethod==='cod')?"⏳ جارٍ إرسال الطلب...":"⏳ جارٍ التحويل للدفع...";
   let orderRef,orderNo;
   try{
     const o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      items:orderItemsText(arr),total:grand,channel:"knet",
+      items:orderItemsText(arr),total:grand,channel:(coPayMethod==='cod')?"cod":"knet",
       name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,deliveryTime:dtime,mapUrl:coMapUrl,
       lines:lines,itemsSubtotal:itemsSub,discountPct:discPct
     })}).then(r=>r.json());
     orderRef=o&&o.id;orderNo=o&&o.no;
   }catch(_){}
   try{if(orderNo)sessionStorage.setItem('lastOrderNo',orderNo);}catch(_){}
+  if(coPayMethod==='cod'){
+    if(!orderRef){err.textContent="تعذّر إرسال الطلب، حاول مرة أخرى";btn.disabled=false;updPayBtn();return;}
+    loadInvoice(orderRef,'');
+    closeCheckout();
+    showResult('cod');
+    btn.disabled=false;updPayBtn();
+    return;
+  }
   try{
     const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:grand,orderRef:orderRef})});
     const data=await res.json();
@@ -823,11 +853,11 @@ function showResult(kind){
   const ono=document.getElementById('resOno');
   const acts=document.getElementById('resActs');
   let no="";try{no=sessionStorage.getItem('lastOrderNo')||"";}catch(_){}
-  if(kind==='success'){
+  if(kind==='success'||kind==='cod'){
     box.className="res-box ok";
     document.getElementById('resIcon').textContent="✅";
-    document.getElementById('resTitle').textContent="شكراً لطلبك! 🌟";
-    document.getElementById('resMsg').textContent="تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.";
+    document.getElementById('resTitle').textContent=(kind==='cod')?"تم استلام طلبك! 🎉":"شكراً لطلبك! 🌟";
+    document.getElementById('resMsg').textContent=(kind==='cod')?"طلبك مؤكد وجارٍ تجهيزه — الدفع كاش عند الاستلام 💵":"تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.";
     if(no){ono.style.display='inline-block';ono.textContent="رقم طلبك: "+no;}else ono.style.display='none';
     document.getElementById('resSub').textContent="سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼";
     acts.innerHTML=`<button class="btn btn-gold" onclick="showInvoice()">🧾 عرض / حفظ الفاتورة</button><a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">📲 تواصل واتساب</a><button class="btn" style="background:#eee;color:#555" onclick="closeResult()">إغلاق</button>`;

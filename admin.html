@@ -42,6 +42,7 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .order .chan{font-size:12px;padding:3px 10px;border-radius:50px;font-family:'Cairo';font-weight:700}
 .chan.knet{background:rgba(200,150,47,.18);color:#9a6b00}
 .chan.whatsapp{background:rgba(31,170,84,.15);color:#178c44}
+.chan.cod{background:rgba(110,20,35,.12);color:#6e1423}
 .chan.web{background:#eee;color:#666}
 .order .items{font-size:14px;color:var(--ink);margin:6px 0;line-height:1.8}
 .order .total{font-family:'Cairo';font-weight:900;color:var(--maroon);font-size:18px}
@@ -491,8 +492,8 @@ function renderOrders(){
     if(o.deliveryTime)dparts.push('🕒 وقت التوصيل: '+esc(o.deliveryTime));
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
-    const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web'})[o.channel]||'web';
-    const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':esc(o.channel));
+    const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web',cod:'cod'})[o.channel]||'web';
+    const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':(o.channel==='cod'?'💵 كاش عند الاستلام':esc(o.channel)));
     const showActions=(o.status==='new'||o.status==='preparing'||o.status==='awaiting');
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
