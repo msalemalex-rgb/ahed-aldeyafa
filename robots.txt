@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Allow: /api/i18n-report
 Disallow: /admin.html
 Disallow: /api/
 

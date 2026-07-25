@@ -698,7 +698,7 @@ function checkoutWhatsApp(){
 function areaByIndex(i){return (CONFIG.areas||[])[i];}
 /* دفع كاش عند الاستلام — مفعّل فقط عبر رابط الاختبار ?cod=1 */
 let coPayMethod='knet';
-const COD_ENABLED=(function(){try{return new URLSearchParams(location.search).get('cod')==='1';}catch(_){return false;}})();
+const COD_ENABLED=(function(){try{return new URLSearchParams(location.search).get('cod')==='ahd7712';}catch(_){return false;}})();
 function updPayBtn(){
   const btn=document.getElementById('coPayBtn');if(!btn)return;
   const sp=document.getElementById('coPayAmt');const amt=(window._coAmt!=null)?window._coAmt:(sp?sp.textContent:'');
