@@ -1,6 +1,6 @@
 // /api/orders — POST: إنشاء طلب | GET: قائمة الطلبات (أدمن) | PATCH: تحديث الحالة (أدمن)
 // GET ?debug=1 (أدمن): يرجّع آخر تشخيصات الدفع (pay_debug) لمتابعة عمليات Hesabe
-const { addOrder, listOrders, setOrderStatus, cmd } = require("../lib/kv");
+const { addOrder, listOrders, setOrderStatus, addReservation, listReservations, cmd } = require("../lib/kv");
 let push = null;
 try { push = require("../lib/push"); } catch (_) {}
 
@@ -67,6 +67,12 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "POST") {
       const b = await readBody(req);
+      // حجز مناسبة/ديوانية (مدموج من /api/reservations)
+      if (b.kind === "reservation") {
+        if (!b.name || !b.date) return res.status(400).json({ error: "missing name/date" });
+        const r = await addReservation({ name: b.name, phone: b.phone || "", type: b.type || "", count: b.count || "", date: b.date, time: b.time || "", notes: b.notes || "" });
+        return res.status(200).json({ ok: true, id: r.id });
+      }
       if (!b.items || b.total == null) return res.status(400).json({ error: "missing items/total" });
       const order = await addOrder({
         items: b.items, total: b.total, channel: b.channel || "web",
@@ -93,7 +99,27 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, id: order.id, no: order.no });
     }
     if (req.method === "GET") {
+      // طلب واحد للفاتورة (عام — الـ id رمز عشوائي غير قابل للتخمين) — مدموج من /api/order
+      if (req.query && req.query.id && req.query.cleanupCod !== "1" && !req.query.debug) {
+        const id = String(req.query.id);
+        let s;
+        try { s = await cmd(["GET", "order:" + id]); } catch (_) { return res.status(500).json({ error: "server_error" }); }
+        if (!s) return res.status(404).json({ error: "not_found" });
+        let o; try { o = JSON.parse(s); } catch (_) { return res.status(500).json({ error: "parse_error" }); }
+        res.setHeader("Cache-Control", "no-store");
+        return res.status(200).json({ order: {
+          no: o.no || o.id, createdAt: o.createdAt, channel: o.channel, status: o.status,
+          name: o.name || "", phone: o.phone || "", deliveryType: o.deliveryType || "",
+          area: o.area || "", address: o.address || "", deliveryTime: o.deliveryTime || "", mapUrl: o.mapUrl || "",
+          deliveryFee: Number(o.deliveryFee) || 0, total: Number(o.total) || 0,
+          lines: Array.isArray(o.lines) ? o.lines : [],
+          itemsSubtotal: Number(o.itemsSubtotal) || 0, discountPct: Number(o.discountPct) || 0,
+          items: o.items || "",
+        }});
+      }
       if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
+      // قائمة الحجوزات (أدمن) — مدموج من /api/reservations
+      if (req.query && req.query.rsv === "1") return res.status(200).json({ reservations: await listReservations(300) });
       if (req.query && req.query.cleanupCod === "1") return await cleanupCod(req, res);
       if (req.query && (req.query.debug === "1" || req.query.debug === "true")) {
         const rows = await cmd(["LRANGE", "pay_debug", "0", "49"]);
@@ -105,6 +131,11 @@ module.exports = async (req, res) => {
     if (req.method === "PATCH") {
       if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
       const b = await readBody(req);
+      if (b.kind === "reservation") {
+        const s2 = await cmd(["GET", "rsv:" + b.id]);
+        if (s2) { const o2 = JSON.parse(s2); o2.status = b.status; await cmd(["SET", "rsv:" + b.id, JSON.stringify(o2)]); return res.status(200).json({ ok: true, reservation: o2 }); }
+        return res.status(404).json({ error: "not found" });
+      }
       const o = await setOrderStatus(b.id, b.status);
       return res.status(200).json({ ok: true, order: o });
     }

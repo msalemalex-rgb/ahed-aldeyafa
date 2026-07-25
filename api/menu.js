@@ -138,6 +138,20 @@ res.setHeader("Access-Control-Allow-Headers","Content-Type, x-admin-key");
 if(req.method==="OPTIONS")return res.status(200).end();
 try{
 if(req.method==="GET"){
+// أداة الترجمات (أدمن) — مدموجة من /api/i18n-fix: ?key=..&i18nReport=1[&apply=1]
+if(req.query && req.query.i18nReport==="1"){
+  if(!isAdmin(req))return res.status(401).json({error:"unauthorized — أضف ?key=كلمة سر الأدمن"});
+  if(!i18nFix)return res.status(500).json({error:"i18n lib unavailable"});
+  const applyQ=req.query.apply==="1"||req.query.apply==="true";
+  const raw0=await cmd(["GET","menu_data"]);
+  if(!raw0)return res.status(404).json({error:"menu_data not found"});
+  const d0=JSON.parse(raw0);
+  const rep0=i18nFix.applyI18nFix(d0);
+  rep0.mode=applyQ?"APPLIED ✅ تم الحفظ":"DRY-RUN 👀 معاينة فقط — أضف &apply=1 للتنفيذ";
+  if(applyQ){d0._i18nFixV=i18nFix.I18N_FIX_V;await cmd(["SET","menu_data",JSON.stringify(d0)]);}
+  rep0.summary={"أقسام اتسمّت إنجليزي":rep0.cats.length,"أصناف اتنقل اسمها من الوصف":rep0.fromDesc.length,"أصناف اتجاب اسمها من qonsole":rep0.fromQonsole.length,"أسماء اتصلّحت":rep0.fixedExisting.length,"كانت سليمة من الأول":rep0.alreadyOk,"لسه ناقصة":rep0.stillMissing.length,"أوصاف اتترجمت":rep0.descTranslated.length,"أوصاف من غير ترجمة":rep0.descMissing.length,"فئات من غير ترجمة":rep0.catMissing.length};
+  return res.status(200).json(rep0);
+}
 let raw=await cmd(["GET","menu_data"]);
 if(!raw){ await cmd(["SET","menu_data",JSON.stringify(DEFAULT_DATA)]); raw=JSON.stringify(DEFAULT_DATA); }
 const data = ensureFields(JSON.parse(raw));

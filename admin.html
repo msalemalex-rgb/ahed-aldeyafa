@@ -571,7 +571,7 @@ function printOrder(id){
 /* ===== الحجوزات ===== */
 function loadReservations(){
   if(!KEY)return;
-  fetch('/api/reservations',{headers:akHdr()}).then(r=>r.json()).then(d=>{
+  fetch('/api/orders?rsv=1',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
@@ -644,7 +644,7 @@ function renderReservations(){
   }).join('');
 }
 function updRes(id,status){
-  fetch('/api/reservations',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({id,status})})
+  fetch('/api/orders',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({kind:'reservation',id,status})})
     .then(()=>{const r=reservations.find(x=>x.id===id);if(r)r.status=status;renderReservations();});
 }
 

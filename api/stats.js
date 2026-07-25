@@ -28,9 +28,33 @@ const sumArr = (a) => a.reduce((s, x) => s + x, 0);
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
   if (req.method === "OPTIONS") return res.status(200).end();
+  // تسجيل حدث إحصائي (عام) — مدموج من /api/track
+  if (req.method === "POST") {
+    try {
+      const b = await (function readBody(rq){
+        if (rq.body && typeof rq.body === "object") return Promise.resolve(rq.body);
+        if (typeof rq.body === "string") { try { return Promise.resolve(JSON.parse(rq.body || "{}")); } catch { return Promise.resolve({}); } }
+        return new Promise((rs) => { let d = ""; rq.on("data", c => d += c); rq.on("end", () => { try { rs(JSON.parse(d || "{}")); } catch { rs({}); } }); });
+      })(req);
+      const t = String(b.type || "").toLowerCase();
+      const MAP = { visit: "visit", view: "pv", add_to_cart: "atc", checkout: "co" };
+      const k = MAP[t];
+      const ds = kwDateOff(0);
+      if (k) {
+        await cmd(["INCR", `stats:${k}:total`]);
+        await cmd(["INCR", `stats:${k}:${ds}`]);
+        await cmd(["EXPIRE", `stats:${k}:${ds}`, "8640000"]);
+      }
+      if (t === "visit" && b.src) {
+        const src = String(b.src).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20);
+        if (src) await cmd(["INCR", `stats:src:${src}`]);
+      }
+      return res.status(200).json({ ok: true });
+    } catch (_) { return res.status(200).json({ ok: false }); }
+  }
   if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
   try {
     const q = req.query || {};

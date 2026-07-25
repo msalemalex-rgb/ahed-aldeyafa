@@ -607,8 +607,8 @@ function trafficSrc(){
 function trk(type,src){
   try{
     const body=JSON.stringify(src?{type:type,src:src}:{type:type});
-    if(navigator.sendBeacon){navigator.sendBeacon('/api/track',new Blob([body],{type:'application/json'}));}
-    else{fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});}
+    if(navigator.sendBeacon){navigator.sendBeacon('/api/stats',new Blob([body],{type:'application/json'}));}
+    else{fetch('/api/stats',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});}
   }catch(_){}
 }
 function fbTrack(ev,params){try{if(typeof fbq==='function'){params?fbq('track',ev,params):fbq('track',ev);}}catch(_){}}
@@ -836,7 +836,7 @@ function submitCatering(e){
   e.preventDefault();
   const n=catName.value,p=catPhone.value,t=catType.value,c=catCount.value,d=catDate.value||"غير محدد",notes=catNotes.value||"لا يوجد";
   let msg=`🍲 *طلب حجز مناسبة - عهد الضيافة*%0A%0Aالاسم: ${n}%0Aالهاتف: ${p}%0Aالمناسبة: ${t}%0Aعدد الأشخاص: ${c}%0Aالتاريخ: ${d}%0Aتفاصيل: ${notes}%0A%0A(أرغب بتأكيد الحجز ومعرفة العربون)`;
-  try{fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
+  try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'reservation',name:n,phone:p,type:t,count:c,date:catDate.value||"",notes:notes})});}catch(_){}
   fbTrack('Lead',{content_category:'catering',content_name:t});
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
@@ -917,7 +917,7 @@ function buildInvoiceHTML(o,pid){
 async function loadInvoice(ref,pid){
   if(!ref){fbTrack('Purchase',{value:0,currency:'KWD'});return;}
   try{
-    const r=await fetch('/api/order?id='+encodeURIComponent(ref));const j=await r.json();
+    const r=await fetch('/api/orders?id='+encodeURIComponent(ref));const j=await r.json();
     if(j&&j.order){_invHTML=buildInvoiceHTML(j.order,pid||'');fbTrack('Purchase',{value:Number(j.order.total)||0,currency:'KWD'});}
     else{fbTrack('Purchase',{value:0,currency:'KWD'});}
   }catch(_){fbTrack('Purchase',{value:0,currency:'KWD'});}
