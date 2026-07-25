@@ -145,7 +145,7 @@ const data = ensureFields(JSON.parse(raw));
 const changed = await offloadImages(data);
 // تنظيف لمرة واحدة: نقل الأسماء الإنجليزية من الوصف + إكمال الناقص من قاموس qonsole
 let fixed = false;
-if ((!data._i18nFixed || !data._i18nFixed2) && i18nFix) { try { i18nFix.applyI18nFix(data); data._i18nFixed = 1; data._i18nFixed2 = 1; fixed = true; } catch (_) {} }
+if (i18nFix && data._i18nFixV !== i18nFix.I18N_FIX_V) { try { i18nFix.applyI18nFix(data); data._i18nFixV = i18nFix.I18N_FIX_V; fixed = true; } catch (_) {} }
 if(changed||fixed){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
 res.setHeader("Cache-Control","no-store");
 return res.status(200).json(data);

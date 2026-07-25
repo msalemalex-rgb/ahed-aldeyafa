@@ -4,7 +4,7 @@
 // GET ?key=ADMIN_PASSWORD            → تقرير تجريبي (Dry Run) بدون حفظ
 // GET ?key=ADMIN_PASSWORD&apply=1    → تنفيذ فعلي وحفظ
 const { cmd } = require("../lib/kv");
-const { applyI18nFix } = require("../lib/i18n-data");
+const { applyI18nFix, I18N_FIX_V } = require("../lib/i18n-data");
 
 function isAdmin(req) {
   const k = (req.query && req.query.key) || req.headers["x-admin-key"];
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
     const data = JSON.parse(raw);
     const rep = applyI18nFix(data);
     rep.mode = apply ? "APPLIED ✅ تم الحفظ" : "DRY-RUN 👀 معاينة فقط — أضف &apply=1 للتنفيذ";
-    if (apply) { data._i18nFixed = 1; data._i18nFixed2 = 1; await cmd(["SET", "menu_data", JSON.stringify(data)]); }
+    if (apply) { data._i18nFixV = I18N_FIX_V; await cmd(["SET", "menu_data", JSON.stringify(data)]); }
     rep.summary = {
       "أقسام اتسمّت إنجليزي": rep.cats.length,
       "أصناف اتنقل اسمها من الوصف": rep.fromDesc.length,
