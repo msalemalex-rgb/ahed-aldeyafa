@@ -410,6 +410,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="discount-tag" id="discTag" data-i18n="cart.disc">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
     <div class="cart-total"><span data-i18n="cart.totalL">الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
     <p class="cart-note" data-i18n="cart.note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
+    <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold)" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ أضف أصناف أخرى</button>
     <button class="btn btn-gold" onclick="openCheckout()" data-i18n="cart.paynow">💳 ادفع الآن بـ KNET</button>
   </div>
 </aside>
@@ -504,7 +505,7 @@ ar:{"nav.menu":"المنيو","nav.catering":"المناسبات والديوا�
 "about.eyebrow":"قصتنا","about.title":"طعمٌ كويتيٌّ أصيل","about.p1":"في عهد الضيافة، نؤمن أن الأكل الكويتي إرثٌ وكرم. نُعدّ أطباقنا على الطريقة التقليدية بأجود المكوّنات، طازجة كل يوم.","about.p2":"من المجبوس والمطبق إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل.","about.s1":"أكل كويتي أصيل","about.s2n":"طازج","about.s2":"يومياً","about.s3n":"حولي","about.s3":"قلب الكويت",
 "contact.eyebrow":"زورنا","contact.title":"الموقع والتواصل","contact.sub":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.infoT":"معلومات التواصل","contact.addrL":"العنوان","contact.addrV":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.phoneL":"الهاتف / واتساب","contact.instaL":"إنستجرام","contact.hoursT":"أوقات العمل","contact.d1":"السبت - الخميس","contact.d1t":"11 ص - 12 م","contact.d2":"الجمعة","contact.d2t":"1 ظ - 12 م","contact.order":"🍽️ اطلب الآن","contact.wa":"📲 واتساب","contact.dir":"🧭 الاتجاهات",
 "footer.tag":"المأكولات الكويتية الأصيلة • حولي، الكويت","footer.rights":"عهد الضيافة. جميع الحقوق محفوظة.",
-"cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"💳 ادفع الآن بـ KNET","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
+"cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"💳 ادفع الآن بـ KNET","cart.addMore":"＋ أضف أصناف أخرى","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
 "m.add":"＋ أضف للسلة","m.unavail":"غير متوفر","m.soldout":"غير متوفر حالياً","t.added":"✓ أُضيف ","t.unavail":"هذا الصنف غير متوفر حالياً","t.empty":"السلة فارغة 🛒","t.invWait":"الفاتورة قيد التحضير، حاول بعد لحظة",
 "opt.add":"＋ أضف للسلة","opt.choice":"اختيار","opt.none":"لا توجد اختيارات",
 "co.title":"تفاصيل الطلب","co.name":"الاسم *","co.namePh":"اسمك الكريم","co.phone":"رقم التواصل *","co.dtype":"طريقة الاستلام","co.delivery":"🛵 توصيل","co.pickup":"🏠 استلام من المطعم","co.area":"المنطقة *","co.areaPh":"🔎 اكتب اسم منطقتك...","co.address":"عنوان التوصيل *","co.addrPh":"القطعة، الشارع، رقم المنزل، علامة مميزة...","co.locate":"📍 حدد موقعي على الخريطة (يساعد المندوب)","co.payM":"طريقة الدفع","co.cod":"💵 كاش عند الاستلام",
@@ -524,7 +525,7 @@ en:{"nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us"
 "about.eyebrow":"Our Story","about.title":"Authentic Kuwaiti Taste","about.p1":"At Ahd Al-Diyafa, we believe Kuwaiti food is heritage and generosity. We prepare our dishes the traditional way with the finest ingredients, fresh every day.","about.p2":"From majboos and mutabbaq to large diwaniya trays, we bring you the authentic taste of the Kuwaiti home.","about.s1":"Authentic Kuwaiti Food","about.s2n":"Fresh","about.s2":"Daily","about.s3n":"Hawally","about.s3":"Heart of Kuwait",
 "contact.eyebrow":"Visit Us","contact.title":"Location & Contact","contact.sub":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.infoT":"Contact Information","contact.addrL":"Address","contact.addrV":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.phoneL":"Phone / WhatsApp","contact.instaL":"Instagram","contact.hoursT":"Working Hours","contact.d1":"Saturday - Thursday","contact.d1t":"11 AM - 12 AM","contact.d2":"Friday","contact.d2t":"1 PM - 12 AM","contact.order":"🍽️ Order Now","contact.wa":"📲 WhatsApp","contact.dir":"🧭 Directions",
 "footer.tag":"Authentic Kuwaiti Cuisine • Hawally, Kuwait","footer.rights":"Ahd Al-Diyafa. All rights reserved.",
-"cart.title":"🛒 Your Cart","cart.disc":"✅ 10% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"💳 Pay Now with KNET","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
+"cart.title":"🛒 Your Cart","cart.disc":"✅ 10% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"💳 Pay Now with KNET","cart.addMore":"＋ Add More Items","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
 "m.add":"＋ Add to Cart","m.unavail":"Unavailable","m.soldout":"Currently unavailable","t.added":"✓ Added ","t.unavail":"This item is currently unavailable","t.empty":"Your cart is empty 🛒","t.invWait":"Invoice is being prepared, try again in a moment",
 "opt.add":"＋ Add to Cart","opt.choice":"Choice","opt.none":"No options available",
 "co.title":"Order Details","co.name":"Name *","co.namePh":"Your name","co.phone":"Contact Number *","co.dtype":"Order Type","co.delivery":"🛵 Delivery","co.pickup":"🏠 Pickup","co.area":"Area *","co.areaPh":"🔎 Type your area name...","co.address":"Delivery Address *","co.addrPh":"Block, street, house no., landmark...","co.locate":"📍 Pin my location on the map (helps the driver)","co.payM":"Payment Method","co.cod":"💵 Cash on Delivery",
@@ -556,6 +557,7 @@ function setLang(l){LANG=(l==='en')?'en':'ar';try{localStorage.setItem('ahd_lang
 function toggleLang(){setLang(LANG==='ar'?'en':'ar');}
 let MENU=[];
 let cart=[];
+try{const _cs=localStorage.getItem('ahd_cart_v1');if(_cs){const _ca=JSON.parse(_cs);if(Array.isArray(_ca))cart=_ca.filter(l=>l&&l.key&&l.id!=null&&(parseInt(l.qty)||0)>0).map(l=>({key:String(l.key),id:l.id,name:String(l.name||''),base:Number(l.base)||0,opts:Array.isArray(l.opts)?l.opts:[],qty:Math.min(99,Math.max(1,parseInt(l.qty)||1))}));}}catch(_){}
 let optItem=null;
 let coDType="delivery";
 let coAreaIdx=-1;
@@ -662,6 +664,7 @@ function confirmOptions(){
   addLine(it,opts);showToast(T('t.added')+itName(it));closeOpt();
 }
 function updateCart(){
+  try{localStorage.setItem('ahd_cart_v1',JSON.stringify(cart));}catch(_){}
   const c=count();
   document.getElementById('cartCount').textContent=c;
   document.getElementById('cfCount').textContent=c;
