@@ -2,6 +2,8 @@
 // الصور المرفوعة (base64) تُنقل لمفاتيح منفصلة img:<id> وتُستبدل برابط /api/img؟id=
 // لتقليل حجم بيانات المنيو وتسريع التحميل.
 const { cmd } = require("../lib/kv");
+let i18nFix = null;
+try { i18nFix = require("../lib/i18n-data"); } catch (_) {}
 
 const IMG = (u) => `https://images.unsplash.com/${u}?w=700&q=80&auto=format&fit=crop`;
 
@@ -141,7 +143,10 @@ if(!raw){ await cmd(["SET","menu_data",JSON.stringify(DEFAULT_DATA)]); raw=JSON.
 const data = ensureFields(JSON.parse(raw));
 // ترحيل لمرة واحدة: انقل صور base64 القديمة لروابط مخدومة
 const changed = await offloadImages(data);
-if(changed){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
+// تنظيف لمرة واحدة: نقل الأسماء الإنجليزية من الوصف + إكمال الناقص من قاموس qonsole
+let fixed = false;
+if (!data._i18nFixed && i18nFix) { try { i18nFix.applyI18nFix(data); data._i18nFixed = 1; fixed = true; } catch (_) {} }
+if(changed||fixed){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
 res.setHeader("Cache-Control","no-store");
 return res.status(200).json(data);
 }

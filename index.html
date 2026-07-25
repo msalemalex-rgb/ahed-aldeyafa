@@ -539,7 +539,7 @@ let LANG=(function(){try{const q=new URLSearchParams(location.search).get('lang'
 function T(k){const d=I18N[LANG]||I18N.ar;return (k in d)?d[k]:(k in I18N.ar?I18N.ar[k]:k);}
 function CUR(){return LANG==='en'?'KWD':CONFIG.currency;}
 function itName(it){return (LANG==='en'&&it&&it.nameEn)?it.nameEn:(it?(it.name||''):'');}
-function itemSub(it){if(!it)return '';if(LANG==='en')return it.descEn||it.name||'';return it.desc||it.nameEn||'';}
+function itemSub(it){if(!it)return '';if(LANG==='en')return it.descEn||'';return it.desc||'';}
 function catName(c){return (LANG==='en'&&c&&c.catEn)?c.catEn:(c?(c.cat||''):'');}
 function lineName(l){const it=findItem(l.id);return it?itName(it):(l.name||'');}
 function applyLang(){
