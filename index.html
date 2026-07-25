@@ -313,7 +313,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 <body>
 <header id="header">
   <div class="container nav">
-    <div class="brand"><span class="logo" id="brandLogo">🍽️</span> عهد الضيافة</div>
+    <div class="brand"><span class="logo" id="brandLogo">🍽️</span> <span data-i18n="brand.name">عهد الضيافة</span></div>
     <nav class="nav-links" id="navLinks">
       <a href="#menu" onclick="closeNav()" data-i18n="nav.menu">المنيو</a>
       <a href="#catering" onclick="closeNav()" data-i18n="nav.catering">المناسبات والديوانيات</a>
@@ -397,7 +397,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   </div>
 </div></section>
 <footer><div class="container">
-  <div class="brand"><span class="logo">🍽️</span> مطعم عهد الضيافة</div>
+  <div class="brand"><span class="logo">🍽️</span> <span data-i18n="brand.full">مطعم عهد الضيافة</span></div>
   <p style="opacity:.8" data-i18n="footer.tag">المأكولات الكويتية الأصيلة • حولي، الكويت</p>
   <div class="social"><a href="https://www.instagram.com/ahedaldeyafa" target="_blank">📷</a><a id="waFooter" target="_blank" aria-label="واتساب"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z"/></svg></a></div>
   <div class="copy">© <span id="year"></span> <span data-i18n="footer.rights">عهد الضيافة. جميع الحقوق محفوظة.</span></div>
@@ -468,7 +468,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div class="closed-box">
     <div class="closed-top">
       <span class="closed-logo" id="closedLogo">🍽️</span>
-      <div class="closed-brand">عهد الضيافة</div>
+      <div class="closed-brand" data-i18n="brand.name">عهد الضيافة</div>
       <div class="closed-sub2" data-i18n="closed.sub">المأكولات الكويتية الأصيلة</div>
     </div>
     <div class="closed-body">
@@ -494,7 +494,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
-ar:{"nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل",
+ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل",
 "hero.eyebrow":"المأكولات الكويتية الأصيلة","hero.h1":"طعم الكويت <span class=\"g\">الأصيل</span>","hero.tag":"نُقدّم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك","hero.order":"🍽️ اطلب الآن","hero.diwaniya":"عروض الديوانيات",
 "feat.1":"<span class=\"ic\">🔥</span> أكل طازج يومياً","feat.2":"<span class=\"ic\">💳</span> دفع آمن بـ KNET","feat.3":"<span class=\"ic\">🛵</span> توصيل لحولي والمناطق القريبة","feat.4":"<span class=\"ic\">📍</span> حولي، شارع سراقة بن مالك",
 "menu.eyebrow":"قائمة الطعام","menu.title":"اختر طبقك المفضّل","menu.sub":"أطباق كويتية أصيلة تُعدّ طازجة كل يوم • الأسعار بالدينار الكويتي",
@@ -514,7 +514,7 @@ ar:{"nav.menu":"المنيو","nav.catering":"المناسبات والديوا�
 "e.name":"فضلاً اكتب الاسم","e.phone":"فضلاً اكتب رقم تواصل صحيح","e.area":"فضلاً اختر المنطقة من القائمة","e.address":"فضلاً اكتب عنوان التوصيل","e.min":"الحد الأدنى للتوصيل في {area} هو {v} د.ك","e.minHere":"الحد الأدنى للتوصيل في هذه المنطقة {v} د.ك","e.codFail":"تعذّر إرسال الطلب، حاول مرة أخرى","e.payStart":"تعذّر بدء الدفع، حاول مرة أخرى","e.payConn":"خطأ في الاتصال بالدفع",
 "res.okTitle":"شكراً لطلبك! 🌟","res.okMsg":"تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.","res.codTitle":"تم استلام طلبك! 🎉","res.codMsg":"طلبك مؤكد وجارٍ تجهيزه — الدفع كاش عند الاستلام 💵","res.noL":"رقم طلبك: ","res.okSub":"سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼","res.invoice":"🧾 عرض / حفظ الفاتورة","res.waContact":"📲 تواصل واتساب","res.close":"إغلاق","res.failTitle":"لم تكتمل عملية الدفع","res.failMsg":"ما تمّش خصم أي مبلغ. تقدر تحاول مرة أخرى أو تطلب عبر واتساب.","res.retry":"🔁 حاول مرة أخرى","res.waOrder":"📲 اطلب عبر واتساب",
 "closed.sub":"المأكولات الكويتية الأصيلة","closed.status":"🌙 المطعم مغلق حالياً","closed.msg":"يسعدنا تصفّحكم لقائمتنا، ويمكنكم تقديم طلبكم أو حجزكم الآن وسيبدأ تجهيزه فور بدء أوقات العمل.<br>نشكر لكم اختياركم مطعم عهد الضيافة.","closed.browse":"تصفّح القائمة وأكمل طلبك","closed.hours":"🕒 ساعات العمل: من {a} إلى {b}"},
-en:{"nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us","nav.contact":"Location & Contact",
+en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.doc":"Ahd Al-Diyafa Restaurant | Authentic Kuwaiti Majboos & Biryani in Hawally - Order Online","nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us","nav.contact":"Location & Contact",
 "hero.eyebrow":"Authentic Kuwaiti Cuisine","hero.h1":"The Authentic Taste of <span class=\"g\">Kuwait</span>","hero.tag":"Traditional Kuwaiti dishes, prepared fresh every day with love and passion","hero.order":"🍽️ Order Now","hero.diwaniya":"Diwaniya Offers",
 "feat.1":"<span class=\"ic\">🔥</span> Fresh food daily","feat.2":"<span class=\"ic\">💳</span> Secure KNET payment","feat.3":"<span class=\"ic\">🛵</span> Delivery to Hawally & nearby areas","feat.4":"<span class=\"ic\">📍</span> Hawally, Suraqa Bin Malik St.",
 "menu.eyebrow":"Our Menu","menu.title":"Choose Your Favorite Dish","menu.sub":"Authentic Kuwaiti dishes prepared fresh daily • Prices in Kuwaiti Dinar",
@@ -549,6 +549,7 @@ function applyLang(){
     document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=T(el.getAttribute('data-i18n'));});
     document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.setAttribute('placeholder',T(el.getAttribute('data-i18n-ph')));});
     const b=document.getElementById('langBtn');if(b)b.textContent=(LANG==='ar')?'EN':'عربي';
+    try{document.title=T('title.doc');}catch(_){}
     renderMenu();updateCart();
     try{updPayBtn();}catch(_){}
   }catch(_){}
