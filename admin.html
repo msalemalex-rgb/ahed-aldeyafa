@@ -72,7 +72,7 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .view{display:none}.view.active{display:block}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(78,13,24,.08)}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-.item-head,.item-block{display:grid;grid-template-columns:38px 200px 175px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
+.item-head,.item-block{display:grid;grid-template-columns:38px 170px 150px 150px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
 .opt-ic{background:rgba(110,20,35,.10);color:var(--maroon)}
 .oe-group{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--cream)}
 .oe-ghead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
@@ -666,6 +666,7 @@ function renderMenuEditor(){
       return `<div class="item-block">
         ${img}
         <input class="ib-name" value="${(it.name||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].name=this.value" placeholder="اسم الطبق">
+        <input class="ib-desc" dir="ltr" value="${(it.nameEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].nameEn=this.value" placeholder="English name">
         <input class="ib-desc" value="${(it.desc||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].desc=this.value" placeholder="الوصف">
         <input class="num" type="number" step="0.05" value="${it.price}" oninput="DATA.menu[${ci}].items[${ii}].price=parseFloat(this.value)||0">
         <input class="num" type="number" step="5" value="${it.prepTime!=null?it.prepTime:20}" oninput="DATA.menu[${ci}].items[${ii}].prepTime=parseInt(this.value)||0">
@@ -678,9 +679,10 @@ function renderMenuEditor(){
     return `<div class="card">
       <div class="cat-head">
         <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0">
+        <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0;max-width:190px">
         <button class="delx" onclick="delCat(${ci})">🗑</button>
       </div>
-      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
+      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>English</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
       ${items}
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
@@ -688,7 +690,7 @@ function renderMenuEditor(){
 }
 function toggleAvail(ci,ii){const it=DATA.menu[ci].items[ii];it.available=(it.available===false);renderMenuEditor();}
 function onItemImg(ci,ii,inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=500;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.72);}catch(_){url=rd.result;}DATA.menu[ci].items[ii].img=url;renderMenuEditor();toast("✅ تم اختيار الصورة — اضغط حفظ المنيو");};img.src=rd.result;};rd.readAsDataURL(f);}
-function addItem(ci){DATA.menu[ci].items.push({id:Date.now(),name:"",desc:"",price:0,img:"",prepTime:20,available:true});renderMenuEditor();}
+function addItem(ci){DATA.menu[ci].items.push({id:Date.now(),name:"",nameEn:"",desc:"",price:0,img:"",prepTime:20,available:true});renderMenuEditor();}
 function delItem(ci,ii){if(!confirm("حذف هذا الصنف؟"))return;DATA.menu[ci].items.splice(ii,1);renderMenuEditor();}
 function addCat(){DATA.menu.push({cat:"قسم جديد",items:[]});renderMenuEditor();}
 function delCat(ci){if(!confirm("حذف هذا القسم وكل أصنافه؟"))return;DATA.menu.splice(ci,1);renderMenuEditor();}
