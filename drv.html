@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>سائق عهد الضيافة</title>
+<style>
+:root{--maroon:#6e1423;--maroon-dark:#4a0d18;--gold:#c8962f;--gold-light:#e8c36a;--cream:#faf6ef}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+body{background:var(--cream);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fff;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.15);max-width:420px;width:100%;overflow:hidden}
+.top{background:linear-gradient(135deg,var(--maroon-dark),var(--maroon));color:var(--gold-light);text-align:center;padding:22px}
+.top h1{font-size:22px}
+.top p{font-size:13px;opacity:.85;margin-top:4px;color:#fff}
+.body{padding:20px;text-align:center}
+.code{background:var(--cream);border:2px dashed var(--gold);border-radius:12px;padding:12px;font-size:15px;font-weight:700;color:var(--maroon);word-break:break-all;margin-bottom:14px}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;margin-bottom:10px;text-decoration:none;color:#fff}
+.btn-go{background:#1faa54}
+.btn-app{background:var(--maroon)}
+.btn-done{background:#2563c9}
+.btn-stop{background:#c0392b}
+.muted{font-size:13px;color:#888;line-height:1.8;margin-top:10px}
+.status{font-size:15px;font-weight:800;margin:10px 0;color:var(--maroon);min-height:24px}
+.pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:#1faa54;margin-inline-start:6px;animation:p 1.2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.2}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top"><h1>🚗 سائق عهد الضيافة</h1><p>صفحة مشاركة الموقع مع الزبون</p></div>
+  <div class="body">
+    <div class="code" id="ordCode">...</div>
+    <a class="btn btn-app" id="openApp" href="#">📱 افتح تطبيق السائق</a>
+    <button class="btn btn-go" id="webShare">📡 شارك موقعك من المتصفح</button>
+    <button class="btn btn-stop" id="stopShare" style="display:none">⏸️ إيقاف المشاركة</button>
+    <button class="btn btn-done" id="doneBtn" style="display:none">✅ تم التسليم</button>
+    <div class="status" id="st"></div>
+    <div class="muted" id="hint">
+      الأفضل: استخدم <b>تطبيق السائق</b> (بيشتغل والشاشة مقفولة).<br>
+      المشاركة من المتصفح بتشتغل بس <b>طول ما الصفحة دي مفتوحة وقدامك</b>.<br>
+      لو التطبيق مش متسطب عندك، اطلبه من المطعم (ملف APK يتبعتلك واتساب).
+    </div>
+  </div>
+</div>
+<script>
+const O=(new URLSearchParams(location.search)).get('o')||'';
+document.getElementById('ordCode').textContent=O?('كود التوصيلة: '+O):'⚠️ اللينك ناقص كود الطلب';
+document.getElementById('openApp').href='intent://drive?o='+encodeURIComponent(O)+'#Intent;scheme=ahddrv;package=com.ahd.driver;end';
+let watchId=null,sentCount=0;
+const st=document.getElementById('st');
+async function push(lat,lng){
+  try{
+    const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({locFor:O,lat:lat,lng:lng})});
+    const j=await r.json();
+    if(j&&j.ok){sentCount++;st.innerHTML='📡 جاري مشاركة موقعك — اتبعت '+sentCount+' إشارة <span class="pulse"></span>';}
+    else if(j&&j.error==='order not delivering'){stopShare();st.textContent='⛔ الطلب مش في حالة "في الطريق" — كلم المطعم';}
+  }catch(_){st.textContent='⚠️ مشكلة اتصال — بنحاول تاني...';}
+}
+function startShare(){
+  if(!O){st.textContent='⚠️ مفيش كود طلب في اللينك';return;}
+  if(!navigator.geolocation){st.textContent='⚠️ المتصفح ده مش بيدعم تحديد الموقع';return;}
+  st.textContent='⏳ بنطلب إذن الموقع...';
+  watchId=navigator.geolocation.watchPosition(
+    p=>{push(p.coords.latitude,p.coords.longitude);},
+    e=>{st.textContent='⚠️ لازم توافق على إذن الموقع عشان المشاركة تشتغل';},
+    {enableHighAccuracy:true,maximumAge:5000,timeout:20000}
+  );
+  document.getElementById('webShare').style.display='none';
+  document.getElementById('stopShare').style.display='block';
+  document.getElementById('doneBtn').style.display='block';
+}
+function stopShare(){
+  if(watchId!=null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  document.getElementById('webShare').style.display='block';
+  document.getElementById('stopShare').style.display='none';
+  st.textContent='⏸️ المشاركة متوقفة';
+}
+async function markDone(){
+  if(!confirm('تأكيد تسليم الطلب للزبون؟'))return;
+  try{
+    await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deliveredBy:O})});
+    stopShare();
+    document.getElementById('doneBtn').style.display='none';
+    st.textContent='🎉 تم تسجيل التسليم — شكراً!';
+  }catch(_){st.textContent='⚠️ مشكلة اتصال — جرب تاني';}
+}
+document.getElementById('webShare').onclick=startShare;
+document.getElementById('stopShare').onclick=stopShare;
+document.getElementById('doneBtn').onclick=markDone;
+</script>
+</body>
+</html>

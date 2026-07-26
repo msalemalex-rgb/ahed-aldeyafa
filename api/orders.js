@@ -67,6 +67,28 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "POST") {
       const b = await readBody(req);
+      // تحديث موقع السائق (تطبيق السائق) — التفويض بمعرفة معرف الطلب غير القابل للتخمين
+      if (b.locFor) {
+        const id = String(b.locFor);
+        const lat = Number(b.lat), lng = Number(b.lng);
+        if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return res.status(400).json({ error: "bad coords" });
+        const os = await cmd(["GET", "order:" + id]);
+        if (!os) return res.status(404).json({ error: "not_found" });
+        let oo; try { oo = JSON.parse(os); } catch { return res.status(500).json({ error: "parse" }); }
+        if (oo.status !== "delivering") return res.status(409).json({ error: "order not delivering", status: oo.status });
+        await cmd(["SET", "loc:" + id, JSON.stringify({ lat, lng, at: Date.now() })]);
+        await cmd(["EXPIRE", "loc:" + id, "10800"]);
+        return res.status(200).json({ ok: true });
+      }
+      // إنهاء التوصيلة من تطبيق السائق
+      if (b.deliveredBy) {
+        const id = String(b.deliveredBy);
+        const os = await cmd(["GET", "order:" + id]);
+        if (!os) return res.status(404).json({ error: "not_found" });
+        let oo; try { oo = JSON.parse(os); } catch { return res.status(500).json({ error: "parse" }); }
+        if (oo.status === "delivering") { await setOrderStatus(id, "done"); try { await cmd(["DEL", "loc:" + id]); } catch (_) {} }
+        return res.status(200).json({ ok: true });
+      }
       // حجز مناسبة/ديوانية (مدموج من /api/reservations)
       if (b.kind === "reservation") {
         if (!b.name || !b.date) return res.status(400).json({ error: "missing name/date" });
@@ -107,8 +129,12 @@ module.exports = async (req, res) => {
         try { s = await cmd(["GET", "order:" + id]); } catch (_) { return res.status(500).json({ error: "server_error" }); }
         if (!s) return res.status(404).json({ error: "not_found" });
         let o; try { o = JSON.parse(s); } catch (_) { return res.status(500).json({ error: "parse_error" }); }
+        let driverLoc = null;
+        if (o.status === "delivering") {
+          try { const ls = await cmd(["GET", "loc:" + id]); if (ls) driverLoc = JSON.parse(ls); } catch (_) {}
+        }
         res.setHeader("Cache-Control", "no-store");
-        return res.status(200).json({ order: {
+        return res.status(200).json({ driverLoc, order: {
           no: o.no || o.id, createdAt: o.createdAt, channel: o.channel, status: o.status,
           name: o.name || "", phone: o.phone || "", deliveryType: o.deliveryType || "",
           area: o.area || "", address: o.address || "", deliveryTime: o.deliveryTime || "", mapUrl: o.mapUrl || "",

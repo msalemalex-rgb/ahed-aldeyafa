@@ -515,6 +515,7 @@ function renderOrders(){
         ${o.status==='preparing'?`<button class="sbtn deliver" onclick="updOrder('${o.id}','delivering')">${o.deliveryType==='pickup'?'🛍️ جاهز للاستلام':'🛵 في الطريق'}</button>`:''}
         ${(o.status==='new'||o.status==='preparing'||o.status==='delivering')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
         ${o.phone?`<button class="sbtn" style="background:rgba(31,170,84,.15);color:#178c44" onclick="waTrack('${o.id}')">📲 رسالة تتبع</button>`:''}
+        ${o.status==='delivering'&&o.deliveryType==='delivery'?`<button class="sbtn deliver" onclick="waDriver('${o.id}')">🚗 تجهيزة السائق</button>`:''}
         ${(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
@@ -535,6 +536,17 @@ function waTrack(id){
   if(o.deliveryType==='pickup'&&o.status==='done')stTxt='تم استلام طلبك — بالهنا والشفا!';
   const msg='مطعم عهد الضيافة 🌟%0A'+'طلبك رقم '+encodeURIComponent(o.no||'')+' — '+encodeURIComponent(stTxt)+'%0A%0A'+'تابع طلبك لحظة بلحظة من هنا:%0A'+'https://ahed-aldeyafa.vercel.app/?track='+encodeURIComponent(o.id);
   window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
+}
+function waDriver(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  let msg='🚗 توصيلة جديدة — عهد الضيافة%0A%0A';
+  msg+='طلب: '+encodeURIComponent(o.no||'')+'%0A';
+  if(o.name)msg+='الزبون: '+encodeURIComponent(o.name)+(o.phone?(' — '+encodeURIComponent(o.phone)):'')+'%0A';
+  if(o.area)msg+='المنطقة: '+encodeURIComponent(o.area)+'%0A';
+  if(o.address)msg+='العنوان: '+encodeURIComponent(o.address)+'%0A';
+  if(o.mapUrl)msg+='خريطة الزبون: '+encodeURIComponent(o.mapUrl)+'%0A';
+  msg+='%0A📲 افتح لينك السائق وشغّل مشاركة الموقع:%0A'+encodeURIComponent('https://ahed-aldeyafa.vercel.app/drv.html?o='+o.id);
+  window.open('https://wa.me/?text='+msg,'_blank');
 }
 function updOrder(id,status){
   seen.add(id);
