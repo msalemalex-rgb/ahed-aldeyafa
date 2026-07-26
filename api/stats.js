@@ -79,7 +79,7 @@ module.exports = async (req, res) => {
 
     // ===== الطلبات =====
     const orders = await listOrders(1000);
-    const PAID = ["new", "preparing", "done"];
+    const PAID = ["new", "preparing", "delivering", "done"];
     const counts = {};
     let revenue = 0, revToday = 0, ordersInWin = 0, paidCount = 0;
     const itemMap = {};

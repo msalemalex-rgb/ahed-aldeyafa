@@ -479,7 +479,7 @@ function renderOrders(){
   if(!list.length){box.innerHTML='<div class="empty"><div class="big">📭</div><p>لا توجد طلبات</p></div>';return;}
   box.innerHTML=list.map(o=>{
     const t=toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}));
-    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],awaiting:['واتساب — بانتظار التأكيد','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
+    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],delivering:['في الطريق 🛵','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],awaiting:['واتساب — بانتظار التأكيد','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
     const st=stMap[o.status]||stMap.new;
     const meta=[o.name?esc(o.name):'', o.phone?`<a href="tel:${esc(o.phone)}" style="color:inherit;text-decoration:underline">${esc(o.phone)}</a>`:''].filter(Boolean).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
@@ -490,16 +490,18 @@ function renderOrders(){
     if(o.mapUrl)dparts.push('<a href="'+esc(o.mapUrl)+'" target="_blank" style="color:#2563c9;text-decoration:underline;font-weight:700">📍 فتح الموقع على الخريطة</a>');
     if(o.deliveryFee)dparts.push('رسوم التوصيل: '+Number(o.deliveryFee).toFixed(3)+' د.ك');
     if(o.deliveryTime)dparts.push('🕒 وقت التوصيل: '+esc(o.deliveryTime));
+    if(o.note)dparts.push('<b style="color:#a2333f">📝 ملاحظات: '+esc(o.note)+'</b>');
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
     const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web',cod:'cod'})[o.channel]||'web';
     const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':(o.channel==='cod'?'💵 كاش عند الاستلام':esc(o.channel)));
-    const showActions=(o.status==='new'||o.status==='preparing'||o.status==='awaiting');
+    const showActions=(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting');
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
         <div><span class="oid">${esc(o.no||o.id)}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
         <div style="text-align:left"><span class="chan ${chanCls}">${chanTxt}</span><div class="time">${t}</div></div>
       </div>
+      ${o.scheduledFor?`<div style="background:#fff3cd;border:1px solid #e0a800;border-radius:8px;padding:6px 10px;margin:6px 0;font-weight:800;color:#8a6d00">⏰ طلب مؤجل — ${esc(fmtSched(o.scheduledFor))}</div>`:''}
       <div class="items">${esc(o.items)}</div>
       <div class="total">${Number(o.total).toFixed(3)} د.ك</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
@@ -508,11 +510,27 @@ function renderOrders(){
         <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ طباعة</button>
         ${o.status==='awaiting'?`<button class="sbtn done" onclick="updOrder('${o.id}','new')">✅ أكّد الطلب</button>`:''}
         ${o.status==='new'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
-        ${(o.status==='new'||o.status==='preparing')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
-        ${(o.status==='new'||o.status==='preparing'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
+        ${o.status==='preparing'?`<button class="sbtn prep" onclick="updOrder('${o.id}','delivering')">🛵 في الطريق</button>`:''}
+        ${(o.status==='new'||o.status==='preparing'||o.status==='delivering')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
+        ${o.phone?`<button class="sbtn" style="background:rgba(31,170,84,.15);color:#178c44" onclick="waTrack('${o.id}')">📲 رسالة تتبع</button>`:''}
+        ${(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
   }).join('');
+}
+function fmtSched(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return sf||'';
+  let h=parseInt(m[4],10);const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;
+  return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
+}
+function waTrack(id){
+  const o=orders.find(x=>x.id===id);if(!o||!o.phone)return;
+  let ph=String(o.phone).replace(/\D/g,'');
+  if(ph.length===8)ph='965'+ph;
+  const stTxt=({new:'تم استلام طلبك وجارٍ تجهيزه',preparing:'طلبك قيد التحضير الآن',delivering:'طلبك في الطريق إليك 🛵',done:'تم توصيل طلبك — بالهنا والشفا!'})[o.status]||'تم استلام طلبك';
+  const msg='مطعم عهد الضيافة 🌟%0A'+'طلبك رقم '+encodeURIComponent(o.no||'')+' — '+encodeURIComponent(stTxt)+'%0A%0A'+'تابع طلبك لحظة بلحظة من هنا:%0A'+'https://ahed-aldeyafa.vercel.app/?track='+encodeURIComponent(o.id);
+  window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
 }
 function updOrder(id,status){
   seen.add(id);
@@ -968,7 +986,7 @@ async function loadStats(range,el){
   const src=t.sources||[];
   if(src.length){const tt=src.reduce((s,x)=>s+x.count,0)||1;h+='<div class="toplist">';src.forEach(s=>{h+=`<div class="toprow"><span class="topn">${sN[s.name]||s.name}</span><span class="topbar"><span style="width:${Math.round(s.count/tt*100)}%"></span></span><b>${s.count}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات بعد</div>';
   h+='</div></div>';
-  const c=o.counts||{},stN={new:'جديد',preparing:'قيد التحضير',done:'مكتمل',pending:'بانتظار الدفع',awaiting:'واتساب',failed:'فشل دفع',cancelled:'ملغي'};
+  const c=o.counts||{},stN={new:'جديد',preparing:'قيد التحضير',delivering:'في الطريق',done:'مكتمل',pending:'بانتظار الدفع',awaiting:'واتساب',failed:'فشل دفع',cancelled:'ملغي'};
   h+='<div class="spanel"><h3>حالات الطلبات</h3><div class="sgrid2">';
   Object.keys(stN).forEach(k=>{if(c[k])h+=`<div class="stbox"><b>${c[k]}</b><span>${stN[k]}</span></div>`;});
   h+='</div></div>';
