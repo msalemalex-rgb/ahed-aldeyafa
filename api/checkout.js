@@ -39,7 +39,6 @@ module.exports = async (req, res) => {
       BASE     = (process.env.HSB_BASE_URL || "https://api.hesabe.com").trim().replace(/\/+$/, "");
     }
     const SITE     = (process.env.SITE_URL || "").trim().replace(/\/+$/, "");
-    const PAY_TYPE = (process.env.HSB_PAYMENT_TYPE || "1").trim();
     // في وضع التجربة نمرر sandbox=1 للـ callback ليفك التشفير بمفاتيح التجربة
     const CB = `${SITE}/api/callback${SANDBOX ? "?sandbox=1" : ""}`;
 
@@ -47,6 +46,9 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: "Missing env" });
 
     const body = await readBody(req);
+    // طريقة الدفع: knet (مباشر) | other (صفحة حسابة بكل الطرق المفعلة في الحساب)
+    const METHOD_MAP = { knet: "1", other: "0", card: "2", amex: "7", applepay: "9" };
+    const PAY_TYPE = METHOD_MAP[String(body.method || "").toLowerCase()] || (process.env.HSB_PAYMENT_TYPE || "1").trim();
     const amountNum = Number(body.amount);
     if (!amountNum || amountNum < 0.1 || amountNum > 100000)
       return res.status(400).json({ error: "Invalid amount", got: body.amount });
