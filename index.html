@@ -216,7 +216,8 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .cart-head{background:var(--maroon);color:var(--gold-light);padding:22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold)}
 .cart-head h3{font-size:24px}
 .cart-close{background:none;border:none;color:var(--gold-light);font-size:28px;cursor:pointer}
-.cart-items{flex:1;overflow-y:auto;padding:18px}
+.cart-body{flex:1;overflow-y:auto;padding:18px}
+.cart-items{padding:0 0 6px}
 .cart-empty{text-align:center;color:var(--muted);padding:60px 20px}.cart-empty .big{font-size:64px;margin-bottom:12px}
 .ci{display:flex;gap:13px;align-items:center;background:#fff;border-radius:8px;padding:13px;margin-bottom:13px;box-shadow:var(--shadow-sm)}
 .ci .ci-img{width:54px;height:54px;border-radius:6px;object-fit:cover;background:linear-gradient(135deg,var(--red),var(--maroon-dark));flex-shrink:0}
@@ -423,31 +424,12 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 <aside class="cart-panel" id="cartPanel">
   <div class="cart-head"><h3 data-i18n="cart.title">🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
-  <div class="cart-items" id="cartItems"></div>
-  <div class="cart-foot">
-    <div class="discount-tag" id="discTag" data-i18n="cart.disc">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
-    <div class="cart-total"><span data-i18n="cart.totalL">الإجمالي</span><span id="cartTotal">0.000 د.ك</span></div>
-    <p class="cart-note" data-i18n="cart.note">التوصيل والرسوم تُحتسب عند تأكيد الطلب</p>
-    <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold)" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ أضف أصناف أخرى</button>
-    <button class="btn btn-gold" onclick="openCheckout()" data-i18n="cart.paynow">🛒 إتمام الطلب</button>
-  </div>
-</aside>
-<button class="cart-float" id="cartFloat" onclick="openCart()">🛒<span class="cf-count" id="cfCount">0</span></button>
-<a class="wa-float" id="waFloat" target="_blank" title="واتساب" aria-label="واتساب"><svg viewBox="0 0 24 24" width="34" height="34" fill="#fff" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z"/></svg></a>
-<div class="co-overlay" id="optOverlay" onclick="if(event.target.id==='optOverlay')closeOpt()">
-  <div class="co-box">
-    <div class="co-head"><h3 id="optTitle"></h3><button class="co-close" onclick="closeOpt()">×</button></div>
-    <div class="co-body">
-      <div id="optBody"></div>
-      <button class="btn btn-gold" onclick="confirmOptions()"><span data-i18n="opt.add">＋ أضف للسلة</span> <span id="optPrice"></span></button>
-    </div>
-  </div>
-</div>
-<div class="co-overlay" id="coOverlay" onclick="if(event.target.id==='coOverlay')closeCheckout()">
-  <div class="co-box">
-    <div class="co-head"><h3 data-i18n="co.title">تفاصيل الطلب</h3><button class="co-close" onclick="closeCheckout()">×</button></div>
-    <div class="co-body">
-      <div class="field"><label data-i18n="co.name">الاسم *</label><input id="coName" data-i18n-ph="co.namePh" placeholder="اسمك الكريم"></div>
+  <div class="cart-body">
+    <div class="cart-items" id="cartItems"></div>
+    <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold);width:100%;justify-content:center" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ أضف أصناف أخرى</button>
+    <div class="discount-tag" id="discTag" data-i18n="cart.disc" style="margin-top:12px">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div id="coInline" style="margin-top:14px">
+<div class="field"><label data-i18n="co.name">الاسم *</label><input id="coName" data-i18n-ph="co.namePh" placeholder="اسمك الكريم"></div>
       <div class="field"><label data-i18n="co.phone">رقم التواصل *</label><input id="coPhone" type="tel" inputmode="numeric" placeholder="9XXXXXXX"></div>
       <div class="field" id="coSegWrap"><label data-i18n="co.dtype">طريقة الاستلام</label>
         <div class="co-seg">
@@ -471,7 +453,6 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
         <div class="field"><label data-i18n="co.time">الساعة</label><select id="coTime"></select></div>
       </div>
       <div class="field"><label data-i18n="co.note">ملاحظات (اختياري)</label><textarea id="coNote" rows="2" data-i18n-ph="co.notePh" placeholder="مثال: من غير بصل، اتصل قبل الوصول..."></textarea></div>
-      <div class="co-summary" id="coSummary"></div>
       <div class="field" id="coPaySegWrap"><label data-i18n="co.payM">طريقة الدفع</label>
         <div class="co-seg" style="flex-wrap:wrap">
           <button type="button" class="co-seg-btn active" id="segPayKnet" onclick="setPayMethod('knet')"><span class="pay-chip"><span class="knet">KNET</span></span><span class="pm-lbl" data-i18n="co.knetL">الدفع عبر كنت</span></button>
@@ -480,11 +461,26 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
           <button type="button" class="co-seg-btn" id="segPayCod" onclick="setPayMethod('cod')" data-i18n="co.cod" style="display:none">💵 كاش عند الاستلام</button>
         </div>
       </div>
-      <div class="co-err" id="coErr"></div>
-      <button class="btn btn-gold" id="coPayBtn" onclick="submitCheckout()">💳 ادفع <span id="coPayAmt"></span></button>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="co-summary" id="coSummary"></div>
+    <div class="co-err" id="coErr"></div>
+    <button class="btn btn-gold" id="coPayBtn" onclick="submitCheckout()" style="width:100%;justify-content:center">💳 ادفع <span id="coPayAmt"></span></button>
+  </div>
+</aside>
+<button class="cart-float" id="cartFloat" onclick="openCart()">🛒<span class="cf-count" id="cfCount">0</span></button>
+<a class="wa-float" id="waFloat" target="_blank" title="واتساب" aria-label="واتساب"><svg viewBox="0 0 24 24" width="34" height="34" fill="#fff" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z"/></svg></a>
+<div class="co-overlay" id="optOverlay" onclick="if(event.target.id==='optOverlay')closeOpt()">
+  <div class="co-box">
+    <div class="co-head"><h3 id="optTitle"></h3><button class="co-close" onclick="closeOpt()">×</button></div>
+    <div class="co-body">
+      <div id="optBody"></div>
+      <button class="btn btn-gold" onclick="confirmOptions()"><span data-i18n="opt.add">＋ أضف للسلة</span> <span id="optPrice"></span></button>
     </div>
   </div>
 </div>
+
 <div class="co-overlay" id="invOverlay" onclick="if(event.target.id==='invOverlay')closeInvoice()">
   <div class="co-box" style="width:470px">
     <div class="co-head"><h3>فاتورتك</h3><button class="co-close" onclick="closeInvoice()">×</button></div>
@@ -723,9 +719,19 @@ function updateCart(){
   if(!cart.length){box.innerHTML='<div class="cart-empty">'+T('cart.empty')+'</div>';}
   else{box.innerHTML=cart.map(l=>{const it=findItem(l.id);const img=it?(it.img+(it.imgV?('&v='+it.imgV):'')):'';const o=lineOptsText(l);
     return `<div class="ci">${imgTag(img,'ci-img')}<div class="info"><h4>${lineName(l)}</h4>${o?`<div style="font-size:12px;color:var(--muted);line-height:1.5">${o}</div>`:''}<div class="p">${lineUnit(l).toFixed(3)} ${CUR()}</div></div><div class="qty"><button onclick="changeQty('${l.key}',-1)">−</button><span>${l.qty}</span><button onclick="changeQty('${l.key}',1)">＋</button></div></div>`;}).join('');}
-  document.getElementById('cartTotal').textContent=fmt(total());
+  try{
+    const has=cart.length>0;
+    document.getElementById('coInline').style.display=has?'':'none';
+    document.getElementById('coPayBtn').style.display=has?'':'none';
+    document.getElementById('coSummary').style.display=has?'':'none';
+    updateCoTotals();
+  }catch(_){}
 }
-function openCart(){cartOverlay.classList.add('open');cartPanel.classList.add('open')}
+function openCart(){
+  cartOverlay.classList.add('open');cartPanel.classList.add('open');
+  if(cart.length){const now=Date.now();if(!window._lastIC||now-window._lastIC>60000){window._lastIC=now;trk('checkout');fbTrack('InitiateCheckout',{value:Number(total().toFixed(3)),currency:'KWD',num_items:cart.reduce((s2,l)=>s2+l.qty,0)});}}
+  try{updateCoTotals();}catch(_){}
+}
 function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.remove('open')}
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
@@ -867,10 +873,7 @@ function schedDisp(sf){
   if(!m)return sf;
   return m[3]+'/'+m[2]+' — '+fmtHM(m[4]);
 }
-function openCheckout(){
-  const arr=cartArray();if(!arr.length){showToast(T('t.empty'));return;}
-  trk('checkout');
-  fbTrack('InitiateCheckout',{value:Number(total().toFixed(3)),currency:'KWD',num_items:cart.reduce((s,l)=>s+l.qty,0)});
+function initCoInline(){
   coAreaIdx=-1; coMapUrl="";
   document.getElementById('coAreaSearch').value='';
   document.getElementById('coAreaList').classList.remove('show');
@@ -881,10 +884,9 @@ function openCheckout(){
   document.getElementById('segPayApple').style.display=APPLE_PAY_OK?'':'none';
   setPayMethod('knet');
   coWhen='now';setWhen('now');
-  document.getElementById('coNote').value='';
-  document.getElementById('coErr').textContent='';
-  document.getElementById('coOverlay').classList.add('open');
 }
+function openCheckout(){openCart();}
+function closeCheckout(){closeCart();}
 function filterAreas(){
   const q=(document.getElementById('coAreaSearch').value||'').trim();
   const list=document.getElementById('coAreaList');
@@ -912,7 +914,7 @@ function getLocation(){
     st.innerHTML='✅ تم تحديد موقعك — <a href="'+coMapUrl+'" target="_blank" style="color:#178c44;text-decoration:underline">عرض على الخريطة</a>';
   },function(){ st.textContent="تعذّر تحديد الموقع — تأكد من السماح للموقع بالوصول لموقعك"; },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
 }
-function closeCheckout(){document.getElementById('coOverlay').classList.remove('open');}
+
 function setDType(t){
   coDType=t;
   document.getElementById('segDelivery').classList.toggle('active',t==='delivery');
@@ -1143,7 +1145,7 @@ async function loadMenu(){
     if(d.menu&&d.menu.length)MENU=d.menu;
     if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}
-  renderMenu();updateCart();applySettings();checkOpenStatus();
+  renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }
 applyLang();applySettings();initScroll();initPaymentStatus();loadMenu();initTrack();
 </script>
