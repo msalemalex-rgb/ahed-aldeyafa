@@ -169,12 +169,12 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .menu-tabs{display:none}
 .cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
 @media(min-width:760px){.cat-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
-.cat-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);transition:.25s;background:var(--maroon-dark);aspect-ratio:1/1}
+.cat-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);transition:.25s;background:#f3ece1;aspect-ratio:4/3}
 .cat-card:active{transform:scale(.98)}
-.cat-card img{width:100%;height:100%;object-fit:cover;opacity:.62;transition:.4s}
-.cat-card:hover img{opacity:.5;transform:scale(1.06)}
+.cat-card img{width:100%;height:100%;object-fit:contain;opacity:1;transition:.4s;background:#f3ece1}
+.cat-card:hover img{transform:scale(1.04)}
 .cat-card .ph{width:100%;height:100%;background:radial-gradient(circle at 50% 35%,#8b1a1a,var(--maroon-dark));display:flex;align-items:center;justify-content:center;font-size:46px}
-.cat-card .cc-body{position:absolute;inset:auto 0 0 0;padding:14px 12px;background:linear-gradient(0deg,rgba(40,7,12,.92),rgba(40,7,12,.55) 60%,transparent);text-align:center}
+.cat-card .cc-body{position:absolute;inset:auto 0 0 0;padding:12px 10px 11px;background:linear-gradient(0deg,rgba(40,7,12,.95) 55%,rgba(40,7,12,.72) 80%,rgba(40,7,12,0));text-align:center}
 .cat-card h3{font-family:'Aref Ruqaa';font-size:19px;color:var(--gold-light);line-height:1.35}
 .cat-card .cc-n{font-family:'Cairo';font-weight:700;font-size:11.5px;color:#fff;opacity:.85;margin-top:3px}
 #itemsPanel{position:fixed;inset:0;background:var(--cream);z-index:150;display:none;flex-direction:column}
@@ -206,7 +206,7 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 @media(min-width:760px){#ipGrid.tiles{grid-template-columns:repeat(3,1fr)}}
 #ipGrid.tiles .card{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(200,150,47,.45);box-shadow:0 8px 20px rgba(110,20,35,.10);background:#fff;display:flex;flex-direction:column}
 #ipGrid.tiles .card .thumb{position:relative;height:auto;aspect-ratio:4/3;border-radius:0;overflow:hidden;flex:0 0 auto;background:#f3ece1}
-#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:contain;opacity:1;background:#f3ece1}
+#ipGrid.tiles .card .thumb img{width:100%!important;height:100%!important;object-fit:contain!important;opacity:1!important;background:#f3ece1}
 #ipGrid.tiles .card .body{padding:10px 9px 11px;text-align:center;display:flex;flex-direction:column;flex:1}
 #ipGrid.tiles .card .body h3{font-family:'Cairo';font-weight:800;font-size:13.5px;color:var(--maroon);line-height:1.45;margin:0;min-height:2.9em;display:flex;align-items:center;justify-content:center}
 #ipGrid.tiles .card .desc{display:none}
