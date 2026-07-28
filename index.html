@@ -309,6 +309,12 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .lang-btn{background:transparent;border:1.5px solid var(--gold);color:var(--gold-light);font-family:'Cairo';font-weight:800;font-size:14px;padding:7px 14px;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:.2s}
 .lang-btn:hover{background:var(--gold);color:var(--maroon-dark)}
 #menu,#about,#contact{scroll-margin-top:84px}
+.cart-foot{padding:10px 14px!important}
+.cart-foot .co-summary{padding:8px 12px;margin:0 0 6px}
+.cart-foot .co-summary .r{font-size:12.5px;margin:2px 0;padding:0}
+.cart-foot .co-summary .r.grand{font-size:15.5px;margin-top:4px;padding-top:4px}
+.cart-foot .co-err{margin:0 0 4px;font-size:12.5px}
+.cart-foot #coPayBtn{padding:13px}
 .pay-chip{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
 .pay-chip .knet{color:#fff;background:#005baa;padding:2px 9px;border-radius:4px;font-style:italic;font-weight:900;font-size:13px;letter-spacing:.5px;font-family:Arial,sans-serif}
 .pay-chip .visa{color:#1a1f71;background:#fff;border:1px solid #e2e2e2;padding:2px 7px;border-radius:4px;font-style:italic;font-weight:900;font-size:12px;font-family:Arial,sans-serif}
@@ -429,6 +435,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div class="cart-head"><h3 data-i18n="cart.title">🛒 سلة الطلبات</h3><button class="cart-close" onclick="closeCart()">×</button></div>
   <div class="cart-body">
     <div class="cart-items" id="cartItems"></div>
+    <div id="noteWrap"><div class="field"><label data-i18n="co.note">ملاحظات (اختياري)</label><textarea id="coNote" rows="2" data-i18n-ph="co.notePh" placeholder="مثال: من غير بصل، اتصل قبل الوصول..."></textarea></div></div>
     <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold);width:100%;justify-content:center" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ أضف أصناف أخرى</button>
     <div class="discount-tag" id="discTag" data-i18n="cart.disc" style="margin-top:12px">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
     <div id="coInline" style="margin-top:14px">
@@ -455,7 +462,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
         <div class="field"><label data-i18n="co.day">اليوم</label><select id="coDay" onchange="fillTimeSlots()"></select></div>
         <div class="field"><label data-i18n="co.time">الساعة</label><select id="coTime"></select></div>
       </div>
-      <div class="field"><label data-i18n="co.note">ملاحظات (اختياري)</label><textarea id="coNote" rows="2" data-i18n-ph="co.notePh" placeholder="مثال: من غير بصل، اتصل قبل الوصول..."></textarea></div>
+
       <div class="field" id="coPaySegWrap"><label data-i18n="co.payM">طريقة الدفع</label>
         <div class="co-seg" style="flex-wrap:wrap">
           <button type="button" class="co-seg-btn active" id="segPayKnet" onclick="setPayMethod('knet')"><span class="pay-chip"><span class="knet">KNET</span></span><span class="pm-lbl" data-i18n="co.knetL">الدفع عبر كنت</span></button>
@@ -479,6 +486,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="co-head"><h3 id="optTitle"></h3><button class="co-close" onclick="closeOpt()">×</button></div>
     <div class="co-body">
       <div id="optBody"></div>
+      <div class="field" style="margin-top:8px"><label data-i18n="opt.note">ملاحظة على الصنف (اختياري)</label><textarea id="optNote" rows="1" data-i18n-ph="opt.notePh" placeholder="مثال: من غير بصل..."></textarea></div>
       <button class="btn btn-gold" onclick="confirmOptions()"><span data-i18n="opt.add">＋ أضف للسلة</span> <span id="optPrice"></span></button>
     </div>
   </div>
@@ -562,7 +570,7 @@ ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضي�
 "cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"🛒 إتمام الطلب","cart.addMore":"＋ أضف أصناف أخرى","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
 "m.add":"＋ أضف للسلة","m.unavail":"غير متوفر","m.soldout":"غير متوفر حالياً","t.added":"✓ أُضيف ","t.unavail":"هذا الصنف غير متوفر حالياً","t.empty":"السلة فارغة 🛒","t.invWait":"الفاتورة قيد التحضير، حاول بعد لحظة",
 "opt.add":"＋ أضف للسلة","opt.choice":"اختيار","opt.none":"لا توجد اختيارات",
-"co.title":"تفاصيل الطلب","co.name":"الاسم *","co.namePh":"اسمك الكريم","co.phone":"رقم التواصل *","co.dtype":"طريقة الاستلام","co.delivery":"🛵 توصيل","co.pickup":"🏠 استلام من المطعم","co.area":"المنطقة *","co.areaPh":"🔎 اكتب اسم منطقتك...","co.address":"عنوان التوصيل *","co.addrPh":"القطعة، الشارع، رقم المنزل، علامة مميزة...","co.locate":"📍 حدد موقعي على الخريطة (يساعد المندوب)","co.payM":"طريقة الدفع","co.cod":"💵 كاش عند الاستلام","co.payOther":"بطاقة / Apple Pay","co.knetL":"الدفع عبر كنت","co.appleL":"ادفع بـ Apple Pay","pay.apple":" ادفع ","pay.other":"💳 ادفع ","co.noArea":"لا توجد منطقة بهذا الاسم","co.areaFee":"توصيل","co.when":"وقت التوصيل / الاستلام","co.asap":"⚡ في أقرب وقت","co.later":"🕐 وقت محدد / يوم لاحق","co.day":"اليوم","co.time":"الساعة","co.note":"ملاحظات (اختياري)","co.notePh":"مثال: من غير بصل، اتصل قبل الوصول...","e.sched":"فضلاً اختر اليوم والساعة","res.track":"🛵 تتبع طلبك","trk.title":"تتبع طلبك","trk.s1":"تم استلام الطلب","trk.s2":"قيد التحضير","trk.s3":"في الطريق إليك","trk.s3p":"جاهز للاستلام من المطعم","trk.s4":"تم التسليم — بالهنا والشفا!","trk.s4p":"تم الاستلام — بالهنا والشفا!","trk.pending":"بانتظار إتمام الدفع...","trk.cancelled":"تم إلغاء هذا الطلب","trk.failed":"لم يكتمل دفع هذا الطلب","trk.notfound":"لم نجد هذا الطلب — تأكد من الرابط","trk.sched":"الموعد المطلوب","trk.auto":"بيتحدث تلقائياً كل ٣٠ ثانية","trk.close":"إغلاق","trk.wa":"📲 تواصل واتساب","trk.driverMap":"مكان السائق الآن","trk.lastSig":"آخر إشارة من السائق منذ {s} ثانية","trk.away":"يبعد عنك تقريباً {km} كم",
+"co.title":"تفاصيل الطلب","co.name":"الاسم *","co.namePh":"اسمك الكريم","co.phone":"رقم التواصل *","co.dtype":"طريقة الاستلام","co.delivery":"🛵 توصيل","co.pickup":"🏠 استلام من المطعم","co.area":"المنطقة *","co.areaPh":"🔎 اكتب اسم منطقتك...","co.address":"عنوان التوصيل *","co.addrPh":"القطعة، الشارع، رقم المنزل، علامة مميزة...","co.locate":"📍 حدد موقعي على الخريطة (يساعد المندوب)","co.payM":"طريقة الدفع","co.cod":"💵 كاش عند الاستلام","co.payOther":"بطاقة / Apple Pay","co.knetL":"الدفع عبر كنت","co.appleL":"ادفع بـ Apple Pay","pay.apple":" ادفع ","pay.other":"💳 ادفع ","co.noArea":"لا توجد منطقة بهذا الاسم","co.areaFee":"توصيل","co.when":"وقت التوصيل / الاستلام","co.asap":"⚡ في أقرب وقت","co.later":"🕐 وقت محدد / يوم لاحق","co.day":"اليوم","co.time":"الساعة","co.note":"ملاحظات (اختياري)","co.notePh":"مثال: اتصل قبل الوصول...","opt.note":"ملاحظة على الصنف (اختياري)","opt.notePh":"مثال: من غير بصل...","ln.add":"📝 أضف ملاحظة","ln.edit":"📝 عدّل الملاحظة","ln.prompt":"ملاحظتك على الصنف ده:","e.sched":"فضلاً اختر اليوم والساعة","res.track":"🛵 تتبع طلبك","trk.title":"تتبع طلبك","trk.s1":"تم استلام الطلب","trk.s2":"قيد التحضير","trk.s3":"في الطريق إليك","trk.s3p":"جاهز للاستلام من المطعم","trk.s4":"تم التسليم — بالهنا والشفا!","trk.s4p":"تم الاستلام — بالهنا والشفا!","trk.pending":"بانتظار إتمام الدفع...","trk.cancelled":"تم إلغاء هذا الطلب","trk.failed":"لم يكتمل دفع هذا الطلب","trk.notfound":"لم نجد هذا الطلب — تأكد من الرابط","trk.sched":"الموعد المطلوب","trk.auto":"بيتحدث تلقائياً كل ٣٠ ثانية","trk.close":"إغلاق","trk.wa":"📲 تواصل واتساب","trk.driverMap":"مكان السائق الآن","trk.lastSig":"آخر إشارة من السائق منذ {s} ثانية","trk.away":"يبعد عنك تقريباً {km} كم",
 "sum.items":"إجمالي الأصناف (بعد الخصم)","sum.fee":"رسوم التوصيل","sum.eta":"⏱️ وقت التوصيل المتوقع","sum.grand":"الإجمالي للدفع",
 "pay.knet":"💳 ادفع ","pay.cod":"💵 أكّد الطلب — الدفع عند الاستلام ","pay.sending":"⏳ جارٍ إرسال الطلب...","pay.redirect":"⏳ جارٍ التحويل للدفع...",
 "e.name":"فضلاً اكتب الاسم","e.phone":"فضلاً اكتب رقم تواصل صحيح","e.area":"فضلاً اختر المنطقة من القائمة","e.address":"فضلاً اكتب عنوان التوصيل","e.min":"الحد الأدنى للتوصيل في {area} هو {v} د.ك","e.minHere":"الحد الأدنى للتوصيل في هذه المنطقة {v} د.ك","e.codFail":"تعذّر إرسال الطلب، حاول مرة أخرى","e.payStart":"تعذّر بدء الدفع، حاول مرة أخرى","e.payConn":"خطأ في الاتصال بالدفع",
@@ -582,7 +590,7 @@ en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.
 "cart.title":"🛒 Your Cart","cart.disc":"✅ 10% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"🛒 Checkout","cart.addMore":"＋ Add More Items","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
 "m.add":"＋ Add to Cart","m.unavail":"Unavailable","m.soldout":"Currently unavailable","t.added":"✓ Added ","t.unavail":"This item is currently unavailable","t.empty":"Your cart is empty 🛒","t.invWait":"Invoice is being prepared, try again in a moment",
 "opt.add":"＋ Add to Cart","opt.choice":"Choice","opt.none":"No options available",
-"co.title":"Order Details","co.name":"Name *","co.namePh":"Your name","co.phone":"Contact Number *","co.dtype":"Order Type","co.delivery":"🛵 Delivery","co.pickup":"🏠 Pickup","co.area":"Area *","co.areaPh":"🔎 Type your area name...","co.address":"Delivery Address *","co.addrPh":"Block, street, house no., landmark...","co.locate":"📍 Pin my location on the map (helps the driver)","co.payM":"Payment Method","co.cod":"💵 Cash on Delivery","co.payOther":"Card / Apple Pay","co.knetL":"Pay with KNET","co.appleL":"Pay with Apple Pay","pay.apple":" Pay ","pay.other":"💳 Pay ","co.noArea":"No area found with this name","co.areaFee":"Delivery","co.when":"Delivery / Pickup Time","co.asap":"⚡ As soon as possible","co.later":"🕐 Schedule for later","co.day":"Day","co.time":"Time","co.note":"Notes (optional)","co.notePh":"e.g. no onions, call before arrival...","e.sched":"Please choose the day and time","res.track":"🛵 Track Your Order","trk.title":"Track Your Order","trk.s1":"Order Received","trk.s2":"Being Prepared","trk.s3":"On Its Way to You","trk.s3p":"Ready for Pickup","trk.s4":"Delivered — Enjoy!","trk.s4p":"Picked Up — Enjoy!","trk.pending":"Waiting for payment...","trk.cancelled":"This order was cancelled","trk.failed":"Payment for this order was not completed","trk.notfound":"Order not found — check your link","trk.sched":"Requested Time","trk.auto":"Auto-refreshes every 30 seconds","trk.close":"Close","trk.wa":"📲 Contact on WhatsApp","trk.driverMap":"Driver Location Now","trk.lastSig":"Last driver signal {s}s ago","trk.away":"About {km} km away from you",
+"co.title":"Order Details","co.name":"Name *","co.namePh":"Your name","co.phone":"Contact Number *","co.dtype":"Order Type","co.delivery":"🛵 Delivery","co.pickup":"🏠 Pickup","co.area":"Area *","co.areaPh":"🔎 Type your area name...","co.address":"Delivery Address *","co.addrPh":"Block, street, house no., landmark...","co.locate":"📍 Pin my location on the map (helps the driver)","co.payM":"Payment Method","co.cod":"💵 Cash on Delivery","co.payOther":"Card / Apple Pay","co.knetL":"Pay with KNET","co.appleL":"Pay with Apple Pay","pay.apple":" Pay ","pay.other":"💳 Pay ","co.noArea":"No area found with this name","co.areaFee":"Delivery","co.when":"Delivery / Pickup Time","co.asap":"⚡ As soon as possible","co.later":"🕐 Schedule for later","co.day":"Day","co.time":"Time","co.note":"Notes (optional)","co.notePh":"e.g. call before arrival...","opt.note":"Item note (optional)","opt.notePh":"e.g. no onions...","ln.add":"📝 Add note","ln.edit":"📝 Edit note","ln.prompt":"Your note for this item:","e.sched":"Please choose the day and time","res.track":"🛵 Track Your Order","trk.title":"Track Your Order","trk.s1":"Order Received","trk.s2":"Being Prepared","trk.s3":"On Its Way to You","trk.s3p":"Ready for Pickup","trk.s4":"Delivered — Enjoy!","trk.s4p":"Picked Up — Enjoy!","trk.pending":"Waiting for payment...","trk.cancelled":"This order was cancelled","trk.failed":"Payment for this order was not completed","trk.notfound":"Order not found — check your link","trk.sched":"Requested Time","trk.auto":"Auto-refreshes every 30 seconds","trk.close":"Close","trk.wa":"📲 Contact on WhatsApp","trk.driverMap":"Driver Location Now","trk.lastSig":"Last driver signal {s}s ago","trk.away":"About {km} km away from you",
 "sum.items":"Items total (after discount)","sum.fee":"Delivery fee","sum.eta":"⏱️ Estimated delivery time","sum.grand":"Total to Pay",
 "pay.knet":"💳 Pay ","pay.cod":"💵 Confirm Order — Cash on Delivery ","pay.sending":"⏳ Sending your order...","pay.redirect":"⏳ Redirecting to payment...",
 "e.name":"Please enter your name","e.phone":"Please enter a valid contact number","e.area":"Please choose your area from the list","e.address":"Please enter the delivery address","e.min":"Minimum delivery order for {area} is {v} KWD","e.minHere":"Minimum delivery order for this area is {v} KWD","e.codFail":"Could not send your order, please try again","e.payStart":"Could not start the payment, please try again","e.payConn":"Payment connection error",
@@ -596,6 +604,12 @@ function itName(it){return (LANG==='en'&&it&&it.nameEn)?it.nameEn:(it?(it.name||
 function itemSub(it){if(!it)return '';if(LANG==='en')return it.descEn||'';return it.desc||'';}
 function catName(c){return (LANG==='en'&&c&&c.catEn)?c.catEn:(c?(c.cat||''):'');}
 function lineName(l){const it=findItem(l.id);return it?itName(it):(l.name||'');}
+function editLineNote(k){
+  const l=cart.find(x=>x.key===k);if(!l)return;
+  const v=prompt(T('ln.prompt'),l.note||'');
+  if(v===null)return;
+  l.note=v.trim().slice(0,120);updateCart();
+}
 function applyLang(){
   try{
     document.documentElement.lang=LANG;
@@ -722,6 +736,7 @@ function openOptions(it){
     }).join('');
     return `<div class="opt-group"><div class="opt-glabel">${g.label||T('opt.choice')} ${g.required?'<span style="color:#c0392b">*</span>':''}</div>${choices}</div>`;
   }).join('')||('<div style="color:var(--muted)">'+T('opt.none')+'</div>');
+  try{document.getElementById('optNote').value='';}catch(_){}
   updateOptPrice();
   document.getElementById('optOverlay').classList.add('open');
 }
@@ -742,7 +757,9 @@ function updateOptPrice(){
 function confirmOptions(){
   if(!optItem)return;
   const it=optItem;const opts=gatherOpts();
-  addLine(it,opts);showToast(T('t.added')+itName(it));closeOpt();
+  addLine(it,opts);
+  try{const nv=(document.getElementById('optNote').value||'').trim().slice(0,120);if(nv){const key=lineKey(it.id,opts);const l=cart.find(x=>x.key===key);if(l){l.note=nv;updateCart();}}}catch(_){}
+  showToast(T('t.added')+itName(it));closeOpt();
 }
 function updateCart(){
   try{localStorage.setItem('ahd_cart_v1',JSON.stringify(cart));}catch(_){}
@@ -753,10 +770,11 @@ function updateCart(){
   const box=document.getElementById('cartItems');
   if(!cart.length){box.innerHTML='<div class="cart-empty">'+T('cart.empty')+'</div>';}
   else{box.innerHTML=cart.map(l=>{const it=findItem(l.id);const img=it?(it.img+(it.imgV?('&v='+it.imgV):'')):'';const o=lineOptsText(l);
-    return `<div class="ci">${imgTag(img,'ci-img')}<div class="info"><h4>${lineName(l)}</h4>${o?`<div style="font-size:12px;color:var(--muted);line-height:1.5">${o}</div>`:''}<div class="p">${lineUnit(l).toFixed(3)} ${CUR()}</div></div><div class="qty"><button onclick="changeQty('${l.key}',-1)">−</button><span>${l.qty}</span><button onclick="changeQty('${l.key}',1)">＋</button></div></div>`;}).join('');}
+    return `<div class="ci">${imgTag(img,'ci-img')}<div class="info"><h4>${lineName(l)}</h4>${o?`<div style="font-size:12px;color:var(--muted);line-height:1.5">${o}</div>`:''}${l.note?`<div style="font-size:12px;color:#a2333f;line-height:1.5">📝 ${escH(l.note)}</div>`:''}<div class="p">${lineUnit(l).toFixed(3)} ${CUR()} <a href="javascript:void(0)" onclick="editLineNote('${l.key}')" style="font-size:11.5px;color:var(--muted);text-decoration:underline;margin-inline-start:8px">${l.note?T('ln.edit'):T('ln.add')}</a></div></div><div class="qty"><button onclick="changeQty('${l.key}',-1)">−</button><span>${l.qty}</span><button onclick="changeQty('${l.key}',1)">＋</button></div></div>`;}).join('');}
   try{
     const has=cart.length>0;
     document.getElementById('coInline').style.display=has?'':'none';
+    document.getElementById('noteWrap').style.display=has?'':'none';
     document.getElementById('coPayBtn').style.display=has?'':'none';
     document.getElementById('coSummary').style.display=has?'':'none';
     updateCoTotals();
@@ -771,7 +789,7 @@ function openCart(){
 function closeCart(){cartOverlay.classList.remove('open');cartPanel.classList.remove('open');try{document.body.style.overflow='';}catch(_){}}
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
-function orderItemsText(a){return a.map(l=>{const o=lineOptsText(l);return l.name+' ×'+l.qty+(o?(' ('+o+')'):'');}).join("، ");}
+function orderItemsText(a){return a.map(l=>{const o=lineOptsText(l);return l.name+' ×'+l.qty+(o?(' ('+o+')'):'')+(l.note?(' 📝'+l.note):'');}).join("، ");}
 function saveOrder(channel){const a=cartArray();if(!a.length)return;try{fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:orderItemsText(a),total:Number(total().toFixed(3)),channel:channel})});}catch(_){}}
 function checkoutWhatsApp(){
   const arr=cartArray();if(!arr.length){showToast(T('t.empty'));return;}
@@ -1073,7 +1091,7 @@ async function submitCheckout(){
   }
   err.textContent='';
   const food=Number(total().toFixed(3));const grand=Number((food+fee).toFixed(3));
-  const lines=cart.map(l=>({name:l.name,opts:lineOptsText(l),qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
+  const lines=cart.map(l=>({name:l.name,opts:lineOptsText(l),note:l.note||'',qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
   const itemsSub=Number(subtotal().toFixed(3));
   const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
   const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent=(coPayMethod==='cod')?T('pay.sending'):T('pay.redirect');
@@ -1115,7 +1133,8 @@ function submitCatering(e){
   fbTrack('Lead',{content_category:'catering',content_name:t});
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,'_blank');return false;
 }
-function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
+function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');window._toastAt=Date.now();clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
+;['click','touchstart','visibilitychange','scroll'].forEach(ev=>document.addEventListener(ev,function(){try{const e=document.getElementById('toast');if(e&&e.classList.contains('show')&&Date.now()-(window._toastAt||0)>2400)e.classList.remove('show');}catch(_){}},{passive:true}));
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
@@ -1162,7 +1181,7 @@ function buildInvoiceHTML(o,pid){
   let sub=Number(o.itemsSubtotal)||0, itemsBlock;
   const findP=nm=>{const t=(nm||'').trim();for(const c of (MENU||[]))for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
   if(hasLines){
-    const rows=o.lines.map(l=>`<tr><td class="inv-c1"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}</td><td class="inv-cc">${l.qty}</td><td class="inv-cc">${Number(l.unit).toFixed(3)}</td><td class="inv-cc">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+    const rows=o.lines.map(l=>`<tr><td class="inv-c1"><div style="font-weight:700">${escH(l.name)}</div>${l.opts?`<div style="font-size:11px;color:#888">${escH(l.opts)}</div>`:''}${l.note?`<div style="font-size:11px;color:#a2333f">📝 ${escH(l.note)}</div>`:''}</td><td class="inv-cc">${l.qty}</td><td class="inv-cc">${Number(l.unit).toFixed(3)}</td><td class="inv-cc">${Number(l.total).toFixed(3)}</td></tr>`).join('');
     itemsBlock=`<table class="inv-tbl"><thead><tr><th style="text-align:right">الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>`;
   }else{
     const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);
