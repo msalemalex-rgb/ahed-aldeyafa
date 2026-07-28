@@ -178,20 +178,11 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .cat-card h3{font-family:'Aref Ruqaa';font-size:19px;color:var(--gold-light);line-height:1.35}
 .cat-card .cc-n{font-family:'Cairo';font-weight:700;font-size:11.5px;color:#fff;opacity:.85;margin-top:3px}
 #itemsPanel{position:fixed;inset:0;background:var(--cream);z-index:150;display:none;flex-direction:column;
-  transform:translateX(100%);opacity:.4;transition:transform .34s cubic-bezier(.22,.9,.28,1),opacity .28s ease}
-[dir="ltr"] #itemsPanel{transform:translateX(-100%)}
+  opacity:0;transition:opacity .16s linear}
 #itemsPanel.mounted{display:flex}
-#itemsPanel.open{transform:translateX(0);opacity:1}
-#itemsPanel.closing{transform:translateX(100%);opacity:.35}
-[dir="ltr"] #itemsPanel.closing{transform:translateX(-100%)}
-#itemsPanel .ip-head h3{animation:ipTitle .42s ease both .06s}
-@keyframes ipTitle{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-#ipGrid .card{animation:ipCard .38s cubic-bezier(.2,.8,.3,1) both}
-@keyframes ipCard{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
-.cat-card{will-change:transform}
-.cat-card.picked{animation:catPick .3s ease}
-@keyframes catPick{0%{transform:scale(1)}45%{transform:scale(.955)}100%{transform:scale(1)}}
-@media(prefers-reduced-motion:reduce){#itemsPanel,#itemsPanel .ip-head h3,#ipGrid .card,.cat-card.picked{transition:none!important;animation:none!important}}
+#itemsPanel.open{opacity:1}
+#itemsPanel.closing{opacity:0}
+@media(prefers-reduced-motion:reduce){#itemsPanel{transition:none!important}}
 #itemsPanel .ip-head{position:sticky;top:0;background:linear-gradient(135deg,var(--maroon-dark),var(--maroon));color:var(--gold-light);padding:11px 12px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--gold);flex:0 0 auto;box-shadow:0 4px 14px rgba(40,7,12,.18)}
 #itemsPanel .ip-head h3{font-family:'Aref Ruqaa';font-size:20px;flex:1;text-align:center;padding:0 4px}
 #itemsPanel .ip-back{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1.5px solid var(--gold);color:var(--gold-light);font-family:'Cairo';font-weight:800;font-size:13.5px;padding:8px 14px;border-radius:50px;cursor:pointer;line-height:1;transition:.2s;white-space:nowrap}
@@ -765,15 +756,10 @@ function renderMenu(){
   const nav=document.getElementById('ipNav');nav.innerHTML='';
   MENU.forEach((c,i)=>{const b=document.createElement('button');b.textContent=catName(c);b.dataset.i=i;b.onclick=()=>openItems(i);nav.appendChild(b);});
 }
-function staggerCards(){
-  const cards=document.querySelectorAll('#ipGrid .card');
-  for(let k=0;k<cards.length;k++){cards[k].style.animationDelay=Math.min(k*45,360)+'ms';}
-}
 function openItems(i,fromEl){
   window._ipCat=i;
-  if(fromEl){try{fromEl.classList.add('picked');setTimeout(()=>fromEl.classList.remove('picked'),320);}catch(_){}}
   document.getElementById('ipTitle').textContent=catName(MENU[i]);
-  fillCat(i);staggerCards();
+  fillCat(i);
   document.querySelectorAll('#ipNav button').forEach(b=>b.classList.toggle('active',+b.dataset.i===i));
   const act=document.querySelector('#ipNav button.active');if(act){try{act.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}}
   const p=document.getElementById('itemsPanel');
@@ -788,7 +774,7 @@ function closeItems(){
   const p=document.getElementById('itemsPanel');
   p.classList.remove('open');p.classList.add('closing');
   try{document.body.style.overflow='';}catch(_){}
-  setTimeout(()=>{p.classList.remove('mounted','closing');},340);
+  setTimeout(()=>{p.classList.remove('mounted','closing');},170);
 }
 function showCateringPane(){openCateringTab();}
 function toggleCatForm(){
