@@ -312,6 +312,12 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .lang-btn{background:transparent;border:1.5px solid var(--gold);color:var(--gold-light);font-family:'Cairo';font-weight:800;font-size:14px;padding:7px 14px;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:.2s}
 .lang-btn:hover{background:var(--gold);color:var(--maroon-dark)}
 #menu,#about,#contact{scroll-margin-top:84px}
+#catOverlay{position:fixed;inset:0;background:var(--cream);z-index:150;display:none;flex-direction:column}
+#catOverlay.open{display:flex}
+#catOverlay .co-head{background:var(--maroon);color:var(--gold-light);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);flex:0 0 auto}
+#catOverlay .co-head h3{font-family:'Aref Ruqaa';font-size:22px}
+#catOverlay .co-close{background:none;border:none;color:var(--gold-light);font-size:30px;cursor:pointer;line-height:1}
+#catBody{flex:1;overflow-y:auto;padding:16px 12px 28px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 #cateringPane .cat-wrap{grid-template-columns:1fr;gap:18px}
 #cateringPane .cat-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;align-items:stretch}
 #cateringPane .cat-info .pack{flex-direction:column;text-align:center;gap:10px;margin:0;padding:22px 16px;border-radius:14px;border:1px solid var(--gold);box-shadow:0 6px 18px rgba(110,20,35,.07);transition:.25s}
@@ -319,7 +325,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 #cateringPane .cat-info .pack .n{width:64px;height:64px;font-size:24px;margin:0 auto}
 #cateringPane .cat-info .discount-tag{grid-column:1/-1;justify-self:center}
 #cateringPane .cat-form{border-radius:14px;padding:22px}
-#cateringPane .cat-form.collapsed{display:none}
+.cat-form.collapsed{display:none!important}
 .cat-cta{display:block;width:100%;margin-top:4px}
 .cart-foot{padding:4px 8px 6px!important;line-height:1.25}
 .cart-body{padding:12px 10px!important}
@@ -397,29 +403,6 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   <div style="text-align:center"><span class="eyebrow" data-i18n="menu.eyebrow">قائمة الطعام</span><h2 class="section-title" data-i18n="menu.title">اختر طبقك المفضّل</h2><div class="ornament">❖</div><p class="section-sub" data-i18n="menu.sub">أطباق كويتية أصيلة تُعدّ طازجة كل يوم • الأسعار بالدينار الكويتي</p></div>
   <div class="menu-tabs" id="menuTabs"></div>
   <div class="menu-grid" id="menuGrid"></div>
-  <div id="cateringPane" style="display:none;margin-top:8px">
-    <div style="text-align:center;margin-bottom:18px"><p class="section-sub" data-i18n="cat.sub">صواني بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p></div>
-<div class="cat-wrap">
-    <div class="cat-info">
-      <div class="pack"><div class="n">2-5</div><div><h4 data-i18n="cat.p1t">صواني تكفّي من شخصين حتى 5 أشخاص</h4><p data-i18n="cat.p1d">مجبوس لحم/دجاج، برياني، مطبق وروبيان</p></div></div>
-      <div class="pack"><div class="n">10</div><div><h4 data-i18n="cat.p2t">صواني استيل تكفّي 7 و 10 أشخاص</h4><p data-i18n="cat.p2d">للديوانيات والعزائم الكبيرة</p></div></div>
-      <div class="pack"><div class="n">★</div><div><h4 data-i18n="cat.p3t">قوزي استرالي كامل</h4><p data-i18n="cat.p3d">لأفخم المناسبات والولائم</p></div></div>
-      <div class="discount-tag" style="margin-top:8px" data-i18n="cat.weekly">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
-    </div>
-    <button type="button" class="btn btn-gold cat-cta" id="catFormToggle" onclick="toggleCatForm()" data-i18n="cat.openForm">📝 احجز الآن — املأ بيانات الحجز</button>
-    <form class="cat-form collapsed" id="cateringForm" onsubmit="return submitCatering(event)">
-      <h3 data-i18n="cat.formTitle">احجز للمناسبات والديوانيات</h3>
-      <div class="deposit" data-i18n="cat.deposit">💡 يتطلب عربون مقدّم لتأكيد الحجز</div>
-      <div class="field"><label data-i18n="cat.name">الاسم</label><input required id="catName" data-i18n-ph="cat.namePh" placeholder="اسمك الكريم"></div>
-      <div class="field"><label data-i18n="cat.phone">رقم التواصل</label><input required id="catPhone" type="tel" placeholder="9XXXXXXX"></div>
-      <div class="field"><label data-i18n="cat.type">نوع المناسبة</label><select id="catType"><option value="ديوانية" data-i18n="cat.o1">ديوانية</option><option value="عرس" data-i18n="cat.o2">عرس</option><option value="عزيمة عائلية" data-i18n="cat.o3">عزيمة عائلية</option><option value="مناسبة شركة" data-i18n="cat.o4">مناسبة شركة</option><option value="أخرى" data-i18n="cat.o5">أخرى</option></select></div>
-      <div class="field"><label data-i18n="cat.count">عدد الأشخاص</label><select id="catCount"><option value="شخصين" data-i18n="cat.c1">شخصين</option><option value="3 أشخاص" data-i18n="cat.c2">3 أشخاص</option><option value="4 أشخاص" data-i18n="cat.c3">4 أشخاص</option><option value="5 أشخاص" data-i18n="cat.c4">5 أشخاص</option><option value="7 أشخاص" data-i18n="cat.c5">7 أشخاص</option><option value="10 أشخاص" data-i18n="cat.c6">10 أشخاص</option></select></div>
-      <div class="field"><label data-i18n="cat.date">التاريخ المطلوب</label><input id="catDate" type="date"></div>
-      <div class="field"><label data-i18n="cat.notes">تفاصيل إضافية</label><textarea id="catNotes" rows="2" data-i18n-ph="cat.notesPh" placeholder="الأطباق المطلوبة، وقت التسليم..."></textarea></div>
-      <button type="submit" class="btn btn-wa" data-i18n="cat.send">📲 أرسل طلب الحجز على واتساب</button>
-    </form>
-  </div>
-  </div>
 </div></section>
 <div class="quote-band"><div class="container"><p class="q" data-i18n="quote.q">في عهد الضيافة، الأكل ليس مجرد وجبة… بل كرمٌ وضيافة على أصول الكويت</p></div></div>
 
@@ -539,6 +522,34 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <p class="closed-msg" data-i18n="closed.msg">يسعدنا تصفّحكم لقائمتنا، ويمكنكم تقديم طلبكم أو حجزكم الآن وسيبدأ تجهيزه فور بدء أوقات العمل.<br>نشكر لكم اختياركم مطعم عهد الضيافة.</p>
       <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="closeClosed()" data-i18n="closed.browse">تصفّح القائمة وأكمل طلبك</button>
     </div>
+  </div>
+</div>
+<div id="catOverlay">
+  <div class="co-head"><h3 data-i18n="cat.title">المناسبات والديوانيات</h3><button class="co-close" onclick="closeCateringTab()">×</button></div>
+  <div id="catBody">
+  <div id="cateringPane">
+    <div style="text-align:center;margin-bottom:18px"><p class="section-sub" data-i18n="cat.sub">صواني بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم</p></div>
+<div class="cat-wrap">
+    <div class="cat-info">
+      <div class="pack"><div class="n">2-5</div><div><h4 data-i18n="cat.p1t">صواني تكفّي من شخصين حتى 5 أشخاص</h4><p data-i18n="cat.p1d">مجبوس لحم/دجاج، برياني، مطبق وروبيان</p></div></div>
+      <div class="pack"><div class="n">10</div><div><h4 data-i18n="cat.p2t">صواني استيل تكفّي 7 و 10 أشخاص</h4><p data-i18n="cat.p2d">للديوانيات والعزائم الكبيرة</p></div></div>
+      <div class="pack"><div class="n">★</div><div><h4 data-i18n="cat.p3t">قوزي استرالي كامل</h4><p data-i18n="cat.p3d">لأفخم المناسبات والولائم</p></div></div>
+      <div class="discount-tag" style="margin-top:8px" data-i18n="cat.weekly">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
+    </div>
+    <button type="button" class="btn btn-gold cat-cta" id="catFormToggle" onclick="toggleCatForm()" data-i18n="cat.openForm">📝 احجز الآن — املأ بيانات الحجز</button>
+    <form class="cat-form collapsed" id="cateringForm" onsubmit="return submitCatering(event)">
+      <h3 data-i18n="cat.formTitle">احجز للمناسبات والديوانيات</h3>
+      <div class="deposit" data-i18n="cat.deposit">💡 يتطلب عربون مقدّم لتأكيد الحجز</div>
+      <div class="field"><label data-i18n="cat.name">الاسم</label><input required id="catName" data-i18n-ph="cat.namePh" placeholder="اسمك الكريم"></div>
+      <div class="field"><label data-i18n="cat.phone">رقم التواصل</label><input required id="catPhone" type="tel" placeholder="9XXXXXXX"></div>
+      <div class="field"><label data-i18n="cat.type">نوع المناسبة</label><select id="catType"><option value="ديوانية" data-i18n="cat.o1">ديوانية</option><option value="عرس" data-i18n="cat.o2">عرس</option><option value="عزيمة عائلية" data-i18n="cat.o3">عزيمة عائلية</option><option value="مناسبة شركة" data-i18n="cat.o4">مناسبة شركة</option><option value="أخرى" data-i18n="cat.o5">أخرى</option></select></div>
+      <div class="field"><label data-i18n="cat.count">عدد الأشخاص</label><select id="catCount"><option value="شخصين" data-i18n="cat.c1">شخصين</option><option value="3 أشخاص" data-i18n="cat.c2">3 أشخاص</option><option value="4 أشخاص" data-i18n="cat.c3">4 أشخاص</option><option value="5 أشخاص" data-i18n="cat.c4">5 أشخاص</option><option value="7 أشخاص" data-i18n="cat.c5">7 أشخاص</option><option value="10 أشخاص" data-i18n="cat.c6">10 أشخاص</option></select></div>
+      <div class="field"><label data-i18n="cat.date">التاريخ المطلوب</label><input id="catDate" type="date"></div>
+      <div class="field"><label data-i18n="cat.notes">تفاصيل إضافية</label><textarea id="catNotes" rows="2" data-i18n-ph="cat.notesPh" placeholder="الأطباق المطلوبة، وقت التسليم..."></textarea></div>
+      <button type="submit" class="btn btn-wa" data-i18n="cat.send">📲 أرسل طلب الحجز على واتساب</button>
+    </form>
+  </div>
+  </div>
   </div>
 </div>
 <div class="res-overlay" id="moOverlay">
@@ -667,64 +678,31 @@ function renderMenu(){
   const tabs=document.getElementById('menuTabs');tabs.innerHTML='';
   MENU.forEach((c,i)=>{const b=document.createElement('button');b.className='menu-tab'+(i===0?' active':'');b.textContent=catName(c);b.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));b.classList.add('active');showCat(i);scrollToItems();};tabs.appendChild(b);});
   const cb=document.createElement('button');cb.className='menu-tab';cb.id='cateringTab';cb.textContent='🎉 '+T('cat.title');
-  cb.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));cb.classList.add('active');showCateringPane();scrollToItems();};
+  cb.onclick=()=>{openCateringTab();};
   tabs.appendChild(cb);
-  if(window._catTab){cb.classList.add('active');showCateringPane();try{cb.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}}
-  else if(MENU.length)showCat(0);
+  if(MENU.length)showCat(0);
 }
-function showCateringPane(){
-  window._catTab=true;
-  try{const cb=document.getElementById('cateringTab');if(cb)cb.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}
-  const g=document.getElementById('menuGrid');if(g)g.style.display='none';
-  const cp=document.getElementById('cateringPane');if(cp)cp.style.display='';
-}
+function showCateringPane(){openCateringTab();}
 function toggleCatForm(){
   const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');
   const open=f.classList.toggle('collapsed')===false;
   b.innerHTML=open?T('cat.closeForm'):T('cat.openForm');
-  if(open)setTimeout(()=>{try{const y=f.getBoundingClientRect().top+window.pageYOffset-84;window.scrollTo({top:y,behavior:'smooth'});}catch(_){}},60);
+  if(open)setTimeout(()=>{try{const bdy=document.getElementById('catBody');bdy.scrollTo({top:bdy.scrollTop+f.getBoundingClientRect().top-bdy.getBoundingClientRect().top-8,behavior:'smooth'});}catch(_){}},60);
 }
 function openCateringTab(){
-  window._catTab=true;
-  const cb=document.getElementById('cateringTab');
-  document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
-  if(cb)cb.classList.add('active');
-  showCateringPane();
-  scrollToCatering();
+  document.getElementById('catOverlay').classList.add('open');
+  try{document.body.style.overflow='hidden';}catch(_){}
+  try{document.getElementById('catBody').scrollTop=0;}catch(_){}
 }
-/* سكرول مناعته عالية: بيعيد التصويب لحد ما يستقر (الصور/الفيديو بتغيّر الارتفاعات أثناء الحركة) */
-function scrollToCatering(){
-  // إلغاء أي محاولة سابقة
-  if(window._catScrollTimer){clearTimeout(window._catScrollTimer);window._catScrollTimer=null;}
-  const target=()=>{
-    const el=document.getElementById('menuTabs');
-    if(!el)return null;
-    return Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-78);
-  };
-  // قفزة فورية أولاً (مضمونة على كل المتصفحات) ثم تصحيح متكرر
-  try{const y0=target();if(y0!=null){document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,y0);}}catch(_){}
-  let tries=0;
-  const step=()=>{
-    tries++;
-    const y=target();
-    if(y==null)return;
-    const cur=window.pageYOffset;
-    if(Math.abs(cur-y)>6){
-      try{window.scrollTo(0,y);}catch(_){}
-      try{document.getElementById('menuTabs').scrollIntoView({block:'start'});window.scrollBy(0,-78);}catch(_){}
-    }
-    if(tries<14)window._catScrollTimer=setTimeout(step,tries<=2?120:200);
-    else{try{document.documentElement.style.scrollBehavior='';}catch(_){}}
-  };
-  step();
+function closeCateringTab(){
+  document.getElementById('catOverlay').classList.remove('open');
+  try{document.body.style.overflow='';}catch(_){}
+  try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
 }
-function scrollToItems(){const g=document.getElementById('menuGrid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'});}
 function showCat(i){
-  window._catTab=false;
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
   grid.style.display='';
-  const cp=document.getElementById('cateringPane');if(cp)cp.style.display='none';
-  try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
+
   (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
     d.innerHTML=`<div class="thumb"><span class="badge-cat">${catName(MENU[i])}</span>${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
     grid.appendChild(d);});
