@@ -686,13 +686,27 @@ function openCateringTab(){
   document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
   if(cb)cb.classList.add('active');
   showCateringPane();
-  setTimeout(function(){
-    try{
-      const el=document.getElementById('menuTabs');
-      const y=el.getBoundingClientRect().top+window.pageYOffset-84;
-      window.scrollTo({top:y,behavior:'smooth'});
-    }catch(_){}
-  },80);
+  scrollToCatering();
+}
+/* سكرول مناعته عالية: بيعيد التصويب لحد ما يستقر (الصور/الفيديو بتغيّر الارتفاعات أثناء الحركة) */
+function scrollToCatering(){
+  const target=()=>{
+    const el=document.getElementById('menuTabs');
+    if(!el)return null;
+    return Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-78);
+  };
+  let tries=0;
+  const step=()=>{
+    tries++;
+    const y=target();
+    if(y==null)return;
+    const cur=window.pageYOffset;
+    if(Math.abs(cur-y)>6){
+      try{window.scrollTo({top:y,behavior:tries<=1?'smooth':'auto'});}catch(_){window.scrollTo(0,y);}
+    }
+    if(tries<10)setTimeout(step,tries<=1?420:180);
+  };
+  step();
 }
 function scrollToItems(){const g=document.getElementById('menuGrid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'});}
 function showCat(i){
