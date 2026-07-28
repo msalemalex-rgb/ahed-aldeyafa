@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
         return new Promise((rs) => { let d = ""; rq.on("data", c => d += c); rq.on("end", () => { try { rs(JSON.parse(d || "{}")); } catch { rs({}); } }); });
       })(req);
       const t = String(b.type || "").toLowerCase();
-      const MAP = { visit: "visit", view: "pv", add_to_cart: "atc", checkout: "co" };
+      const MAP = { visit: "visit", view: "pv", add_to_cart: "atc", cart_start: "atcu", checkout: "co" };
       const k = MAP[t];
       const ds = kwDateOff(0);
       if (k) {
@@ -104,10 +104,11 @@ module.exports = async (req, res) => {
     const visitRaw = await mget(spanDates.map(d => "stats:visit:" + d));
     const pvRaw = await mget(spanDates.map(d => "stats:pv:" + d));
     const atcRaw = await mget(spanDates.map(d => "stats:atc:" + d));
+    const atcuRaw = await mget(spanDates.map(d => "stats:atcu:" + d));
     const coRaw = await mget(spanDates.map(d => "stats:co:" + d));
     const [visitsTotal, pvTotal] = await Promise.all([gnum("stats:visit:total"), gnum("stats:pv:total")]);
     const lastN = (a) => custom ? a : a.slice(Math.max(0, a.length - daysN));
-    const winVisits = sumArr(lastN(visitRaw)), winPv = sumArr(lastN(pvRaw)), winAtc = sumArr(lastN(atcRaw)), winCo = sumArr(lastN(coRaw));
+    const winVisits = sumArr(lastN(visitRaw)), winPv = sumArr(lastN(pvRaw)), winAtc = sumArr(lastN(atcRaw)), winAtcu = sumArr(lastN(atcuRaw)), winCo = sumArr(lastN(coRaw));
 
     // ===== تجميع الرسم (يومي أو أسبوعي) =====
     const bucketDays = spanDates.length > 31 ? 7 : 1;
@@ -130,7 +131,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       range: meta.range || 0, mode: meta.mode, from: meta.from || "", to: meta.to || "", bucket: bucketDays, days: daysN,
       orders: { total: ordersInWin, paidCount, revenue: Math.round(revenue * 1000) / 1000, revToday: Math.round(revToday * 1000) / 1000, counts, topItems },
-      traffic: { visits: winVisits, pv: winPv, atc: winAtc, co: winCo, todayVisits: visitRaw[visitRaw.length - 1] || 0, visitsTotal, pvTotal, chartLabels, chartVisits, chartPv, sources },
+      traffic: { visits: winVisits, pv: winPv, atc: winAtc, atcu: winAtcu, co: winCo, todayVisits: visitRaw[visitRaw.length - 1] || 0, visitsTotal, pvTotal, chartLabels, chartVisits, chartPv, sources },
     });
   } catch (e) { return res.status(500).json({ error: e.message }); }
 };

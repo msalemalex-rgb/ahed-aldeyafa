@@ -975,7 +975,8 @@ async function loadStats(range,el){
   h+=card('✅','طلبات مدفوعة',o.paidCount||0);
   h+=card('👥','زيارات',t.visits||0,'الكل: '+(t.visitsTotal||0));
   h+=card('👁️','مشاهدات',t.pv||0);
-  h+=card('🛒','إضافة للسلة',t.atc||0);
+  h+=card('🛒','إضافة للسلة (ضغطات)',t.atc||0);
+  h+=card('🧺','سلال (أشخاص)',t.atcu||0);
   h+='</div>';
   const labels=t.chartLabels||[],vs=t.chartVisits||[],pv=t.chartPv||[];
   const maxv=Math.max(1,...vs,...pv);
@@ -985,10 +986,11 @@ async function loadStats(range,el){
     h+=`<div class="barcol"><div class="barwrap"><div class="bar bar-pv" style="height:${hp}%"></div><div class="bar bar-v" style="height:${hv}%"></div></div><div class="barn">${vs[i]||0}</div><div class="barlbl">${labels[i]||''}</div></div>`;
   }
   h+='</div><div class="leg"><span><i class="dv"></i> زيارات</span><span><i class="dpv"></i> مشاهدات</span></div></div>';
-  const fv=t.visits||0,fa=t.atc||0,fc=t.co||0,fo=o.paidCount||0,pct=(a,b)=>b?Math.round(a/b*100):0;
+  const fv=t.visits||0,fa=t.atc||0,fu=t.atcu||0,fc=t.co||0,fo=o.paidCount||0,pct=(a,b)=>b?Math.round(a/b*100):0;
   h+='<div class="spanel"><h3>مسار التحويل ('+rangeLbl+')</h3><div class="funnel">';
   h+=`<div class="fstep"><span>زيارات</span><b>${fv}</b></div>`;
-  h+=`<div class="fstep"><span>إضافة للسلة</span><b>${fa}</b><small>${pct(fa,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>إضافة للسلة (ضغطات)</span><b>${fa}</b><small>${pct(fa,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>🧺 سلال (أشخاص)</span><b>${fu}</b><small>${pct(fu,fv)}%</small></div>`;
   h+=`<div class="fstep"><span>بدء الدفع</span><b>${fc}</b><small>${pct(fc,fv)}%</small></div>`;
   h+=`<div class="fstep"><span>طلبات مدفوعة</span><b>${fo}</b><small>${pct(fo,fv)}%</small></div>`;
   h+='</div></div>';

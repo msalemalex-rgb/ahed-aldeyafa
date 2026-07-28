@@ -695,6 +695,7 @@ function addLine(it,opts){
   if(ex){ex.qty++;}else{cart.push({key:key,id:it.id,name:it.name,base:Number(it.price)||0,opts:opts,qty:1});}
   updateCart();
   trk('add_to_cart');
+  try{if(!sessionStorage.getItem('trk_c')){sessionStorage.setItem('trk_c','1');trk('cart_start');}}catch(_){}
   fbTrack('AddToCart',{content_name:it.name,content_ids:[String(it.id)],content_type:'product',value:(Number(it.price)||0)+opts.reduce((s,o)=>s+(Number(o.price)||0),0),currency:'KWD'});
 }
 function lineUnit(l){return l.base+l.opts.reduce((s,o)=>s+(Number(o.price)||0),0);}
