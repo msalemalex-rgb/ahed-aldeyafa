@@ -699,11 +699,15 @@ function dbgBox(t){
   d.textContent=(t+'\n'+d.textContent).slice(0,1800);
 }
 function scrollToCatering(){
+  // إلغاء أي محاولة سابقة
+  if(window._catScrollTimer){clearTimeout(window._catScrollTimer);window._catScrollTimer=null;}
   const target=()=>{
     const el=document.getElementById('menuTabs');
     if(!el)return null;
     return Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-78);
   };
+  // قفزة فورية أولاً (مضمونة على كل المتصفحات) ثم تصحيح متكرر
+  try{const y0=target();if(y0!=null){document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,y0);}}catch(_){}
   let tries=0;
   const step=()=>{
     tries++;
@@ -722,9 +726,11 @@ function scrollToCatering(){
         +' | catFlag='+(!!window._catTab));
     }
     if(Math.abs(cur-y)>6){
-      try{window.scrollTo({top:y,behavior:tries<=1?'smooth':'auto'});}catch(_){window.scrollTo(0,y);}
+      try{window.scrollTo(0,y);}catch(_){}
+      try{document.getElementById('menuTabs').scrollIntoView({block:'start'});window.scrollBy(0,-78);}catch(_){}
     }
-    if(tries<10)setTimeout(step,tries<=1?420:180);
+    if(tries<14)window._catScrollTimer=setTimeout(step,tries<=2?120:200);
+    else{try{document.documentElement.style.scrollBehavior='';}catch(_){}}
   };
   step();
 }
