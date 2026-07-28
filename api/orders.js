@@ -122,6 +122,23 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, id: order.id, no: order.no });
     }
     if (req.method === "GET") {
+      // سجل طلبات برقم التليفون — الإثبات: معرف طلب غير قابل للتخمين يخص نفس الرقم
+      if (req.query && req.query.myhist === "1") {
+        const phone = String(req.query.phone || "").replace(/\D/g, "");
+        const proof = String(req.query.proof || "");
+        if (!phone || phone.length < 6 || !proof) return res.status(400).json({ error: "phone+proof required" });
+        const ps = await cmd(["GET", "order:" + proof]);
+        if (!ps) return res.status(403).json({ error: "proof invalid" });
+        let po; try { po = JSON.parse(ps); } catch { return res.status(500).json({ error: "parse" }); }
+        const pPhone = String(po.phone || "").replace(/\D/g, "");
+        if (!pPhone || pPhone.slice(-8) !== phone.slice(-8)) return res.status(403).json({ error: "proof mismatch" });
+        const all = await listOrders(1000);
+        const mine = all.filter(o => o && String(o.phone || "").replace(/\D/g, "").slice(-8) === phone.slice(-8))
+          .slice(0, 20)
+          .map(o => ({ id: o.id, no: o.no, total: Number(o.total) || 0, at: o.createdAt, status: o.status, itemsTxt: o.items || "", lines: Array.isArray(o.lines) ? o.lines.map(l => ({ name: l.name, qty: l.qty })) : [] }));
+        res.setHeader("Cache-Control", "no-store");
+        return res.status(200).json({ orders: mine });
+      }
       // طلب واحد للفاتورة (عام — الـ id رمز عشوائي غير قابل للتخمين) — مدموج من /api/order
       if (req.query && req.query.id && req.query.cleanupCod !== "1" && !req.query.debug) {
         const id = String(req.query.id);
