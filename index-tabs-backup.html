@@ -760,7 +760,7 @@ function showCat(i){
   grid.style.display='';
 
   (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
-    d.innerHTML=`<div class="thumb"><span class="badge-cat">${catName(MENU[i])}</span>${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${catName(MENU[i])}</span>${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#ded6c8;color:#5c5346;border:1px solid #bfb4a1;box-shadow:none;cursor:not-allowed;pointer-events:none;font-weight:800">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
     grid.appendChild(d);});
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
