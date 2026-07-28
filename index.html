@@ -338,6 +338,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <a href="#catering" onclick="closeNav()" data-i18n="nav.catering">المناسبات والديوانيات</a>
       <a href="#about" onclick="closeNav()" data-i18n="nav.about">عن المطعم</a>
       <a href="#contact" onclick="closeNav()" data-i18n="nav.contact">الموقع والتواصل</a>
+      <a href="javascript:void(0)" onclick="closeNav();openMyOrders()" data-i18n="nav.orders">📋 طلباتي</a>
     </nav>
     <div style="display:flex;gap:11px;align-items:center">
       <button class="lang-btn" id="langBtn" onclick="toggleLang()" title="Switch language">EN</button>
@@ -506,6 +507,17 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     </div>
   </div>
 </div>
+<div class="res-overlay" id="moOverlay">
+  <div class="res-box" style="text-align:inherit;max-height:86vh;overflow-y:auto">
+    <div style="text-align:center"><div class="icon" style="background:var(--cream-2);color:var(--maroon)">📋</div>
+    <h2 data-i18n="mo.title">طلباتي السابقة</h2></div>
+    <div id="moBody"></div>
+    <div class="acts" style="margin-top:14px">
+      <button class="btn" style="background:#eee;color:#555" onclick="document.getElementById('moOverlay').classList.remove('open')" data-i18n="trk.close">إغلاق</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center" data-i18n="mo.note">الطلبات محفوظة على جهازك أنت فقط — بدون أي تسجيل دخول</div>
+  </div>
+</div>
 <div class="res-overlay" id="trkOverlay">
   <div class="res-box" style="text-align:inherit">
     <div style="text-align:center"><div class="icon" style="background:var(--cream-2);color:var(--maroon)">🛵</div>
@@ -534,7 +546,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
-ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل",
+ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل","nav.orders":"📋 طلباتي","mo.title":"طلباتي السابقة","mo.empty":"لسه مفيش طلبات من الجهاز ده — أول طلب هيظهر هنا تلقائياً","mo.note":"الطلبات محفوظة على جهازك أنت فقط — بدون أي تسجيل دخول","mo.track":"🛵 تتبع","mo.again":"🔁 اطلبه تاني","mo.readded":"✓ رجّعنا طلبك للسلة","mo.partial":"رجعنا المتاح — بعض الأصناف لم تعد موجودة","mo.noLines":"تفاصيل الطلب ده غير متاحة لإعادة الطلب",
 "hero.eyebrow":"المأكولات الكويتية الأصيلة","hero.h1":"طعم الكويت <span class=\"g\">الأصيل</span>","hero.tag":"نُقدّم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك","hero.order":"🍽️ اطلب الآن","hero.diwaniya":"عروض الديوانيات",
 "feat.1":"<span class=\"ic\">🔥</span> أكل طازج يومياً","feat.2":"<span class=\"ic\">💳</span> دفع آمن: كنت، بطاقات، Apple Pay","feat.3":"<span class=\"ic\">🛵</span> توصيل لحولي والمناطق القريبة","feat.4":"<span class=\"ic\">📍</span> حولي، شارع سراقة بن مالك",
 "menu.eyebrow":"قائمة الطعام","menu.title":"اختر طبقك المفضّل","menu.sub":"أطباق كويتية أصيلة تُعدّ طازجة كل يوم • الأسعار بالدينار الكويتي",
@@ -554,7 +566,7 @@ ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضي�
 "e.name":"فضلاً اكتب الاسم","e.phone":"فضلاً اكتب رقم تواصل صحيح","e.area":"فضلاً اختر المنطقة من القائمة","e.address":"فضلاً اكتب عنوان التوصيل","e.min":"الحد الأدنى للتوصيل في {area} هو {v} د.ك","e.minHere":"الحد الأدنى للتوصيل في هذه المنطقة {v} د.ك","e.codFail":"تعذّر إرسال الطلب، حاول مرة أخرى","e.payStart":"تعذّر بدء الدفع، حاول مرة أخرى","e.payConn":"خطأ في الاتصال بالدفع",
 "res.okTitle":"شكراً لطلبك! 🌟","res.okMsg":"تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.","res.codTitle":"تم استلام طلبك! 🎉","res.codMsg":"طلبك مؤكد وجارٍ تجهيزه — الدفع كاش عند الاستلام 💵","res.noL":"رقم طلبك: ","res.okSub":"سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼","res.invoice":"🧾 عرض / حفظ الفاتورة","res.waContact":"📲 تواصل واتساب","res.close":"إغلاق","res.failTitle":"لم تكتمل عملية الدفع","res.failMsg":"ما تمّش خصم أي مبلغ. تقدر تحاول مرة أخرى أو تطلب عبر واتساب.","res.retry":"🔁 حاول مرة أخرى","res.waOrder":"📲 اطلب عبر واتساب",
 "closed.sub":"المأكولات الكويتية الأصيلة","closed.status":"🌙 المطعم مغلق حالياً","closed.msg":"يسعدنا تصفّحكم لقائمتنا، ويمكنكم تقديم طلبكم أو حجزكم الآن وسيبدأ تجهيزه فور بدء أوقات العمل.<br>نشكر لكم اختياركم مطعم عهد الضيافة.","closed.browse":"تصفّح القائمة وأكمل طلبك","closed.hours":"🕒 ساعات العمل: من {a} إلى {b}"},
-en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.doc":"Ahd Al-Diyafa Restaurant | Authentic Kuwaiti Majboos & Biryani in Hawally - Order Online","nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us","nav.contact":"Location & Contact",
+en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.doc":"Ahd Al-Diyafa Restaurant | Authentic Kuwaiti Majboos & Biryani in Hawally - Order Online","nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us","nav.contact":"Location & Contact","nav.orders":"📋 My Orders","mo.title":"My Previous Orders","mo.empty":"No orders from this device yet — your first order will appear here automatically","mo.note":"Orders are saved on your device only — no login needed","mo.track":"🛵 Track","mo.again":"🔁 Order Again","mo.readded":"✓ Added your order back to the cart","mo.partial":"Re-added what is available — some items are gone","mo.noLines":"This order has no details available for reorder",
 "hero.eyebrow":"Authentic Kuwaiti Cuisine","hero.h1":"The Authentic Taste of <span class=\"g\">Kuwait</span>","hero.tag":"Traditional Kuwaiti dishes, prepared fresh every day with love and passion","hero.order":"🍽️ Order Now","hero.diwaniya":"Diwaniya Offers",
 "feat.1":"<span class=\"ic\">🔥</span> Fresh food daily","feat.2":"<span class=\"ic\">💳</span> Secure payment: KNET, cards & Apple Pay","feat.3":"<span class=\"ic\">🛵</span> Delivery to Hawally & nearby areas","feat.4":"<span class=\"ic\">📍</span> Hawally, Suraqa Bin Malik St.",
 "menu.eyebrow":"Our Menu","menu.title":"Choose Your Favorite Dish","menu.sub":"Authentic Kuwaiti dishes prepared fresh daily • Prices in Kuwaiti Dinar",
@@ -816,6 +828,46 @@ async function loadTrack(){
   }catch(_){body.innerHTML='<p style="color:var(--muted);text-align:center;margin:16px 0">'+T('trk.notfound')+'</p>';}
   setTimeout(loadTrack,30000);
 }
+/* ===== طلباتي (محفوظة على جهاز الزبون — بدون تسجيل دخول) ===== */
+function myOrdersGet(){try{const a=JSON.parse(localStorage.getItem('ahd_myorders')||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}}
+function myOrdersSave(a){try{localStorage.setItem('ahd_myorders',JSON.stringify(a.slice(0,15)));}catch(_){}}
+function myOrdersAdd(entry){
+  const a=myOrdersGet().filter(x=>x.id!==entry.id);
+  a.unshift(entry);myOrdersSave(a);
+}
+function myOrdersConfirm(id){
+  const a=myOrdersGet();const e=a.find(x=>x.id===id);
+  if(e){e.st='ok';myOrdersSave(a);}
+}
+function moDate(t){try{const d=new Date(t);return toEn(d.toLocaleString(LANG==='en'?'en-GB':'ar-KW',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}));}catch(_){return '';}}
+function openMyOrders(){
+  const body=document.getElementById('moBody');
+  const a=myOrdersGet();
+  if(!a.length){body.innerHTML='<p style="color:var(--muted);text-align:center;margin:18px 0">'+T('mo.empty')+'</p>';}
+  else{
+    body.innerHTML=a.map((o,i)=>`<div style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-family:Cairo;font-weight:800;color:var(--maroon)"><span>${escH(o.no||'')}</span><span>${Number(o.total||0).toFixed(3)} ${CUR()}</span></div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0">${moDate(o.at)}${o.itemsTxt?(' • '+escH(String(o.itemsTxt).slice(0,60))):''}</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <a class="btn btn-red" style="flex:1;justify-content:center;padding:9px 6px;font-size:13px" href="?track=${encodeURIComponent(o.id)}">${T('mo.track')}</a>
+        <button class="btn btn-gold" style="flex:1;justify-content:center;padding:9px 6px;font-size:13px" onclick="reorderFrom(${i})">${T('mo.again')}</button>
+      </div>
+    </div>`).join('');
+  }
+  document.getElementById('moOverlay').classList.add('open');
+}
+function reorderFrom(i){
+  const o=myOrdersGet()[i];if(!o||!Array.isArray(o.lines)||!o.lines.length){showToast(T('mo.noLines'));return;}
+  let added=0,missed=0;
+  o.lines.forEach(l=>{
+    const it=findItem(l.id);
+    if(it&&it.available!==false){for(let q=0;q<(l.qty||1);q++)addLine(it,Array.isArray(l.opts)?l.opts:[]);added++;}
+    else missed++;
+  });
+  document.getElementById('moOverlay').classList.remove('open');
+  if(added){showToast(missed?T('mo.partial'):T('mo.readded'));openCart();}
+  else showToast(T('mo.noLines'));
+}
 function initTrack(){
   if(!TRACK_ID)return;
   document.getElementById('trkOverlay').classList.add('open');
@@ -985,6 +1037,7 @@ async function submitCheckout(){
     orderRef=o&&o.id;orderNo=o&&o.no;
   }catch(_){}
   try{if(orderNo)sessionStorage.setItem('lastOrderNo',orderNo);}catch(_){}
+  try{if(orderRef)myOrdersAdd({id:orderRef,no:orderNo||'',total:grand,at:new Date().toISOString(),itemsTxt:orderItemsText(arr),lines:cart.map(l=>({id:l.id,qty:l.qty,opts:l.opts})),st:(coPayMethod==='cod')?'ok':'pending'});}catch(_){}
   if(coPayMethod==='cod'){
     if(!orderRef){err.textContent=T('e.codFail');btn.disabled=false;updPayBtn();return;}
     window._trackId=orderRef;
@@ -1135,7 +1188,7 @@ function showResult(kind){
 function closeResult(){document.getElementById('resOverlay').classList.remove('open');}
 function initPaymentStatus(){
   const q=new URLSearchParams(location.search);const p=q.get("payment");if(!p)return;
-  if(p==="success"){window._trackId=q.get("ref")||'';loadInvoice(q.get("ref"),q.get("pid"));showResult('success');}
+  if(p==="success"){window._trackId=q.get("ref")||'';try{myOrdersConfirm(window._trackId);}catch(_){}loadInvoice(q.get("ref"),q.get("pid"));showResult('success');}
   else if(p==="failed"){try{if(typeof fbq==='function')fbq('trackCustom','PaymentFailed',{currency:'KWD'});}catch(_){}showResult('failed');}
   history.replaceState({},"",location.pathname);
 }
