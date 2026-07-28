@@ -309,6 +309,15 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .lang-btn{background:transparent;border:1.5px solid var(--gold);color:var(--gold-light);font-family:'Cairo';font-weight:800;font-size:14px;padding:7px 14px;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:.2s}
 .lang-btn:hover{background:var(--gold);color:var(--maroon-dark)}
 #menu,#about,#contact{scroll-margin-top:84px}
+#cateringPane .cat-wrap{grid-template-columns:1fr;gap:18px}
+#cateringPane .cat-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;align-items:stretch}
+#cateringPane .cat-info .pack{flex-direction:column;text-align:center;gap:10px;margin:0;padding:22px 16px;border-radius:14px;border:1px solid var(--gold);box-shadow:0 6px 18px rgba(110,20,35,.07);transition:.25s}
+#cateringPane .cat-info .pack:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(110,20,35,.14)}
+#cateringPane .cat-info .pack .n{width:64px;height:64px;font-size:24px;margin:0 auto}
+#cateringPane .cat-info .discount-tag{grid-column:1/-1;justify-self:center}
+#cateringPane .cat-form{border-radius:14px;padding:22px}
+#cateringPane .cat-form.collapsed{display:none}
+.cat-cta{display:block;width:100%;margin-top:4px}
 .cart-foot{padding:10px 14px!important}
 .cart-foot .co-summary{padding:8px 12px;margin:0 0 6px}
 .cart-foot .co-summary .r{font-size:12.5px;margin:2px 0;padding:0}
@@ -361,7 +370,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <div class="eyebrow" data-i18n="hero.eyebrow">المأكولات الكويتية الأصيلة</div>
     <h1 data-i18n="hero.h1">طعم الكويت <span class="g">الأصيل</span></h1>
     <p class="tag" data-i18n="hero.tag">نُقدّم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك</p>
-    <div class="hero-cta"><a href="#menu" class="btn btn-gold" data-i18n="hero.order">🍽️ اطلب الآن</a><a href="javascript:void(0)" onclick="openCateringTab()" class="btn btn-outline" data-i18n="hero.diwaniya">🎉 صواني الديوانيات والمناسبات</a></div>
+    <div class="hero-cta"><a href="#menu" class="btn btn-gold" data-i18n="hero.order">🍽️ اطلب الآن</a><a href="javascript:void(0)" onclick="openCateringTab()" class="btn btn-outline" data-i18n="hero.diwaniya">عروض الديوانيات</a></div>
   </div></div></div>
 </section>
 <div class="feature-bar"><div class="container">
@@ -383,7 +392,8 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="pack"><div class="n">★</div><div><h4 data-i18n="cat.p3t">قوزي استرالي كامل</h4><p data-i18n="cat.p3d">لأفخم المناسبات والولائم</p></div></div>
       <div class="discount-tag" style="margin-top:8px" data-i18n="cat.weekly">🤝 خصم خاص للديوانيات التي تطلب أسبوعياً</div>
     </div>
-    <form class="cat-form" id="cateringForm" onsubmit="return submitCatering(event)">
+    <button type="button" class="btn btn-gold cat-cta" id="catFormToggle" onclick="toggleCatForm()" data-i18n="cat.openForm">📝 احجز الآن — املأ بيانات الحجز</button>
+    <form class="cat-form collapsed" id="cateringForm" onsubmit="return submitCatering(event)">
       <h3 data-i18n="cat.formTitle">احجز للمناسبات والديوانيات</h3>
       <div class="deposit" data-i18n="cat.deposit">💡 يتطلب عربون مقدّم لتأكيد الحجز</div>
       <div class="field"><label data-i18n="cat.name">الاسم</label><input required id="catName" data-i18n-ph="cat.namePh" placeholder="اسمك الكريم"></div>
@@ -557,13 +567,13 @@ let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
 ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل","nav.orders":"📋 طلباتي","mo.title":"طلباتي السابقة","mo.empty":"لسه مفيش طلبات من الجهاز ده — أول طلب هيظهر هنا تلقائياً","mo.note":"بدون أي تسجيل دخول — وبيرجّع طلباتك القديمة المرتبطة برقمك تلقائياً","mo.track":"🛵 تتبع","mo.again":"🔁 اطلبه تاني","mo.readded":"✓ رجّعنا طلبك للسلة","mo.partial":"رجعنا المتاح — بعض الأصناف لم تعد موجودة","mo.noLines":"تفاصيل الطلب ده غير متاحة لإعادة الطلب",
-"hero.eyebrow":"المأكولات الكويتية الأصيلة","hero.h1":"طعم الكويت <span class=\"g\">الأصيل</span>","hero.tag":"نُقدّم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك","hero.order":"🍽️ اطلب الآن","hero.diwaniya":"🎉 صواني الديوانيات والمناسبات",
+"hero.eyebrow":"المأكولات الكويتية الأصيلة","hero.h1":"طعم الكويت <span class=\"g\">الأصيل</span>","hero.tag":"نُقدّم الأطباق الكويتية التقليدية، نُعدّها بحبٍّ وشغف كل يوم طازجة على سفرتك","hero.order":"🍽️ اطلب الآن","hero.diwaniya":"عروض الديوانيات",
 "feat.1":"<span class=\"ic\">🔥</span> أكل طازج يومياً","feat.2":"<span class=\"ic\">💳</span> دفع آمن: كنت، بطاقات، Apple Pay","feat.3":"<span class=\"ic\">🛵</span> توصيل لحولي والمناطق القريبة","feat.4":"<span class=\"ic\">📍</span> حولي، شارع سراقة بن مالك",
 "menu.eyebrow":"قائمة الطعام","menu.title":"اختر طبقك المفضّل","menu.sub":"أطباق كويتية أصيلة تُعدّ طازجة كل يوم • الأسعار بالدينار الكويتي",
 "quote.q":"في عهد الضيافة، الأكل ليس مجرد وجبة… بل كرمٌ وضيافة على أصول الكويت",
 "cat.eyebrow":"المناسبات","cat.title":"المناسبات والديوانيات","cat.sub":"صواني بكميات كبيرة بأسعار خاصة — للديوانيات والأعراس والعزائم",
 "cat.p1t":"صواني تكفّي من شخصين حتى 5 أشخاص","cat.p1d":"مجبوس لحم/دجاج، برياني، مطبق وروبيان","cat.p2t":"صواني استيل تكفّي 7 و 10 أشخاص","cat.p2d":"للديوانيات والعزائم الكبيرة","cat.p3t":"قوزي استرالي كامل","cat.p3d":"لأفخم المناسبات والولائم","cat.weekly":"🤝 خصم خاص للديوانيات التي تطلب أسبوعياً",
-"cat.formTitle":"احجز للمناسبات والديوانيات","cat.deposit":"💡 يتطلب عربون مقدّم لتأكيد الحجز","cat.name":"الاسم","cat.namePh":"اسمك الكريم","cat.phone":"رقم التواصل","cat.type":"نوع المناسبة","cat.o1":"ديوانية","cat.o2":"عرس","cat.o3":"عزيمة عائلية","cat.o4":"مناسبة شركة","cat.o5":"أخرى","cat.count":"عدد الأشخاص","cat.c1":"شخصين","cat.c2":"3 أشخاص","cat.c3":"4 أشخاص","cat.c4":"5 أشخاص","cat.c5":"7 أشخاص","cat.c6":"10 أشخاص","cat.date":"التاريخ المطلوب","cat.notes":"تفاصيل إضافية","cat.notesPh":"الأطباق المطلوبة، وقت التسليم...","cat.send":"📲 أرسل طلب الحجز على واتساب",
+"cat.formTitle":"احجز للمناسبات والديوانيات","cat.openForm":"📝 احجز الآن — املأ بيانات الحجز","cat.closeForm":"✕ إخفاء نموذج الحجز","cat.deposit":"💡 يتطلب عربون مقدّم لتأكيد الحجز","cat.name":"الاسم","cat.namePh":"اسمك الكريم","cat.phone":"رقم التواصل","cat.type":"نوع المناسبة","cat.o1":"ديوانية","cat.o2":"عرس","cat.o3":"عزيمة عائلية","cat.o4":"مناسبة شركة","cat.o5":"أخرى","cat.count":"عدد الأشخاص","cat.c1":"شخصين","cat.c2":"3 أشخاص","cat.c3":"4 أشخاص","cat.c4":"5 أشخاص","cat.c5":"7 أشخاص","cat.c6":"10 أشخاص","cat.date":"التاريخ المطلوب","cat.notes":"تفاصيل إضافية","cat.notesPh":"الأطباق المطلوبة، وقت التسليم...","cat.send":"📲 أرسل طلب الحجز على واتساب",
 "about.eyebrow":"قصتنا","about.title":"طعمٌ كويتيٌّ أصيل","about.p1":"في عهد الضيافة، نؤمن أن الأكل الكويتي إرثٌ وكرم. نُعدّ أطباقنا على الطريقة التقليدية بأجود المكوّنات، طازجة كل يوم.","about.p2":"من المجبوس والمطبق إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل.","about.s1":"أكل كويتي أصيل","about.s2n":"طازج","about.s2":"يومياً","about.s3n":"حولي","about.s3":"قلب الكويت",
 "contact.eyebrow":"زورنا","contact.title":"الموقع والتواصل","contact.sub":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.infoT":"معلومات التواصل","contact.addrL":"العنوان","contact.addrV":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.phoneL":"الهاتف / واتساب","contact.instaL":"إنستجرام","contact.hoursT":"أوقات العمل","contact.d1":"السبت - الخميس","contact.d1t":"11 ص - 12 م","contact.d2":"الجمعة","contact.d2t":"1 ظ - 12 م","contact.order":"🍽️ اطلب الآن","contact.wa":"📲 واتساب","contact.dir":"🧭 الاتجاهات",
 "footer.tag":"المأكولات الكويتية الأصيلة • حولي، الكويت","footer.rights":"عهد الضيافة. جميع الحقوق محفوظة.",
@@ -577,13 +587,13 @@ ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضي�
 "res.okTitle":"شكراً لطلبك! 🌟","res.okMsg":"تم استلام دفعتك بنجاح، وجارٍ تجهيز طلبك.","res.codTitle":"تم استلام طلبك! 🎉","res.codMsg":"طلبك مؤكد وجارٍ تجهيزه — الدفع كاش عند الاستلام 💵","res.noL":"رقم طلبك: ","res.okSub":"سنتواصل معك على رقمك لتأكيد التوصيل. نتمنّى لك وجبة شهية 🇰🇼","res.invoice":"🧾 عرض / حفظ الفاتورة","res.waContact":"📲 تواصل واتساب","res.close":"إغلاق","res.failTitle":"لم تكتمل عملية الدفع","res.failMsg":"ما تمّش خصم أي مبلغ. تقدر تحاول مرة أخرى أو تطلب عبر واتساب.","res.retry":"🔁 حاول مرة أخرى","res.waOrder":"📲 اطلب عبر واتساب",
 "closed.sub":"المأكولات الكويتية الأصيلة","closed.status":"🌙 المطعم مغلق حالياً","closed.msg":"يسعدنا تصفّحكم لقائمتنا، ويمكنكم تقديم طلبكم أو حجزكم الآن وسيبدأ تجهيزه فور بدء أوقات العمل.<br>نشكر لكم اختياركم مطعم عهد الضيافة.","closed.browse":"تصفّح القائمة وأكمل طلبك","closed.hours":"🕒 ساعات العمل: من {a} إلى {b}"},
 en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.doc":"Ahd Al-Diyafa Restaurant | Authentic Kuwaiti Majboos & Biryani in Hawally - Order Online","nav.menu":"Menu","nav.catering":"Events & Diwaniyas","nav.about":"About Us","nav.contact":"Location & Contact","nav.orders":"📋 My Orders","mo.title":"My Previous Orders","mo.empty":"No orders from this device yet — your first order will appear here automatically","mo.note":"No login needed — your older orders linked to your number sync automatically","mo.track":"🛵 Track","mo.again":"🔁 Order Again","mo.readded":"✓ Added your order back to the cart","mo.partial":"Re-added what is available — some items are gone","mo.noLines":"This order has no details available for reorder",
-"hero.eyebrow":"Authentic Kuwaiti Cuisine","hero.h1":"The Authentic Taste of <span class=\"g\">Kuwait</span>","hero.tag":"Traditional Kuwaiti dishes, prepared fresh every day with love and passion","hero.order":"🍽️ Order Now","hero.diwaniya":"🎉 Diwaniya & Event Trays",
+"hero.eyebrow":"Authentic Kuwaiti Cuisine","hero.h1":"The Authentic Taste of <span class=\"g\">Kuwait</span>","hero.tag":"Traditional Kuwaiti dishes, prepared fresh every day with love and passion","hero.order":"🍽️ Order Now","hero.diwaniya":"Diwaniya Offers",
 "feat.1":"<span class=\"ic\">🔥</span> Fresh food daily","feat.2":"<span class=\"ic\">💳</span> Secure payment: KNET, cards & Apple Pay","feat.3":"<span class=\"ic\">🛵</span> Delivery to Hawally & nearby areas","feat.4":"<span class=\"ic\">📍</span> Hawally, Suraqa Bin Malik St.",
 "menu.eyebrow":"Our Menu","menu.title":"Choose Your Favorite Dish","menu.sub":"Authentic Kuwaiti dishes prepared fresh daily • Prices in Kuwaiti Dinar",
 "quote.q":"At Ahd Al-Diyafa, food is more than a meal… it is generosity and hospitality, the Kuwaiti way",
 "cat.eyebrow":"Events","cat.title":"Events & Diwaniyas","cat.sub":"Large trays at special prices — for diwaniyas, weddings and gatherings",
 "cat.p1t":"Trays serving 2 to 5 people","cat.p1d":"Meat/chicken majboos, biryani, mutabbaq & shrimp","cat.p2t":"Steel trays serving 7 and 10 people","cat.p2d":"For diwaniyas and large gatherings","cat.p3t":"Whole Australian Ghuzi","cat.p3d":"For the grandest occasions and feasts","cat.weekly":"🤝 Special discount for weekly diwaniya orders",
-"cat.formTitle":"Book for Events & Diwaniyas","cat.deposit":"💡 A deposit is required to confirm your booking","cat.name":"Name","cat.namePh":"Your name","cat.phone":"Contact Number","cat.type":"Occasion Type","cat.o1":"Diwaniya","cat.o2":"Wedding","cat.o3":"Family Gathering","cat.o4":"Corporate Event","cat.o5":"Other","cat.count":"Number of Guests","cat.c1":"2 people","cat.c2":"3 people","cat.c3":"4 people","cat.c4":"5 people","cat.c5":"7 people","cat.c6":"10 people","cat.date":"Preferred Date","cat.notes":"Extra Details","cat.notesPh":"Requested dishes, delivery time...","cat.send":"📲 Send Booking Request on WhatsApp",
+"cat.formTitle":"Book for Events & Diwaniyas","cat.openForm":"📝 Book Now — fill in your details","cat.closeForm":"✕ Hide booking form","cat.deposit":"💡 A deposit is required to confirm your booking","cat.name":"Name","cat.namePh":"Your name","cat.phone":"Contact Number","cat.type":"Occasion Type","cat.o1":"Diwaniya","cat.o2":"Wedding","cat.o3":"Family Gathering","cat.o4":"Corporate Event","cat.o5":"Other","cat.count":"Number of Guests","cat.c1":"2 people","cat.c2":"3 people","cat.c3":"4 people","cat.c4":"5 people","cat.c5":"7 people","cat.c6":"10 people","cat.date":"Preferred Date","cat.notes":"Extra Details","cat.notesPh":"Requested dishes, delivery time...","cat.send":"📲 Send Booking Request on WhatsApp",
 "about.eyebrow":"Our Story","about.title":"Authentic Kuwaiti Taste","about.p1":"At Ahd Al-Diyafa, we believe Kuwaiti food is heritage and generosity. We prepare our dishes the traditional way with the finest ingredients, fresh every day.","about.p2":"From majboos and mutabbaq to large diwaniya trays, we bring you the authentic taste of the Kuwaiti home.","about.s1":"Authentic Kuwaiti Food","about.s2n":"Fresh","about.s2":"Daily","about.s3n":"Hawally","about.s3":"Heart of Kuwait",
 "contact.eyebrow":"Visit Us","contact.title":"Location & Contact","contact.sub":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.infoT":"Contact Information","contact.addrL":"Address","contact.addrV":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.phoneL":"Phone / WhatsApp","contact.instaL":"Instagram","contact.hoursT":"Working Hours","contact.d1":"Saturday - Thursday","contact.d1t":"11 AM - 12 AM","contact.d2":"Friday","contact.d2t":"1 PM - 12 AM","contact.order":"🍽️ Order Now","contact.wa":"📲 WhatsApp","contact.dir":"🧭 Directions",
 "footer.tag":"Authentic Kuwaiti Cuisine • Hawally, Kuwait","footer.rights":"Ahd Al-Diyafa. All rights reserved.",
@@ -651,6 +661,12 @@ function showCateringPane(){
   document.getElementById('menuGrid').style.display='none';
   document.getElementById('cateringPane').style.display='';
 }
+function toggleCatForm(){
+  const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');
+  const open=f.classList.toggle('collapsed')===false;
+  b.innerHTML=open?T('cat.closeForm'):T('cat.openForm');
+  if(open)setTimeout(()=>{try{const y=f.getBoundingClientRect().top+window.pageYOffset-84;window.scrollTo({top:y,behavior:'smooth'});}catch(_){}},60);
+}
 function openCateringTab(){
   const cb=document.getElementById('cateringTab');
   if(cb){document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));cb.classList.add('active');showCateringPane();}
@@ -667,6 +683,7 @@ function showCat(i){
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
   grid.style.display='';
   const cp=document.getElementById('cateringPane');if(cp)cp.style.display='none';
+  try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
   (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
     d.innerHTML=`<div class="thumb"><span class="badge-cat">${catName(MENU[i])}</span>${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
     grid.appendChild(d);});
