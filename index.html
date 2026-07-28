@@ -318,12 +318,18 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 #cateringPane .cat-form{border-radius:14px;padding:22px}
 #cateringPane .cat-form.collapsed{display:none}
 .cat-cta{display:block;width:100%;margin-top:4px}
-.cart-foot{padding:10px 14px!important}
-.cart-foot .co-summary{padding:8px 12px;margin:0 0 6px}
-.cart-foot .co-summary .r{font-size:12.5px;margin:2px 0;padding:0}
-.cart-foot .co-summary .r.grand{font-size:15.5px;margin-top:4px;padding-top:4px}
-.cart-foot .co-err{margin:0 0 4px;font-size:12.5px}
-.cart-foot #coPayBtn{padding:13px}
+.cart-foot{padding:8px 12px!important}
+.cart-foot .co-summary{padding:0;margin:0;background:transparent;border:0}
+.cart-foot .co-summary .r{font-size:12.5px;margin:0;padding:2px 2px}
+.cart-foot .co-summary .r.grand{font-size:15px;margin:0;padding:3px 2px 0;border-top:1px dashed var(--line)}
+.cart-foot .co-err{margin:0;font-size:12px;line-height:1.4}
+.cart-foot #coPayBtn{padding:12px;margin-top:6px}
+#sumRows{display:none}
+#sumRows.open{display:block}
+.sum-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:2px 2px}
+.sum-toggle .lbl{font-family:'Cairo';font-weight:800;color:var(--maroon);font-size:14.5px}
+.sum-toggle .val{font-family:'Cairo';font-weight:900;color:var(--maroon);font-size:16px}
+.sum-toggle .car{color:var(--muted);font-size:11px;margin-inline-start:6px}
 .pay-chip{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
 .pay-chip .knet{color:#fff;background:#005baa;padding:2px 9px;border-radius:4px;font-style:italic;font-weight:900;font-size:13px;letter-spacing:.5px;font-family:Arial,sans-serif}
 .pay-chip .visa{color:#1a1f71;background:#fff;border:1px solid #e2e2e2;padding:2px 7px;border-radius:4px;font-style:italic;font-weight:900;font-size:12px;font-family:Arial,sans-serif}
@@ -1060,6 +1066,7 @@ function setDType(t){
   document.getElementById('deliveryFields').style.display = (t==='delivery') ? '' : 'none';
   updateCoTotals();
 }
+function toggleSum(){window._sumOpen=!window._sumOpen;try{updateCoTotals();}catch(_){}}
 function curDeliveryFee(){
   if(coDType!=='delivery')return 0;
   const a=areaByIndex(coAreaIdx);
@@ -1073,13 +1080,16 @@ function curMinOrder(){
 function updateCoTotals(){
   const food=total();const fee=curDeliveryFee();const grand=food+fee;
   const min=curMinOrder();
-  let rows=`<div class="r"><span>${T('sum.items')}</span><span>${food.toFixed(3)} ${CUR()}</span></div>`;
-  if(coDType==='delivery')rows+=`<div class="r"><span>${T('sum.fee')}</span><span>${fee.toFixed(3)} ${CUR()}</span></div>`;
-  if(coDType==='delivery'){const a=areaByIndex(coAreaIdx);if(a&&a.time)rows+=`<div class="r" style="color:var(--maroon)"><span>${T('sum.eta')}</span><span>${timeLabel(a.time)}</span></div>`;}
+  let det=`<div class="r"><span>${T('sum.items')}</span><span>${food.toFixed(3)} ${CUR()}</span></div>`;
+  if(coDType==='delivery')det+=`<div class="r"><span>${T('sum.fee')}</span><span>${fee.toFixed(3)} ${CUR()}</span></div>`;
+  if(coDType==='delivery'){const a=areaByIndex(coAreaIdx);if(a&&a.time)det+=`<div class="r" style="color:var(--maroon)"><span>${T('sum.eta')}</span><span>${timeLabel(a.time)}</span></div>`;}
   const disc=subtotal()*(CONFIG.directDiscount||0);
-  if(disc>0.001)rows+=`<div class="r" style="color:#178c44"><span>${T('sum.saved')}</span><span>- ${disc.toFixed(3)} ${CUR()}</span></div>`;
-  rows+=`<div class="r grand"><span>${T('sum.grand')} <small style="font-weight:600;color:var(--muted);font-size:11.5px">(${T('sum.count').replace('{n}',cart.reduce((a,l)=>a+l.qty,0))})</small></span><span>${grand.toFixed(3)} ${CUR()}</span></div>`;
-  document.getElementById('coSummary').innerHTML=rows;
+  if(disc>0.001)det+=`<div class="r" style="color:#178c44"><span>${T('sum.saved')}</span><span>- ${disc.toFixed(3)} ${CUR()}</span></div>`;
+  const n=cart.reduce((a,l)=>a+l.qty,0);
+  const openCls=(window._sumOpen?' open':'');
+  document.getElementById('coSummary').innerHTML=
+    `<div class="sum-toggle" onclick="toggleSum()"><span class="lbl">${T('sum.grand')} <span class="car">${T('sum.count').replace('{n}',n)} ${window._sumOpen?'▲':'▼'}</span></span><span class="val">${grand.toFixed(3)} ${CUR()}</span></div>`+
+    `<div id="sumRows" class="${openCls.trim()}">${det}</div>`;
   window._coAmt=grand.toFixed(3)+" "+CUR();document.getElementById('coPayAmt').textContent=window._coAmt;
   const err=document.getElementById('coErr');
   if(coDType==='delivery'&&min>0&&subtotal()<min)err.textContent=T('e.minHere').replace('{v}',min.toFixed(3));
