@@ -9,8 +9,27 @@
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());gtag('config','G-MW5NZSZLSC');
 </script>
+<script>
+/* وضع الاختبار: ?test=1 يوقف كل التتبع (بكسل فيسبوك + جوجل أناليتكس + عدادات الموقع) */
+window.AHD_TEST=(function(){try{
+  var u=new URLSearchParams(location.search);
+  if(u.get('test')==='1'){try{sessionStorage.setItem('ahd_test','1');}catch(_){}return true;}
+  if(u.get('test')==='0'){try{sessionStorage.removeItem('ahd_test');}catch(_){}return false;}
+  try{return sessionStorage.getItem('ahd_test')==='1';}catch(_){return false;}
+}catch(_){return false;}})();
+if(window.AHD_TEST){
+  try{window['ga-disable-G-MW5NZSZLSC']=true;}catch(_){}
+  try{document.addEventListener('DOMContentLoaded',function(){
+    var b=document.createElement('div');
+    b.textContent='🧪 وضع الاختبار — التتبع موقوف';
+    b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#1b5e20;color:#fff;font-family:Cairo,sans-serif;font-weight:700;font-size:12px;text-align:center;padding:4px';
+    document.body.appendChild(b);
+  });}catch(_){}
+}
+</script>
 <!-- Meta Pixel -->
 <script>
+if(!window.AHD_TEST){
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -21,6 +40,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1849161062727719');
 fbq('track', 'PageView');
+}
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1849161062727719&ev=PageView&noscript=1"
@@ -729,13 +749,14 @@ function trafficSrc(){
   }catch(_){return 'direct';}
 }
 function trk(type,src){
+  if(window.AHD_TEST)return;
   try{
     const body=JSON.stringify(src?{type:type,src:src}:{type:type});
     if(navigator.sendBeacon){navigator.sendBeacon('/api/stats',new Blob([body],{type:'application/json'}));}
     else{fetch('/api/stats',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true});}
   }catch(_){}
 }
-function fbTrack(ev,params){try{if(typeof fbq==='function'){params?fbq('track',ev,params):fbq('track',ev);}}catch(_){}}
+function fbTrack(ev,params){if(window.AHD_TEST)return;try{if(typeof fbq==='function'){params?fbq('track',ev,params):fbq('track',ev);}}catch(_){}}
 function trackVisit(){
   try{
     trk('view');
@@ -1300,7 +1321,7 @@ function closeResult(){document.getElementById('resOverlay').classList.remove('o
 function initPaymentStatus(){
   const q=new URLSearchParams(location.search);const p=q.get("payment");if(!p)return;
   if(p==="success"){window._trackId=q.get("ref")||'';try{myOrdersConfirm(window._trackId);}catch(_){}loadInvoice(q.get("ref"),q.get("pid"));showResult('success');}
-  else if(p==="failed"){try{if(typeof fbq==='function')fbq('trackCustom','PaymentFailed',{currency:'KWD'});}catch(_){}showResult('failed');}
+  else if(p==="failed"){try{if(!window.AHD_TEST&&typeof fbq==='function')fbq('trackCustom','PaymentFailed',{currency:'KWD'});}catch(_){}showResult('failed');}
   history.replaceState({},"",location.pathname);
 }
 async function loadMenu(){
