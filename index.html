@@ -723,6 +723,18 @@ function closeCateringTab(){
   try{document.body.style.overflow='';}catch(_){}
   try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
 }
+function scrollToItems(){
+  const go=()=>{
+    try{
+      const el=document.getElementById('menuTabs');if(!el)return;
+      const y=Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-78);
+      if(Math.abs(window.pageYOffset-y)>6)window.scrollTo(0,y);
+    }catch(_){}
+  };
+  go();
+  setTimeout(go,140);
+  setTimeout(go,360);
+}
 function showCat(i){
   const grid=document.getElementById('menuGrid');grid.innerHTML='';
   grid.style.display='';
