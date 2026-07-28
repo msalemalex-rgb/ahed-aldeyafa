@@ -146,8 +146,11 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .feature-bar .container{display:flex;justify-content:space-around;flex-wrap:wrap;gap:14px;padding:22px;text-align:center}
 .feature-bar .f{display:flex;align-items:center;gap:11px;font-family:'Cairo';font-weight:700;font-size:15px}
 .feature-bar .f .ic{font-size:24px}
-.menu-tabs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
-.menu-tab{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-family:'Cairo';font-weight:700;padding:11px 24px;border-radius:4px;cursor:pointer;transition:.25s;font-size:15px}
+.menu-tabs{display:flex;gap:10px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:22px;padding:4px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.menu-tabs::-webkit-scrollbar{display:none}
+.menu-tab{flex:0 0 auto;white-space:nowrap;scroll-snap-align:start}
+@media(min-width:900px){.menu-tabs{justify-content:center;flex-wrap:wrap;overflow:visible}}
+.menu-tab{background:#fff;border:1.5px solid var(--line);color:var(--ink);font-family:'Cairo';font-weight:700;padding:11px 24px;border-radius:4px;cursor:pointer;transition:.25s;font-size:15px}
 .menu-tab.active,.menu-tab:hover{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
 .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;scroll-margin-top:90px}
 .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.3s;border:1px solid var(--line)}
@@ -666,11 +669,12 @@ function renderMenu(){
   const cb=document.createElement('button');cb.className='menu-tab';cb.id='cateringTab';cb.textContent='🎉 '+T('cat.title');
   cb.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));cb.classList.add('active');showCateringPane();scrollToItems();};
   tabs.appendChild(cb);
-  if(window._catTab){cb.classList.add('active');showCateringPane();}
+  if(window._catTab){cb.classList.add('active');showCateringPane();try{cb.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}}
   else if(MENU.length)showCat(0);
 }
 function showCateringPane(){
   window._catTab=true;
+  try{const cb=document.getElementById('cateringTab');if(cb)cb.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}
   const g=document.getElementById('menuGrid');if(g)g.style.display='none';
   const cp=document.getElementById('cateringPane');if(cp)cp.style.display='';
 }
@@ -689,15 +693,6 @@ function openCateringTab(){
   scrollToCatering();
 }
 /* سكرول مناعته عالية: بيعيد التصويب لحد ما يستقر (الصور/الفيديو بتغيّر الارتفاعات أثناء الحركة) */
-const DBG=(function(){try{return new URLSearchParams(location.search).get('dbg')==='1';}catch(_){return false;}})();
-function dbgBox(t){
-  if(!DBG)return;
-  let d=document.getElementById('dbgBox');
-  if(!d){d=document.createElement('div');d.id='dbgBox';
-    d.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#000;color:#0f0;font:11px/1.5 monospace;padding:6px;max-height:38vh;overflow:auto;white-space:pre-wrap;direction:ltr;text-align:left';
-    document.body.appendChild(d);}
-  d.textContent=(t+'\n'+d.textContent).slice(0,1800);
-}
 function scrollToCatering(){
   // إلغاء أي محاولة سابقة
   if(window._catScrollTimer){clearTimeout(window._catScrollTimer);window._catScrollTimer=null;}
@@ -712,19 +707,8 @@ function scrollToCatering(){
   const step=()=>{
     tries++;
     const y=target();
-    if(y==null){dbgBox('t'+tries+' TARGET NULL');return;}
+    if(y==null)return;
     const cur=window.pageYOffset;
-    if(DBG){
-      const pane=document.getElementById('cateringPane');
-      const grid=document.getElementById('menuGrid');
-      const at=document.querySelector('.menu-tab.active');
-      dbgBox('t'+tries+' cur='+Math.round(cur)+' -> y='+Math.round(y)
-        +' | docH='+Math.round(document.documentElement.scrollHeight)
-        +' | pane='+(pane?pane.style.display||'shown':'NA')
-        +' | grid='+(grid?grid.style.display||'shown':'NA')
-        +' | tab='+(at?at.textContent.trim().slice(0,14):'none')
-        +' | catFlag='+(!!window._catTab));
-    }
     if(Math.abs(cur-y)>6){
       try{window.scrollTo(0,y);}catch(_){}
       try{document.getElementById('menuTabs').scrollIntoView({block:'start'});window.scrollBy(0,-78);}catch(_){}
