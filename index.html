@@ -166,13 +166,8 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .feature-bar .container{display:flex;justify-content:space-around;flex-wrap:wrap;gap:14px;padding:22px;text-align:center}
 .feature-bar .f{display:flex;align-items:center;gap:11px;font-family:'Cairo';font-weight:700;font-size:15px}
 .feature-bar .f .ic{font-size:24px}
-.menu-tabs{position:sticky;top:64px;z-index:40;display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:10px 4px;margin:0 -4px 18px;background:rgba(250,246,239,.97);backdrop-filter:blur(6px);border-bottom:1px solid rgba(200,150,47,.35);scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.menu-tabs::-webkit-scrollbar{display:none}
-.menu-sec{scroll-margin-top:132px;margin-bottom:34px}
-.menu-sec-h{display:flex;align-items:center;gap:10px;margin:0 2px 14px}
-.menu-sec-h span{font-family:'Aref Ruqaa';font-size:23px;color:var(--maroon);white-space:nowrap}
-.menu-sec-h i{flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent);display:block}
-.menu-tab{flex:0 0 auto;white-space:nowrap;background:#fff;border:1.5px solid var(--line);color:var(--ink);font-family:'Cairo';font-weight:700;padding:9px 18px;border-radius:50px;cursor:pointer;transition:.25s;font-size:14px}
+.menu-tabs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
+.menu-tab{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-family:'Cairo';font-weight:700;padding:11px 24px;border-radius:4px;cursor:pointer;transition:.25s;font-size:15px}
 .menu-tab.active,.menu-tab:hover{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
 .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;scroll-margin-top:90px}
 .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.3s;border:1px solid var(--line)}
@@ -705,45 +700,11 @@ const toEn=s=>(''+s).replace(/[٠-٩]/g,d=>''+'٠١٢٣٤٥٦٧٨٩'.indexOf(d))
 const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
 function renderMenu(){
   const tabs=document.getElementById('menuTabs');tabs.innerHTML='';
-  const wrap=document.getElementById('menuGrid');wrap.innerHTML='';wrap.style.display='';
-  MENU.forEach((c,i)=>{
-    const b=document.createElement('button');
-    b.className='menu-tab'+(i===0?' active':'');b.textContent=catName(c);b.dataset.sec='sec'+i;
-    b.onclick=()=>gotoSection(i);
-    tabs.appendChild(b);
-    const sec=document.createElement('div');sec.className='menu-sec';sec.id='sec'+i;
-    sec.innerHTML='<div class="menu-sec-h"><span>'+escH(catName(c))+'</span><i></i></div><div class="menu-grid" id="grid'+i+'"></div>';
-    wrap.appendChild(sec);
-    fillCat(i);
-  });
+  MENU.forEach((c,i)=>{const b=document.createElement('button');b.className='menu-tab'+(i===0?' active':'');b.textContent=catName(c);b.onclick=()=>{document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));b.classList.add('active');showCat(i);scrollToItems();};tabs.appendChild(b);});
   const cb=document.createElement('button');cb.className='menu-tab';cb.id='cateringTab';cb.textContent='🎉 '+T('cat.title');
   cb.onclick=()=>{openCateringTab();};
   tabs.appendChild(cb);
-  initMenuSpy();
-}
-function gotoSection(i){
-  const sec=document.getElementById('sec'+i);if(!sec)return;
-  window._spyLock=Date.now();
-  markTab(i);
-  const go=()=>{try{const y=Math.max(0,sec.getBoundingClientRect().top+window.pageYOffset-128);if(Math.abs(window.pageYOffset-y)>4)window.scrollTo(0,y);}catch(_){}};
-  go();setTimeout(go,120);setTimeout(go,320);
-}
-function markTab(i){
-  document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
-  const t=document.querySelector('.menu-tab[data-sec="sec'+i+'"]');
-  if(t){t.classList.add('active');try{t.scrollIntoView({block:'nearest',inline:'center'});}catch(_){}}
-}
-function initMenuSpy(){
-  if(window._spyOn)return;window._spyOn=true;
-  window.addEventListener('scroll',function(){
-    if(window._spyLock&&Date.now()-window._spyLock<700)return;
-    let best=0;
-    for(let i=0;i<MENU.length;i++){
-      const el=document.getElementById('sec'+i);if(!el)continue;
-      if(el.getBoundingClientRect().top-140<=0)best=i;
-    }
-    if(window._curSec!==best){window._curSec=best;markTab(best);}
-  },{passive:true});
+  if(MENU.length)showCat(0);
 }
 function showCateringPane(){openCateringTab();}
 function toggleCatForm(){
@@ -762,10 +723,24 @@ function closeCateringTab(){
   try{document.body.style.overflow='';}catch(_){}
   try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
 }
-function fillCat(i){
-  const grid=document.getElementById('grid'+i);if(!grid)return;grid.innerHTML='';
+function scrollToItems(){
+  const go=()=>{
+    try{
+      const el=document.getElementById('menuTabs');if(!el)return;
+      const y=Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-78);
+      if(Math.abs(window.pageYOffset-y)>6)window.scrollTo(0,y);
+    }catch(_){}
+  };
+  go();
+  setTimeout(go,140);
+  setTimeout(go,360);
+}
+function showCat(i){
+  const grid=document.getElementById('menuGrid');grid.innerHTML='';
+  grid.style.display='';
+
   (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
-    d.innerHTML=`<div class="thumb">${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
+    d.innerHTML=`<div class="thumb"><span class="badge-cat">${catName(MENU[i])}</span>${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#bbb;cursor:not-allowed;pointer-events:none">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
     grid.appendChild(d);});
 }
 function findItem(id){for(const c of MENU)for(const it of (c.items||[]))if(it.id===id)return it;}
