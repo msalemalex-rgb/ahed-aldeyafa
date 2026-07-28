@@ -205,8 +205,8 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 #ipGrid.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 @media(min-width:760px){#ipGrid.tiles{grid-template-columns:repeat(3,1fr)}}
 #ipGrid.tiles .card{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(200,150,47,.45);box-shadow:0 8px 20px rgba(110,20,35,.10);background:#fff;display:flex;flex-direction:column}
-#ipGrid.tiles .card .thumb{position:relative;height:auto;aspect-ratio:1/1;border-radius:0;overflow:hidden;flex:0 0 auto}
-#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:cover;opacity:1}
+#ipGrid.tiles .card .thumb{position:relative;height:auto;aspect-ratio:4/3;border-radius:0;overflow:hidden;flex:0 0 auto;background:#f3ece1}
+#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:contain;opacity:1;background:#f3ece1}
 #ipGrid.tiles .card .body{padding:10px 9px 11px;text-align:center;display:flex;flex-direction:column;flex:1}
 #ipGrid.tiles .card .body h3{font-family:'Cairo';font-weight:800;font-size:13.5px;color:var(--maroon);line-height:1.45;margin:0;min-height:2.9em;display:flex;align-items:center;justify-content:center}
 #ipGrid.tiles .card .desc{display:none}
