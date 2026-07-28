@@ -201,6 +201,26 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 #ipGrid .card{animation:ipCard .46s cubic-bezier(.2,.8,.3,1) both}
 @keyframes ipCard{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
 .cat-card{will-change:transform}
+/* شكل الأصناف "مربعات" مطابق لكروت الأقسام */
+#ipGrid.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:760px){#ipGrid.tiles{grid-template-columns:repeat(3,1fr)}}
+#ipGrid.tiles .card{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);background:var(--maroon-dark);aspect-ratio:3/4;display:block}
+#ipGrid.tiles .card .thumb{position:absolute;inset:0;height:100%;border-radius:0}
+#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:cover;opacity:.78}
+#ipGrid.tiles .card .body{position:absolute;inset:auto 0 0 0;padding:14px 10px 12px;background:linear-gradient(0deg,rgba(40,7,12,.97) 42%,rgba(40,7,12,.82) 70%,transparent);text-align:center}
+#ipGrid.tiles .card .body h3{font-family:'Aref Ruqaa';font-size:16.5px;color:var(--gold-light);line-height:1.35;margin:0}
+#ipGrid.tiles .card .desc{display:none}
+#ipGrid.tiles .card .row{display:flex;flex-direction:column;gap:7px;align-items:center;margin-top:7px;border:0;padding:0}
+#ipGrid.tiles .card .price{color:#fff;font-size:15px;font-weight:900}
+#ipGrid.tiles .card .price small{color:rgba(255,255,255,.75)}
+#ipGrid.tiles .card .add-btn{padding:7px 14px;font-size:12.5px;border-radius:50px}
+#ipGrid.tiles .card .soldout{font-size:12.5px;top:10px;inset-inline-start:10px;transform:none}
+#ipGrid.tiles .card.unavailable .thumb img{opacity:.35}
+.view-sw{display:inline-flex;gap:0;border:1.5px solid var(--gold);border-radius:50px;overflow:hidden;background:#fff}
+.view-sw button{background:transparent;border:none;padding:6px 12px;font-size:15px;line-height:1;cursor:pointer;color:var(--muted);transition:.2s}
+.view-sw button.on{background:var(--maroon);color:var(--gold-light)}
+.ip-nav-wrap{display:flex;align-items:center;gap:8px;padding-inline-end:8px;background:#fff;border-bottom:1px solid rgba(200,150,47,.28);box-shadow:0 2px 10px rgba(110,20,35,.05)}
+.ip-nav-wrap .ip-nav{flex:1;border:0;box-shadow:none}
 .cat-card.picked{animation:catPick .3s ease}
 @keyframes catPick{0%{transform:scale(1)}45%{transform:scale(.955)}100%{transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){#itemsPanel,#itemsPanel .ip-head h3,#ipGrid .card,.cat-card.picked{transition:none!important;animation:none!important}}
@@ -212,6 +232,8 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 [dir="ltr"] #itemsPanel .ip-back .ar{transform:scaleX(-1)}
 #ipBody{flex:1;overflow-y:auto;padding:14px 12px 26px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 #ipBody .menu-grid{grid-template-columns:1fr}
+#ipBody #ipGrid.tiles{grid-template-columns:repeat(2,1fr)!important}
+@media(min-width:760px){#ipBody #ipGrid.tiles{grid-template-columns:repeat(3,1fr)!important}}
 @media(min-width:700px){#ipBody .menu-grid{grid-template-columns:repeat(2,1fr)}}
 .ip-nav{display:flex;gap:7px;overflow-x:auto;padding:9px 10px;background:#fff;border-bottom:1px solid rgba(200,150,47,.28);flex:0 0 auto;scrollbar-width:none;box-shadow:0 2px 10px rgba(110,20,35,.05)}
 .ip-nav::-webkit-scrollbar{display:none}
@@ -615,7 +637,13 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </div>
 <div id="itemsPanel">
   <div class="ip-head" style="position:relative;z-index:2"><button class="ip-back" onclick="closeItems()"><span class="ar">‹</span><span data-i18n="ip.back">الأقسام</span></button><h3 id="ipTitle"></h3><span style="width:74px"></span></div>
-  <div class="ip-nav" id="ipNav"></div>
+  <div class="ip-nav-wrap">
+    <div class="ip-nav" id="ipNav"></div>
+    <div class="view-sw" id="viewSw">
+      <button id="vwTiles" onclick="setView('tiles')" title="مربعات">▦</button>
+      <button id="vwList" onclick="setView('list')" title="قائمة">☰</button>
+    </div>
+  </div>
   <div id="ipBody"><div class="menu-grid" id="ipGrid"></div></div>
 </div>
 <div id="catOverlay">
@@ -801,11 +829,23 @@ function staggerCards(){
   const cards=document.querySelectorAll('#ipGrid .card');
   for(let k=0;k<cards.length;k++){cards[k].style.animationDelay=(180+Math.min(k*70,420))+'ms';}
 }
+let VIEW=(function(){try{const v=localStorage.getItem('ahd_view');return (v==='list'||v==='tiles')?v:'tiles';}catch(_){return 'tiles';}})();
+function applyView(){
+  const g=document.getElementById('ipGrid');if(!g)return;
+  g.classList.toggle('tiles',VIEW==='tiles');
+  const t=document.getElementById('vwTiles'),l=document.getElementById('vwList');
+  if(t)t.classList.toggle('on',VIEW==='tiles');
+  if(l)l.classList.toggle('on',VIEW==='list');
+}
+function setView(v){
+  VIEW=v;try{localStorage.setItem('ahd_view',v);}catch(_){}
+  applyView();
+}
 function openItems(i,fromEl){
   window._ipCat=i;
   if(fromEl){try{fromEl.classList.add('picked');setTimeout(()=>fromEl.classList.remove('picked'),320);}catch(_){}}
   document.getElementById('ipTitle').textContent=catName(MENU[i]);
-  fillCat(i);staggerCards();
+  fillCat(i);applyView();staggerCards();
   document.querySelectorAll('#ipNav button').forEach(b=>b.classList.toggle('active',+b.dataset.i===i));
   centerNavChip();
   const p=document.getElementById('itemsPanel');
