@@ -1091,6 +1091,45 @@ function reorderFrom(i){
   if(added){showToast(missed?T('mo.partial'):T('mo.readded'));openCart();}
   else showToast(T('mo.noLines'));
 }
+/* ===== زر الرجوع في الموبايل يقفل النوافذ بدل الخروج من الموقع ===== */
+function ahdOverlayLevels(){
+  const L=[];
+  const add=(cond,close)=>{if(cond)L.push(close);};
+  try{
+    const q=id=>document.getElementById(id);
+    add(q('noteOverlay')&&q('noteOverlay').classList.contains('open'),()=>closeNoteModal());
+    add(q('optOverlay')&&q('optOverlay').classList.contains('open'),()=>closeOpt());
+    add(q('invOverlay')&&q('invOverlay').classList.contains('open'),()=>closeInvoice());
+    add(q('resOverlay')&&q('resOverlay').classList.contains('open'),()=>closeResult());
+    add(q('moOverlay')&&q('moOverlay').classList.contains('open'),()=>q('moOverlay').classList.remove('open'));
+    add(q('itemsPanel')&&q('itemsPanel').classList.contains('mounted'),()=>closeItems());
+    add(q('catOverlay')&&q('catOverlay').classList.contains('open'),()=>closeCateringTab());
+    add(q('cartPanel')&&q('cartPanel').classList.contains('open'),()=>closeCart());
+  }catch(_){}
+  return L;
+}
+function ahdSyncHistory(){
+  const n=ahdOverlayLevels().length;
+  try{
+    if(n>0&&!history.state?.ahdOv){history.pushState({ahdOv:1},'');}
+  }catch(_){}
+}
+(function initBackGuard(){
+  try{
+    window.addEventListener('popstate',function(){
+      const L=ahdOverlayLevels();
+      if(L.length){
+        L[0]();                       // اقفل أعلى نافذة مفتوحة
+        if(ahdOverlayLevels().length){try{history.pushState({ahdOv:1},'');}catch(_){}}
+      }
+    });
+    // راقب فتح أي نافذة وسجّل خطوة في التاريخ
+    const obs=new MutationObserver(()=>ahdSyncHistory());
+    document.addEventListener('DOMContentLoaded',function(){
+      obs.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+    });
+  }catch(_){}
+})();
 function initTrack(){
   if(!TRACK_ID)return;
   document.getElementById('trkOverlay').classList.add('open');
