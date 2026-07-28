@@ -680,7 +680,7 @@ function editLineNote(k){
   window._noteKey=k;
   document.getElementById('noteFor').textContent=lineName(l);
   const ta=document.getElementById('noteInput');ta.value=l.note||'';
-  document.getElementById('noteOverlay').classList.add('open');
+  document.getElementById('noteOverlay').classList.add('open');ahdPush();
   setTimeout(()=>{try{ta.focus();}catch(_){}},120);
 }
 function closeNoteModal(){document.getElementById('noteOverlay').classList.remove('open');}
@@ -734,7 +734,7 @@ function toggleCatForm(){
   if(open)setTimeout(()=>{try{const bdy=document.getElementById('catBody');bdy.scrollTo({top:bdy.scrollTop+f.getBoundingClientRect().top-bdy.getBoundingClientRect().top-8,behavior:'smooth'});}catch(_){}},60);
 }
 function openCateringTab(){
-  document.getElementById('catOverlay').classList.add('open');
+  document.getElementById('catOverlay').classList.add('open');ahdPush();
   try{document.body.style.overflow='hidden';}catch(_){}
   try{document.getElementById('catBody').scrollTop=0;}catch(_){}
 }
@@ -831,7 +831,7 @@ function openOptions(it){
   }).join('')||('<div style="color:var(--muted)">'+T('opt.none')+'</div>');
   try{document.getElementById('optNote').value='';}catch(_){}
   updateOptPrice();
-  document.getElementById('optOverlay').classList.add('open');
+  document.getElementById('optOverlay').classList.add('open');ahdPush();
 }
 function closeOpt(){document.getElementById('optOverlay').classList.remove('open');optItem=null;}
 function gatherOpts(){
@@ -875,7 +875,7 @@ function updateCart(){
   }catch(_){}
 }
 function openCart(){
-  cartOverlay.classList.add('open');cartPanel.classList.add('open');
+  cartOverlay.classList.add('open');cartPanel.classList.add('open');ahdPush();
   try{document.body.style.overflow='hidden';}catch(_){}
   if(cart.length){const now=Date.now();if(!window._lastIC||now-window._lastIC>60000){window._lastIC=now;trk('checkout');fbTrack('InitiateCheckout',{value:Number(total().toFixed(3)),currency:'KWD',num_items:cart.reduce((s2,l)=>s2+l.qty,0)});}}
   try{updateCoTotals();}catch(_){}
@@ -1011,7 +1011,7 @@ function openMyOrders(){
       </div>
     </div>`).join('');
   }
-  document.getElementById('moOverlay').classList.add('open');
+  document.getElementById('moOverlay').classList.add('open');ahdPush();
 }
 function findItemByName(nm){const t=String(nm||'').trim();for(const c of (MENU||[]))for(const it of (c.items||[]))if((it.name||'').trim()===t)return it;return null;}
 function reorderFrom(i){
@@ -1043,12 +1043,13 @@ function ahdOverlayLevels(){
   }catch(_){}
   return L;
 }
-function ahdSyncHistory(){
-  const n=ahdOverlayLevels().length;
+function ahdPush(){
   try{
-    if(n>0&&!history.state?.ahdOv){history.pushState({ahdOv:1},'');}
+    const st=history.state;
+    if(!st||!st.ahdOv){history.pushState({ahdOv:1},'');}
   }catch(_){}
 }
+function ahdSyncHistory(){try{if(ahdOverlayLevels().length)ahdPush();}catch(_){}}
 (function initBackGuard(){
   try{
     window.addEventListener('popstate',function(){
@@ -1353,7 +1354,7 @@ async function loadInvoice(ref,pid){
     else{fbTrack('Purchase',{value:0,currency:'KWD'});}
   }catch(_){fbTrack('Purchase',{value:0,currency:'KWD'});}
 }
-function showInvoice(){ if(!_invHTML){showToast(T('t.invWait'));return;} document.getElementById('invView').innerHTML=_invHTML; document.getElementById('invOverlay').classList.add('open'); }
+function showInvoice(){ if(!_invHTML){showToast(T('t.invWait'));return;} document.getElementById('invView').innerHTML=_invHTML; document.getElementById('invOverlay').classList.add('open'); ahdPush(); }
 function closeInvoice(){document.getElementById('invOverlay').classList.remove('open');}
 function printInvoice(){
   if(!_invHTML)return;
