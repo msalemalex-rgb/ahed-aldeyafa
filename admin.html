@@ -496,7 +496,7 @@ function renderOrders(){
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
     const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web',cod:'cod'})[o.channel]||'web';
-    const chanTxt=o.channel==='knet'?'💳 دفع إلكتروني':(o.channel==='whatsapp'?'واتساب':(o.channel==='cod'?'💵 كاش عند الاستلام':esc(o.channel)));
+    const chanTxt=o.channel==='knet'?'💳 دفع إلكتروني':(o.channel==='whatsapp'?'واتساب':(o.channel==='cod'?'💵 الدفع عند الاستلام':esc(o.channel)));
     const showActions=(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting');
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
