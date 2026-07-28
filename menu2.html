@@ -204,16 +204,16 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 /* شكل الأصناف "مربعات" مطابق لكروت الأقسام */
 #ipGrid.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 @media(min-width:760px){#ipGrid.tiles{grid-template-columns:repeat(3,1fr)}}
-#ipGrid.tiles .card{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);background:var(--maroon-dark);aspect-ratio:3/4;display:block}
-#ipGrid.tiles .card .thumb{position:absolute;inset:0;height:100%;border-radius:0}
-#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:cover;opacity:.78}
-#ipGrid.tiles .card .body{position:absolute;inset:auto 0 0 0;padding:14px 10px 12px;background:linear-gradient(0deg,rgba(40,7,12,.97) 42%,rgba(40,7,12,.82) 70%,transparent);text-align:center}
-#ipGrid.tiles .card .body h3{font-family:'Aref Ruqaa';font-size:16.5px;color:var(--gold-light);line-height:1.35;margin:0}
+#ipGrid.tiles .card{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(200,150,47,.45);box-shadow:0 8px 20px rgba(110,20,35,.10);background:#fff;display:flex;flex-direction:column}
+#ipGrid.tiles .card .thumb{position:relative;height:auto;aspect-ratio:1/1;border-radius:0;overflow:hidden;flex:0 0 auto}
+#ipGrid.tiles .card .thumb img{width:100%;height:100%;object-fit:cover;opacity:1}
+#ipGrid.tiles .card .body{padding:10px 9px 11px;text-align:center;display:flex;flex-direction:column;flex:1}
+#ipGrid.tiles .card .body h3{font-family:'Cairo';font-weight:800;font-size:13.5px;color:var(--maroon);line-height:1.45;margin:0;min-height:2.9em;display:flex;align-items:center;justify-content:center}
 #ipGrid.tiles .card .desc{display:none}
-#ipGrid.tiles .card .row{display:flex;flex-direction:column;gap:7px;align-items:center;margin-top:7px;border:0;padding:0}
-#ipGrid.tiles .card .price{color:#fff;font-size:15px;font-weight:900}
-#ipGrid.tiles .card .price small{color:rgba(255,255,255,.75)}
-#ipGrid.tiles .card .add-btn{padding:7px 14px;font-size:12.5px;border-radius:50px}
+#ipGrid.tiles .card .row{display:flex;flex-direction:column;gap:7px;align-items:center;margin-top:auto;border:0;padding:0}
+#ipGrid.tiles .card .price{color:var(--maroon-dark);font-size:15px;font-weight:900}
+#ipGrid.tiles .card .price small{color:var(--muted)}
+#ipGrid.tiles .card .add-btn{padding:7px 14px;font-size:12.5px;border-radius:50px;width:100%;justify-content:center}
 #ipGrid.tiles .card .soldout{position:absolute;top:10px;inset-inline-start:10px;left:auto;right:auto;bottom:auto;transform:none;font-size:11.5px;font-family:'Cairo';font-weight:800;background:rgba(192,57,43,.95);color:#fff;padding:5px 11px;border-radius:50px;box-shadow:0 2px 8px rgba(0,0,0,.35);z-index:3;white-space:nowrap;width:auto;text-align:center}
 #ipGrid.tiles .card.unavailable .thumb img{opacity:.32}
 .view-sw{display:inline-flex;gap:0;border:1.5px solid var(--gold);border-radius:50px;overflow:hidden;background:#fff}
