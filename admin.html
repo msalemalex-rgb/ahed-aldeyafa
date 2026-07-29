@@ -585,10 +585,18 @@ function listHidden(){
 function showAllItems(){
   const h=hiddenItems();
   if(!h.length)return;
-  if(!confirm('سيتم إتاحة '+h.length+' صنف للزبائن وحفظ المنيو. متأكد؟'))return;
-  h.forEach(x=>{DATA.menu[x.ci].items[x.ii].available=true;});
+  // حماية: لا نُتيح صنفاً سعره صفر — هيظهر للزبون ببلاش
+  const zero=h.filter(x=>!(Number(DATA.menu[x.ci].items[x.ii].price)>0));
+  const ok=h.filter(x=>Number(DATA.menu[x.ci].items[x.ii].price)>0);
+  if(zero.length){
+    alert('⚠️ '+zero.length+' صنف سعره صفر ولن يتم إتاحته حتى تضع له سعراً:\n\n'
+      +zero.map((x,i)=>(i+1)+'. '+x.name+'  —  '+x.cat).join('\n'));
+  }
+  if(!ok.length)return;
+  if(!confirm('سيتم إتاحة '+ok.length+' صنف للزبائن وحفظ المنيو. متأكد؟'))return;
+  ok.forEach(x=>{DATA.menu[x.ci].items[x.ii].available=true;});
   renderMenuEditor();saveMenu();
-  toast('✅ تم إتاحة '+h.length+' صنف');
+  toast('✅ تم إتاحة '+ok.length+' صنف');
 }
 function fmtSched(sf){
   const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
