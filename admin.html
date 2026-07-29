@@ -223,6 +223,11 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <button class="btn" style="background:#2563c9;width:auto;padding:11px 18px" onclick="exportMenu()">📥 تصدير المنيو (Excel)</button>
         <label class="btn" style="background:#9a6b00;width:auto;padding:11px 18px;cursor:pointer">📤 استيراد المنيو (Excel)<input type="file" accept=".xlsx,.xls" onchange="importMenu(this)" style="display:none"></label>
       </div>
+      <div id="hiddenBar" style="display:none;background:#fdecea;border:1px solid #e2a49c;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="hiddenTxt" style="font-family:'Cairo';font-weight:800;color:#c0392b;font-size:14px"></span>
+        <button class="btn" style="background:#1faa54;width:auto;padding:8px 16px;font-size:13px" onclick="showAllItems()">✅ إتاحة الكل للزبائن</button>
+        <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listHidden()">👁 عرض أسماءها</button>
+      </div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
       <div class="savebar"><button class="btn" onclick="saveMenu()">💾 حفظ المنيو</button></div>
@@ -521,6 +526,32 @@ function renderOrders(){
     </div>`;
   }).join('');
 }
+/* ===== الأصناف المخفية عن الزبائن ===== */
+function hiddenItems(){
+  const out=[];
+  (DATA.menu||[]).forEach((c,ci)=>(c.items||[]).forEach((it,ii)=>{ if(it.available===false) out.push({ci,ii,cat:c.cat,name:it.name||'(بدون اسم)'}); }));
+  return out;
+}
+function refreshHiddenBar(){
+  const bar=document.getElementById('hiddenBar');if(!bar)return;
+  const h=hiddenItems();
+  if(!h.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  document.getElementById('hiddenTxt').textContent='🚫 '+h.length+' صنف مخفي عن الزبائن (يظهر لهم «غير متوفر»)';
+}
+function listHidden(){
+  const h=hiddenItems();
+  if(!h.length)return;
+  alert('الأصناف المخفية حالياً:\n\n'+h.map((x,i)=>(i+1)+'. '+x.name+'  —  '+x.cat).join('\n'));
+}
+function showAllItems(){
+  const h=hiddenItems();
+  if(!h.length)return;
+  if(!confirm('سيتم إتاحة '+h.length+' صنف للزبائن وحفظ المنيو. متأكد؟'))return;
+  h.forEach(x=>{DATA.menu[x.ci].items[x.ii].available=true;});
+  renderMenuEditor();saveMenu();
+  toast('✅ تم إتاحة '+h.length+' صنف');
+}
 function fmtSched(sf){
   const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
   if(!m)return sf||'';
@@ -721,6 +752,7 @@ function renderMenuEditor(){
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
   }).join('');
+  refreshHiddenBar();
 }
 function toggleAvail(ci,ii){const it=DATA.menu[ci].items[ii];it.available=(it.available===false);renderMenuEditor();}
 function onItemImg(ci,ii,inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=500;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.72);}catch(_){url=rd.result;}DATA.menu[ci].items[ii].img=url;renderMenuEditor();toast("✅ تم اختيار الصورة — اضغط حفظ المنيو");};img.src=rd.result;};rd.readAsDataURL(f);}
@@ -835,7 +867,7 @@ function importMenu(inp){
           desc:cDesc>=0?(''+(r[cDesc]||'')):'',
           price:cPrice>=0?(parseFloat(r[cPrice])||0):0,
           prepTime:cPrep>=0?(parseInt(r[cPrep])||0):0,
-          available: cAv>=0? !/^(لا|غير|no|false|0)\b/i.test((''+(r[cAv]||'')).trim()) : true,
+          available: cAv>=0? !/^\s*(لا|no|false|0|غير.*)\s*$/i.test((''+(r[cAv]||'')).trim()) : true,
           img: old?old.img:'',
           options: optTxt? parseOpts(optTxt) : (old?(old.options||[]):[])
         });
