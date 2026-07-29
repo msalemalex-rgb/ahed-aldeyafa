@@ -47,37 +47,42 @@
     {
       "source": "/ig",
       "destination": "/?utm_source=instagram",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/insta",
       "destination": "/?utm_source=instagram",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/wa",
       "destination": "/?utm_source=whatsapp",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/snap",
       "destination": "/?utm_source=snapchat",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/tt",
       "destination": "/?utm_source=tiktok",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/fb",
       "destination": "/?utm_source=facebook",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/x",
       "destination": "/?utm_source=twitter",
-      "permanent": false
+      "permanent": true
+    },
+    {
+      "source": "/m",
+      "destination": "/menu",
+      "permanent": true
     }
   ]
 }
