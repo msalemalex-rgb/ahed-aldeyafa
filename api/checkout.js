@@ -63,7 +63,7 @@ function priceOrder(data, order) {
   if (!lines.length) return { ok: false, reason: "no_lines" };
   if (lines.length > 60) return { ok: false, reason: "too_many_lines" };
 
-  let subtotal = 0;
+  let raw = 0;                       // بدون أي تقريب وسطي — زي حساب المتصفح بالحرف
   for (const l of lines) {
     const qty = Math.floor(Number(l && l.qty) || 0);
     if (!(qty >= 1 && qty <= 99)) return { ok: false, reason: "bad_qty", detail: l && l.name };
@@ -74,25 +74,40 @@ function priceOrder(data, order) {
     if (op.error) return { ok: false, reason: op.error, detail: it.name + " / " + op.choice };
     const unit = (Number(it.price) || 0) + op.extra;
     if (unit <= 0) return { ok: false, reason: "item_not_priced", detail: it.name };
-    subtotal += unit * qty;
+    raw += unit * qty;
   }
-  subtotal = money(subtotal);
 
   let disc = Number(st.directDiscount) || 0;
   if (disc > 1) disc = disc / 100;                       // اللوحة تحفظها كنسبة أو ككسر
   if (disc < 0 || disc >= 1) disc = 0;
-  const net = money(subtotal * (1 - disc));
 
   let fee = 0;
   if (String(order.deliveryType || "") === "delivery") {
     const areas = Array.isArray(st.areas) ? st.areas : [];
     const a = areas.find((x) => x && norm(x.name) === norm(order.area));
     if (!a) return { ok: false, reason: "unknown_area", detail: order.area };
-    fee = money(a.fee);
+    fee = Number(a.fee) || 0;
     const min = Number(a.minOrder) || 0;
-    if (min > 0 && subtotal < min) return { ok: false, reason: "below_min", detail: a.name + " " + min };
+    if (min > 0 && raw < min) return { ok: false, reason: "below_min", detail: a.name + " " + min };
   }
-  return { ok: true, subtotal, net, fee, total: money(net + fee) };
+
+  // تقريب واحد في الآخر بنفس طريقة المتصفح (toFixed) — عشان الرقم اللي الزبون
+  // شافه على الزر هو نفسه اللي يتحصّل بالمليم، بدون فرق فلس من تقريب وسطي.
+  const total = Number((raw * (1 - disc) + fee).toFixed(3));
+  return { ok: true, subtotal: Number(raw.toFixed(3)), net: Number((raw * (1 - disc)).toFixed(3)), fee: money(fee), total };
+}
+
+// أسعار المنيو تُحتفظ في ذاكرة الدالة لمدة قصيرة، عشان التحقّق ما يضيفش
+// رحلة لقاعدة البيانات على مسار الدفع. لو الحساب مش مطابق، نعيد القراءة
+// طازجة ونتحقّق تاني قبل أي رفض — فما فيش رفض بسبب سعر قديم في الذاكرة.
+const MENU_TTL_MS = 45000;
+let _menu = { at: 0, data: null };
+async function loadMenu(fresh) {
+  if (!fresh && _menu.data && Date.now() - _menu.at < MENU_TTL_MS) return _menu.data;
+  const raw = await kvOrders.cmd(["GET", "menu_data"]);
+  const data = raw ? JSON.parse(raw) : null;
+  if (data) _menu = { at: Date.now(), data };
+  return data;
 }
 
 async function readBody(req) {
@@ -121,7 +136,8 @@ module.exports = async (req, res) => {
       await Promise.race([
         Promise.all([
           fetch(B + "/", { method: "GET" }).then((r) => r.arrayBuffer()).catch(() => {}),
-          kvOrders && kvOrders.cmd ? kvOrders.cmd(["PING"]).catch(() => {}) : null,
+          // نحمّل الأسعار للذاكرة كمان، فالتحقّق وقت الدفع ما يحتاجش رحلة إضافية
+          kvOrders && kvOrders.cmd ? loadMenu(true).catch(() => {}) : null,
         ]),
         new Promise((r) => setTimeout(r, 1500)),
       ]);
@@ -185,22 +201,27 @@ module.exports = async (req, res) => {
       if (!(amountNum >= 0.1)) return res.status(409).json({ error: "order_total_invalid" });
     } else {
       if (!body.order) return res.status(400).json({ error: "missing_order" });
-      let data = null;
+      const matches = (p) => p && p.ok && Math.abs(p.total - asked) <= 0.0015;
+      let usedFresh = false, data = null;
       try {
-        const raw = await kvOrders.cmd(["GET", "menu_data"]);
-        data = raw ? JSON.parse(raw) : null;
+        data = await loadMenu(false);                      // المسار السريع: من الذاكرة
+        if (data) serverPrice = priceOrder(data, body.order);
+        if (!matches(serverPrice)) {                       // أي اختلاف → نتأكد من أسعار طازجة
+          usedFresh = true;
+          data = await loadMenu(true);
+          serverPrice = data ? priceOrder(data, body.order) : null;
+        }
       } catch (_) { return res.status(503).json({ error: "store_unavailable" }); }
       if (!data) return res.status(503).json({ error: "menu_unavailable" });
-
-      serverPrice = priceOrder(data, body.order);
-      if (!serverPrice.ok)
-        return res.status(400).json({ error: "price_check_failed", reason: serverPrice.reason, detail: serverPrice.detail });
+      if (!serverPrice || !serverPrice.ok)
+        return res.status(400).json({ error: "price_check_failed", reason: serverPrice ? serverPrice.reason : "no_price", detail: serverPrice && serverPrice.detail });
 
       // فرق أكبر من فلس واحد = رفض. المبلغ المحصَّل هو حساب السيرفر دايماً.
-      if (Math.abs(serverPrice.total - asked) > 0.0015)
+      if (!matches(serverPrice))
         return res.status(409).json({ error: "amount_mismatch", expected: serverPrice.total, got: money(asked) });
 
       amountNum = serverPrice.total;
+      if (usedFresh) { /* قرأنا طازج — الذاكرة اتحدّثت جوه loadMenu */ }
     }
     const amount = amountNum.toFixed(3);
 
