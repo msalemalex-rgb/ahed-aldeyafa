@@ -301,6 +301,12 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 #invPrint{display:none}
 @media print{ body>*:not(#invPrint){display:none!important} #invPrint{display:block!important} }
 .co-err{color:#c0392b;font-family:'Cairo';font-weight:700;font-size:14px;min-height:20px;margin-bottom:8px}
+/* إبراز الخانة الناقصة عند رفض إتمام الدفع */
+.field.bad>input,.field.bad>textarea,.field.bad>select{border-color:#c0392b!important;box-shadow:0 0 0 3px rgba(192,57,43,.15)}
+.field.bad>label{color:#c0392b}
+.field.bad{animation:fieldShake .42s ease}
+@keyframes fieldShake{0%,100%{transform:translateX(0)}22%{transform:translateX(-6px)}48%{transform:translateX(6px)}74%{transform:translateX(-3px)}}
+@media(prefers-reduced-motion:reduce){.field.bad{animation:none}}
 .co-body .btn{width:100%;justify-content:center}
 .res-overlay{position:fixed;inset:0;background:rgba(40,8,12,.65);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
 .res-overlay.open{display:flex}
@@ -886,7 +892,7 @@ function updateCart(){
     updateCoTotals();
   }catch(_){}
 }
-function openCart(){
+function openCart(){clearBadFields();initFieldGuard();
   cartOverlay.classList.add('open');cartPanel.classList.add('open');ahdPush();
   try{document.body.style.overflow='hidden';}catch(_){}
   if(cart.length){const now=Date.now();if(!window._lastIC||now-window._lastIC>60000){window._lastIC=now;trk('checkout');fbTrack('InitiateCheckout',{value:Number(total().toFixed(3)),currency:'KWD',num_items:cart.reduce((s2,l)=>s2+l.qty,0)});}}
@@ -1216,27 +1222,69 @@ function updateCoTotals(){
   if(coDType==='delivery'&&min>0&&subtotal()<min)err.textContent=T('e.minHere').replace('{v}',min.toFixed(3));
   else err.textContent='';
 }
+/* ===== توجيه العميل إلى الخانة الناقصة بدل مجرد رسالة خطأ ===== */
+let _badTimer=null;
+function clearBadFields(){
+  document.querySelectorAll('.field.bad').forEach(f=>f.classList.remove('bad'));
+  if(_badTimer){clearTimeout(_badTimer);_badTimer=null;}
+}
+function scrollFieldIntoView(box){
+  const body=document.querySelector('#cartPanel .cart-body');
+  try{
+    if(body&&body.contains(box)){
+      const br=body.getBoundingClientRect(),r=box.getBoundingClientRect();
+      const top=body.scrollTop+(r.top-br.top)-Math.max(14,(body.clientHeight-r.height)/3);
+      body.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+    }else{box.scrollIntoView({behavior:'smooth',block:'center'});}
+  }catch(_){try{box.scrollIntoView();}catch(__){}}
+}
+function focusField(el,msg,noFocus){
+  const err=document.getElementById('coErr');
+  if(err&&msg!=null)err.textContent=msg;
+  if(!el){return;}
+  clearBadFields();
+  const box=el.closest?(el.closest('.field')||el):el;
+  box.classList.add('bad');
+  scrollFieldIntoView(box);
+  if(!noFocus){
+    const tag=el.tagName;
+    const f=(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')?el:null;
+    if(f)setTimeout(()=>{
+      try{f.focus({preventScroll:true});}catch(_){try{f.focus();}catch(__){}}
+      scrollFieldIntoView(box);   /* تصحيح بعد ظهور لوحة المفاتيح */
+    },330);
+  }
+  try{if(navigator.vibrate)navigator.vibrate(35);}catch(_){}
+  _badTimer=setTimeout(()=>box.classList.remove('bad'),3000);
+}
+function initFieldGuard(){
+  const body=document.querySelector('#cartPanel .cart-body');if(!body||body._fg)return;body._fg=1;
+  const clr=e=>{const b=e.target&&e.target.closest?e.target.closest('.field.bad'):null;if(b)b.classList.remove('bad');};
+  body.addEventListener('input',clr,{passive:true});
+  body.addEventListener('change',clr,{passive:true});
+  body.addEventListener('click',clr,{passive:true});
+}
 async function submitCheckout(){
   const arr=cartArray();if(!arr.length){showToast(T('t.empty'));return;}
   const name=document.getElementById('coName').value.trim();
   const phone=document.getElementById('coPhone').value.trim();
   const err=document.getElementById('coErr');
-  if(!name){err.textContent=T('e.name');return;}
-  if(!/^\d{6,}$/.test(phone.replace(/\D/g,''))){err.textContent=T('e.phone');return;}
+  if(!name){focusField(document.getElementById('coName'),T('e.name'));return;}
+  if(!/^\d{6,}$/.test(phone.replace(/\D/g,''))){focusField(document.getElementById('coPhone'),T('e.phone'));return;}
   let area="",address="",fee=0,dtime="";
   if(coDType==='delivery'){
     const a=areaByIndex(coAreaIdx);
-    if(!a){err.textContent=T('e.area');return;}
+    if(!a){focusField(document.getElementById('coAreaSearch'),T('e.area'));return;}
     address=document.getElementById('coAddress').value.trim();
-    if(!address){err.textContent=T('e.address');return;}
+    if(!address){focusField(document.getElementById('coAddress'),T('e.address'));return;}
     const min=Number(a.minOrder)||0;
-    if(min>0&&subtotal()<min){err.textContent=T('e.min').replace('{area}',a.name).replace('{v}',min.toFixed(3));return;}
+    if(min>0&&subtotal()<min){focusField(document.getElementById('cartItems'),T('e.min').replace('{area}',a.name).replace('{v}',min.toFixed(3)),true);return;}
     area=a.name;fee=Number(a.fee)||0;dtime=a.time||"";
   }
   let schedFor='';
   if(coWhen==='later'){
     const dv=document.getElementById('coDay').value,tv=document.getElementById('coTime').value;
-    if(!dv||!tv){err.textContent=T('e.sched');return;}
+    if(!dv||!tv){focusField(document.getElementById(dv?'coTime':'coDay'),T('e.sched'));return;}
     schedFor=dv+' '+tv;
   }
   err.textContent='';
