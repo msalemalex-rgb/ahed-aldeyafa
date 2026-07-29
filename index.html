@@ -115,12 +115,14 @@ src="https://www.facebook.com/tr?id=1849161062727719&ev=PageView&noscript=1"
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--maroon:#6e1423;--maroon-dark:#4d0d18;--red:#8b1a1a;--gold:#c8962f;--gold-light:#e6c061;--gold-soft:#f0d896;--cream:#fdf6ea;--cream-2:#f7ecd8;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--shadow:0 18px 50px rgba(78,13,24,.16);--shadow-sm:0 8px 22px rgba(78,13,24,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Tajawal',sans-serif;background:var(--cream);color:var(--ink);line-height:1.8;overflow-x:hidden}
+@supports(overflow:clip){html,body{overflow-x:clip}}
 h1,h2,h3{font-family:'Aref Ruqaa','Cairo',serif;font-weight:700;line-height:1.4}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -140,7 +142,7 @@ a{color:inherit;text-decoration:none}
 .ornament::after{--d:right}
 .section-sub{text-align:center;color:var(--muted);margin-bottom:50px;font-size:18px;max-width:600px;margin-inline:auto}
 .pattern{background-image:radial-gradient(circle at 1px 1px,rgba(200,150,47,.10) 1px,transparent 0);background-size:22px 22px}
-header{position:fixed;top:0;left:0;right:0;z-index:50;transition:.35s;padding:14px 0}
+header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,box-shadow .3s;padding:14px 0}
 header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .nav{display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:12px;color:var(--gold-light);font-size:22px;font-family:'Aref Ruqaa'}
@@ -169,9 +171,9 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .menu-tabs{display:none}
 .cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
 @media(min-width:760px){.cat-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
-.cat-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);transition:.25s;background:#f3ece1;aspect-ratio:4/3}
+.cat-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid rgba(200,150,47,.5);box-shadow:0 8px 22px rgba(110,20,35,.10);transition:transform .25s,box-shadow .25s;background:#f3ece1;aspect-ratio:4/3}
 .cat-card:active{transform:scale(.98)}
-.cat-card img{width:100%;height:100%;object-fit:contain;opacity:1;transition:.4s;background:#f3ece1}
+.cat-card img{width:100%;height:100%;object-fit:contain;opacity:1;transition:transform .4s;background:#f3ece1}
 .cat-card:hover img{transform:scale(1.04)}
 .cat-card .ph{width:100%;height:100%;background:radial-gradient(circle at 50% 35%,#8b1a1a,var(--maroon-dark));display:flex;align-items:center;justify-content:center;font-size:46px}
 .cat-card .cc-body{position:absolute;inset:auto 0 0 0;padding:10px 10px 9px;background:linear-gradient(0deg,rgba(40,7,12,.80) 38%,rgba(40,7,12,.42) 72%,rgba(40,7,12,0));text-align:center}
@@ -200,7 +202,7 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 @keyframes ipTitle{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 #ipGrid .card{animation:ipCard .46s cubic-bezier(.2,.8,.3,1) both}
 @keyframes ipCard{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
-.cat-card{will-change:transform}
+.cat-card.picked{will-change:transform}
 /* شكل الأصناف "مربعات" مطابق لكروت الأقسام */
 #ipGrid.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 @media(min-width:760px){#ipGrid.tiles{grid-template-columns:repeat(3,1fr)}}
@@ -247,7 +249,7 @@ header.scrolled{background:var(--maroon-dark);box-shadow:0 6px 24px rgba(0,0,0,.
 .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.3s;border:1px solid var(--line)}
 .card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .card .thumb{height:200px;background:linear-gradient(135deg,var(--red),var(--maroon-dark));position:relative;overflow:hidden}
-.card .thumb img{width:100%;height:100%;object-fit:cover;transition:.5s}
+.card .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .card:hover .thumb img{transform:scale(1.08)}
 .card .thumb .badge-cat{position:absolute;top:12px;right:12px;z-index:2;background:rgba(78,13,24,.85);color:var(--gold-light);font-family:'Cairo';font-size:12px;font-weight:700;padding:5px 12px;border-radius:3px;border:1px solid var(--gold)}
 .card.unavailable{opacity:.7}
@@ -492,7 +494,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
   </div>
 </header>
 <section class="hero">
-  <video class="hero-bg" autoplay muted loop playsinline preload="auto" poster="/about.jpg?v=2"><source src="/hero.mp4?v=3" type="video/mp4"></video>
+  <video class="hero-bg" muted loop playsinline preload="none" poster="/hero-poster.jpg?v=1" data-vsrc="/hero.mp4?v=4"></video>
   <div class="hero-overlay"></div>
   <div class="hero-content"><div class="container"><div class="frame">
     <div class="eyebrow" data-i18n="hero.eyebrow">المأكولات الكويتية الأصيلة</div>
@@ -522,7 +524,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
     <p data-i18n="about.p2">من المجبوس والمطبق إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل.</p>
     <div class="stats"><div class="stat"><div class="num">🇰🇼</div><div class="lbl" data-i18n="about.s1">أكل كويتي أصيل</div></div><div class="stat"><div class="num" data-i18n="about.s2n">طازج</div><div class="lbl" data-i18n="about.s2">يومياً</div></div><div class="stat"><div class="num" data-i18n="about.s3n">حولي</div><div class="lbl" data-i18n="about.s3">قلب الكويت</div></div></div>
   </div>
-  <div class="about-img"><img src="/about.jpg?v=2" alt="طبق كويتي أصيل من عهد الضيافة" onerror="this.style.display='none'"></div>
+  <div class="about-img"><img src="/about.jpg?v=3" alt="طبق كويتي أصيل من عهد الضيافة" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>
 </div></section>
 <section class="section" id="contact"><div class="container">
   <div style="text-align:center"><span class="eyebrow" data-i18n="contact.eyebrow">زورنا</span><h2 class="section-title" data-i18n="contact.title">الموقع والتواصل</h2><div class="ornament">❖</div><p class="section-sub" data-i18n="contact.sub">حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة</p></div>
@@ -813,7 +815,7 @@ let coAreaIdx=-1;
 let coMapUrl="";
 const fmt=n=>Number(n).toFixed(3)+" "+CUR();
 const toEn=s=>(''+s).replace(/[٠-٩]/g,d=>''+'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" alt="" onerror="this.style.display='none'">`;
+const imgTag=(src,cls)=>`<img class="${cls||''}" src="${src}" loading="lazy" decoding="async" alt="" onerror="this.style.display='none'">`;
 function catImage(c){
   const it=(c.items||[]).find(x=>x&&x.img);
   return it?(it.img+(it.imgV?('&v='+it.imgV):'')):'';
@@ -824,7 +826,7 @@ function renderMenu(){
     const d=document.createElement('div');d.className='cat-card';d.onclick=()=>openItems(i,d);
     const img=catImage(c);
     const n=(c.items||[]).length;
-    d.innerHTML=(img?`<img src="${img}" alt="" onerror="this.outerHTML='<div class=&quot;ph&quot;>🍽️</div>'">`:'<div class="ph">🍽️</div>')
+    d.innerHTML=(img?`<img src="${img}" alt="" loading="${i<4?'eager':'lazy'}" decoding="async" fetchpriority="${i<4?'high':'low'}" onerror="this.outerHTML='<div class=&quot;ph&quot;>🍽️</div>'">`:'<div class="ph">🍽️</div>')
       +`<div class="cc-body"><h3>${escH(catName(c))}</h3><div class="cc-n">${T('m.count').replace('{n}',n)}</div></div>`;
     cg.appendChild(d);
   });
@@ -1484,7 +1486,32 @@ function applySettings(){
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){
-  const h=document.getElementById('header');const onS=()=>h.classList.toggle('scrolled',window.scrollY>40);window.addEventListener('scroll',onS);onS();
+  /* هيدر: مستمع سلبي + تجميع على إطار العرض + لا نلمس الـ DOM إلا عند تغيّر الحالة (سلاسة السكرول على الآيفون) */
+  const h=document.getElementById('header');
+  let state=null, queued=false;
+  const apply=()=>{queued=false;const on=(window.pageYOffset||document.documentElement.scrollTop||0)>40;
+    if(on!==state){state=on;h.classList.toggle('scrolled',on);}};
+  window.addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(apply);}},{passive:true});
+  apply();
+}
+/* فيديو الواجهة: لا يُحمَّل ولا يشتغل إلا وهو ظاهر على الشاشة — يوفّر باقة الإنترنت
+   ويمنع التقطيع في السكرول داخل متصفح واتساب/الآيفون (WKWebView يظل يركّب كل إطار طالما الفيديو شغّال). */
+function initHeroVideo(){
+  const v=document.querySelector('video.hero-bg');if(!v)return;
+  const src=v.getAttribute('data-vsrc');if(!src)return;
+  let saver=false;
+  try{const c=navigator.connection||{};
+    saver=!!c.saveData||/(^|-)2g$/.test(c.effectiveType||'');}catch(_){}
+  const reduce=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}})();
+  if(saver||reduce)return;                      /* نكتفي بصورة الغلاف */
+  let loaded=false;
+  const on=()=>{if(!loaded){loaded=true;v.src=src;v.load();}
+                const p=v.play();if(p&&p.catch)p.catch(()=>{});};
+  const off=()=>{try{v.pause();}catch(_){}};
+  if(!('IntersectionObserver' in window)){on();return;}
+  const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?on():off());},{threshold:0.01});
+  io.observe(v);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)off();},{passive:true});
 }
 /* ===== حالة المطعم مفتوح/مغلق ===== */
 function parseHM(s){const m=(''+s).match(/(\d{1,2}):(\d{2})/);return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):null;}
@@ -1609,7 +1636,7 @@ async function loadMenu(){
   }catch(e){}
   renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }
-applyLang();applySettings();initScroll();initPaymentStatus();loadMenu();initTrack();
+applyLang();applySettings();initScroll();initHeroVideo();initPaymentStatus();loadMenu();initTrack();
 </script>
 </body>
 </html>
