@@ -103,7 +103,7 @@ menu: [
 // الصفوف القديمة كانت نصاً حراً (يظهر للعميل) ووقت الفتح/الإغلاق كان إعداداً منفصلاً
 // بنفس المواعيد — مصدرين لنفس الشيء. هنا نحوّلهم لنطاق واحد قابل للقراءة آلياً
 // مبني على وقت الفتح/الإغلاق المحفوظ فعلاً، ونشيل الإعداد القديم.
-const HOURS_MIGRATION_V = 1;
+const HOURS_MIGRATION_V = 2;
 function migrateHours(settings){
   if(!settings || settings._hoursV === HOURS_MIGRATION_V) return false;
   const hm = (v)=>{ const m=/^(\d{1,2}):(\d{2})$/.exec(String(v||"").trim());
@@ -117,6 +117,17 @@ function migrateHours(settings){
     settings.hours = [{ days:[0,1,2,3,4,5,6], open:o, close:c }];
     delete settings.openTime; delete settings.closeTime;
     did = true;
+  }
+  // تنظيف بقايا الصيغة القديمة: نص أيام محفوظ من التحويل الأول ما يصحّ يخالف الأيام المختارة،
+  // ونص الوقت القديم ما لهوش لازمة بعد ما بقى فيه وقت فتح/إغلاق حقيقي.
+  (Array.isArray(settings.hours)?settings.hours:[]).forEach(r=>{
+    if(!r || typeof r!=="object") return;
+    if(Array.isArray(r.days) && r.days.length){ delete r.label; delete r.labelEn; }
+    if(r.open && r.close){ delete r.time; delete r.timeEn; }
+  });
+  // لو فيه نطاق واحد على الأقل بأوقات حقيقية، مفيش داعي للإعداد القديم خالص
+  if((Array.isArray(settings.hours)?settings.hours:[]).some(r=>r&&Array.isArray(r.days)&&r.days.length&&r.open&&r.close)){
+    delete settings.openTime; delete settings.closeTime;
   }
   settings._hoursV = HOURS_MIGRATION_V;   // لا يتكرر أبداً، فأي تعديل لاحق منك محفوظ
   return did || true;                     // نحفظ العلامة على أي حال

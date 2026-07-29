@@ -820,6 +820,7 @@ function delItem(ci,ii){if(!confirm("حذف هذا الصنف؟"))return;DATA.me
 function addCat(){DATA.menu.push({cat:"قسم جديد",items:[]});renderMenuEditor();}
 function delCat(ci){if(!confirm("حذف هذا القسم وكل أصنافه؟"))return;DATA.menu.splice(ci,1);renderMenuEditor();}
 function saveMenu(){
+  delete DATA.settings.openTime; delete DATA.settings.closeTime;
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ المنيو":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
 }
