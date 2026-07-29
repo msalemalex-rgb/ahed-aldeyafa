@@ -258,8 +258,8 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 .cart-note{font-size:13px;color:var(--muted);margin-bottom:14px;text-align:center}
 .cart-foot .btn{width:100%;justify-content:center}
 .discount-tag{background:rgba(31,170,84,.12);color:#178c44;font-family:'Cairo';font-weight:700;font-size:13px;padding:9px;border-radius:6px;text-align:center;margin-bottom:13px}
-.toast{position:fixed;bottom:32px;right:50%;transform:translateX(50%) translateY(120px);background:var(--maroon);color:var(--gold-light);padding:15px 30px;border-radius:6px;font-family:'Cairo';font-weight:700;z-index:400;transition:.35s;box-shadow:var(--shadow);border:1px solid var(--gold)}
-.toast.show{transform:translateX(50%) translateY(0)}
+.toast{position:fixed;bottom:32px;right:50%;transform:translateX(50%) translateY(18px);opacity:0;visibility:hidden;pointer-events:none;max-width:min(88vw,420px);text-align:center;line-height:1.55;background:var(--maroon);color:var(--gold-light);padding:14px 26px;border-radius:8px;font-family:'Cairo';font-weight:700;z-index:400;transition:opacity .25s ease,transform .3s ease,visibility .3s;box-shadow:var(--shadow);border:1px solid var(--gold)}
+.toast.show{transform:translateX(50%) translateY(0);opacity:1;visibility:visible}
 .co-overlay{position:fixed;inset:0;background:rgba(40,8,12,.6);display:none;align-items:center;justify-content:center;z-index:260;padding:16px}
 .co-overlay.open{display:flex}
 .co-box{background:var(--cream);border-radius:14px;width:440px;max-width:96vw;max-height:92vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.4);border-top:5px solid var(--gold)}
