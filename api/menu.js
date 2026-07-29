@@ -138,6 +138,29 @@ res.setHeader("Access-Control-Allow-Headers","Content-Type, x-admin-key");
 if(req.method==="OPTIONS")return res.status(200).end();
 try{
 if(req.method==="GET"){
+// تقرير نصّي مختصر عن حالة المنيو (بدون بيانات حسّاسة): /menu-report.txt
+if(req.query && req.query.report==="1"){
+  const raw=await cmd(["GET","menu_data"]);
+  const d=raw?JSON.parse(raw):DEFAULT_DATA;
+  const noImg=[],noEn=[],off=[];
+  let total=0;
+  for(const c of (d.menu||[])){
+    for(const it of (c.items||[])){
+      total++;
+      const nm=(it.name||"(بدون اسم)").trim();
+      if(!String(it.img||"").trim()) noImg.push(`${c.cat} | ${nm}`);
+      if(!String(it.nameEn||"").trim()) noEn.push(`${c.cat} | ${nm}`);
+      if(it.available===false) off.push(`${c.cat} | ${nm}`);
+    }
+  }
+  const sec=(t,a)=>`### ${t} (${a.length})\n`+(a.length?a.map((x,i)=>`${i+1}. ${x}`).join("\n"):"—")+"\n";
+  const body=`# تقرير المنيو\nالأقسام: ${(d.menu||[]).length} | الأصناف: ${total}\n\n`
+    +sec("أصناف بدون صورة",noImg)+"\n"+sec("أصناف بدون اسم إنجليزي",noEn)+"\n"+sec("أصناف غير متاحة للزبائن",off);
+  res.setHeader("Content-Type","text/plain; charset=utf-8");
+  res.setHeader("Cache-Control","no-store");
+  res.setHeader("X-Robots-Tag","noindex");
+  return res.status(200).send(body);
+}
 // أداة الترجمات (أدمن) — مدموجة من /api/i18n-fix: ?key=..&i18nReport=1[&apply=1]
 if(req.query && req.query.i18nReport==="1"){
   if(!isAdmin(req))return res.status(401).json({error:"unauthorized — أضف ?key=كلمة سر الأدمن"});
