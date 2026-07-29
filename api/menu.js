@@ -108,9 +108,16 @@ if(data.settings.currency == null) data.settings.currency = "د.ك";
 // المواعيد المعروضة للعميل: مصدرها الوحيد لوحة التحكم. دي قيمة ابتدائية
 // مطابقة للي كان ظاهر بالموقع، وتُستبدل أول ما يحفظ صاحب المطعم مواعيده.
 if(!Array.isArray(data.settings.hours) || !data.settings.hours.length) data.settings.hours = [
-  { days:"السبت - الخميس", time:"١١ ص - ١٢ م", daysEn:"Saturday - Thursday", timeEn:"11 AM - 12 AM" },
-  { days:"الجمعة", time:"١ ظ - ١٢ م", daysEn:"Friday", timeEn:"1 PM - 12 AM" },
+  { days:[6,0,1,2,3,4], open:"", close:"", time:"١١ ص - ١٢ م", timeEn:"11 AM - 12 AM" },
+  { days:[5],           open:"", close:"", time:"١ ظ - ١٢ م",  timeEn:"1 PM - 12 AM"  },
 ];
+// أرقام الأيام: 0=الأحد .. 6=السبت — نفس اصطلاح المتصفح
+data.settings.hours = data.settings.hours.map(h=>{
+  if(!h || typeof h!=="object") return { days:[], open:"", close:"" };
+  if(!Array.isArray(h.days)) return { days:[], open:"", close:"", label:(typeof h.days==="string"?h.days:""), labelEn:h.daysEn||"", time:h.time||"", timeEn:h.timeEn||"" };
+  h.days = h.days.map(Number).filter(n=>n>=0&&n<=6);
+  return h;
+});
 if(!Array.isArray(data.menu)) data.menu = [];
 data.menu.forEach(c=>{ (c.items||[]).forEach(it=>{ if(it.prepTime==null) it.prepTime=20; if(it.available==null) it.available=true; }); });
 return data;

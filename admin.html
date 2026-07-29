@@ -109,6 +109,20 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .area-row input{margin:0;padding:9px;font-size:14px}
 .hour-row{display:grid;grid-template-columns:1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .hour-row input{margin:0;padding:9px;font-size:14px}
+.hr-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
+.hr-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.hr-ttl{font-family:'Cairo';font-weight:800;color:var(--maroon);font-size:13.5px}
+.hr-days{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.hr-day{font-family:'Cairo';font-weight:700;font-size:12.5px;padding:6px 11px;border-radius:50px;border:1.5px solid var(--line);background:#fff;color:#7a6a58;cursor:pointer}
+.hr-day.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.hr-times{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:8px;align-items:center}
+.hr-times span{font-family:'Cairo';font-weight:700;font-size:13px}
+.hr-times input{margin:0;padding:9px;font-size:14px}
+.hr-presets{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.hr-presets button{font-family:'Cairo';font-weight:700;font-size:12px;padding:5px 10px;border-radius:50px;border:1px dashed var(--gold);background:#fffaf0;color:#8a6300;cursor:pointer}
+.hr-prev{font-family:'Cairo';font-size:12.5px;color:#178c44;font-weight:700;margin-top:8px}
+.hr-lbl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.hr-lbl input{margin:0;padding:8px;font-size:13px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:'Cairo';font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
 .toast.show{opacity:1}
 .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--cream) 40%);padding:14px 0 4px;display:flex;gap:10px}
@@ -248,15 +262,14 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
         <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
-        <label class="fld">مواعيد العمل — دي وحدها اللي بتظهر للعميل في صفحة الموقع</label>
+        <label class="fld">مواعيد العمل — نطاق أو أكثر (هي اللي تظهر للعميل وتحدّد «مغلق حالياً»)</label>
         <div id="hoursBox"></div>
         <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
-        <label class="fld" style="margin-top:16px">وقت الفتح والإغلاق — مش بيظهر للعميل كنص، بيستخدم بس لتنبيه «المطعم مغلق حالياً»</label>
-        <div style="display:flex;gap:10px;align-items:center">
-          <span style="font-family:'Cairo';font-weight:700">من</span><input id="setOpen" type="time" style="flex:1;margin:0">
-          <span style="font-family:'Cairo';font-weight:700">إلى</span><input id="setClose" type="time" style="flex:1;margin:0">
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">
+          نفس النطاقات دي هي اللي بتظهر للعميل <b>و</b> اللي بيتحدد بيها تنبيه «المطعم مغلق حالياً» — مفيش مكان تاني للمواعيد.<br>
+          تقدر تحط نطاق واحد لكل الأسبوع، أو نطاق للسبت - الخميس ونطاق تاني للجمعة. لو الإغلاق بعد منتصف الليل اكتبه عادي (مثلاً من ١٢:٠٠ إلى ٠٢:٠٠).<br>
+          لو مسحت كل النطاقات: قسم أوقات العمل مش هيظهر للعميل، والتنبيه مش هيشتغل.
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px">سيبهم فاضيين لو عايز تشيل التنبيه. العميل يقدر يطلب ويحجز في كل الأوقات.</div>
       </div>
       <div class="card">
         <label class="fld">مناطق التوصيل — الرسوم والحد الأدنى لكل منطقة (بالدينار)</label>
@@ -830,22 +843,88 @@ function addArea(){DATA.settings.areas.unshift({name:"منطقة جديدة",fee
 function delArea(i){if(!confirm("حذف هذه المنطقة؟"))return;DATA.settings.areas.splice(i,1);renderAreas(document.getElementById('areaFilter').value);}
 
 /* ===== الإعدادات ===== */
+const HR_DAYS=[{i:6,n:'السبت'},{i:0,n:'الأحد'},{i:1,n:'الاثنين'},{i:2,n:'الثلاثاء'},{i:3,n:'الأربعاء'},{i:4,n:'الخميس'},{i:5,n:'الجمعة'}];
+const HR_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function hrNorm(h){
+  /* يحوّل الصيغة القديمة (نص أيام + نص وقت) لصيغة النطاقات */
+  if(!h||typeof h!=='object')return {days:[],open:'',close:'',label:'',labelEn:''};
+  if(!Array.isArray(h.days)){
+    const old=(typeof h.days==='string')?h.days:'';
+    return {days:[],open:'',close:'',label:old,labelEn:h.daysEn||'',time:h.time||'',timeEn:h.timeEn||''};
+  }
+  h.days=h.days.map(Number).filter(n=>n>=0&&n<=6);
+  h.open=h.open||'';h.close=h.close||'';
+  return h;
+}
+function hrPreview(h){
+  const ds=h.days||[];
+  if(!ds.length)return h.label?('سيظهر: '+h.label+(h.time?(' — '+h.time):'')):'⚠️ اختر الأيام';
+  let lbl;
+  if(ds.length===7)lbl='كل أيام الأسبوع';
+  else{
+    const pos=HR_DAYS.map((d,i)=>ds.indexOf(d.i)>=0?i:-1).filter(i=>i>=0);
+    const run=pos.every((v,i)=>i===0||v===pos[i-1]+1);
+    lbl=(run&&pos.length>2)?(HR_DAYS[pos[0]].n+' - '+HR_DAYS[pos[pos.length-1]].n)
+                           :pos.map(i=>HR_DAYS[i].n).join('، ');
+  }
+  const f=v=>{const m=(''+v).match(/(\d{1,2}):(\d{2})/);if(!m)return '';let hh=+m[1];
+    if(hh===0&&m[2]==='00')return 'منتصف الليل';
+    const ap=hh<12?'ص':'م';let h12=hh%12;if(h12===0)h12=12;return h12+':'+m[2]+' '+ap;};
+  if(!h.open||!h.close)return '⚠️ '+lbl+' — حدّد وقت الفتح والإغلاق';
+  const t=(h.open===h.close)?'٢٤ ساعة':(f(h.open)+' - '+f(h.close));
+  const over=(h.close<h.open&&h.close!=='00:00')?'  (يمتد بعد منتصف الليل)':'';
+  return 'سيظهر للعميل: '+lbl+' — '+t+over;
+}
 function renderHours(){
   const box=document.getElementById('hoursBox');if(!box)return;
-  const hrs=DATA.settings.hours||[];
-  box.innerHTML=(hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ مفيش مواعيد — قسم أوقات العمل مش هيظهر للعميل خالص</div>')
-    +hrs.map((h,i)=>`<div class="hour-row"><input value="${(h.days||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].days=this.value" placeholder="الأيام (السبت - الخميس)"><input value="${(h.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].time=this.value" placeholder="الوقت (١١ص - ١٢م)"><button class="delx" onclick="delHour(${i})">🗑</button></div>
-    <div class="hour-row" style="margin-top:-4px"><input dir="ltr" value="${(h.daysEn||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].daysEn=this.value" placeholder="Days in English (optional)"><input dir="ltr" value="${(h.timeEn||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].timeEn=this.value" placeholder="Time in English (optional)"><span style="width:34px"></span></div>`).join('');
+  if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
+  DATA.settings.hours=DATA.settings.hours.map(hrNorm);
+  const hrs=DATA.settings.hours;
+  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ مفيش مواعيد — قسم أوقات العمل مش هيظهر للعميل خالص</div>';
+  box.innerHTML=warn+hrs.map((h,i)=>`<div class="hr-card">
+    <div class="hr-top"><span class="hr-ttl">نطاق ${i+1}</span><button class="delx" onclick="delHour(${i})">🗑</button></div>
+    <div class="hr-days">${HR_DAYS.map(d=>`<button type="button" class="hr-day ${(h.days||[]).indexOf(d.i)>=0?'on':''}" onclick="hrToggleDay(${i},${d.i})">${d.n}</button>`).join('')}</div>
+    <div class="hr-presets">
+      <button type="button" onclick="hrPreset(${i},'all')">كل الأسبوع</button>
+      <button type="button" onclick="hrPreset(${i},'satthu')">السبت - الخميس</button>
+      <button type="button" onclick="hrPreset(${i},'fri')">الجمعة فقط</button>
+      <button type="button" onclick="hrPreset(${i},'none')">مسح الأيام</button>
+    </div>
+    <div class="hr-times">
+      <span>من</span><input type="time" value="${h.open||''}" onchange="hrSet(${i},'open',this.value)">
+      <span>إلى</span><input type="time" value="${h.close||''}" onchange="hrSet(${i},'close',this.value)">
+    </div>
+    <div class="hr-lbl">
+      <input value="${(h.label||'').replace(/"/g,'&quot;')}" oninput="hrSet(${i},'label',this.value)" placeholder="نص مخصص للأيام (اختياري)">
+      <input dir="ltr" value="${(h.labelEn||'').replace(/"/g,'&quot;')}" oninput="hrSet(${i},'labelEn',this.value)" placeholder="Days in English (optional)">
+    </div>
+    <div class="hr-prev">${hrPreview(h)}</div>
+  </div>`).join('');
 }
-function addHour(){if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];DATA.settings.hours.push({days:"",time:"",daysEn:"",timeEn:""});renderHours();}
+function hrSet(i,k,v){DATA.settings.hours[i][k]=v;renderHours();}
+function hrToggleDay(i,d){
+  const h=DATA.settings.hours[i];if(!Array.isArray(h.days))h.days=[];
+  const at=h.days.indexOf(d); if(at>=0)h.days.splice(at,1); else h.days.push(d);
+  renderHours();
+}
+function hrPreset(i,kind){
+  const h=DATA.settings.hours[i];
+  h.days = kind==='all'?[0,1,2,3,4,5,6] : kind==='satthu'?[6,0,1,2,3,4] : kind==='fri'?[5] : [];
+  renderHours();
+}
+function addHour(){
+  if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
+  const used=[].concat.apply([],DATA.settings.hours.map(h=>Array.isArray(h.days)?h.days:[]));
+  const rest=[0,1,2,3,4,5,6].filter(d=>used.indexOf(d)<0);
+  DATA.settings.hours.push({days:rest.length?rest:[6,0,1,2,3,4],open:'',close:'',label:'',labelEn:''});
+  renderHours();
+}
 function delHour(i){DATA.settings.hours.splice(i,1);renderHours();}
 function fillSettings(){
   const s=DATA.settings||{};
   document.getElementById('setWa').value=s.whatsapp||"";
   document.getElementById('setDisc').value=(s.directDiscount==null?10:(s.directDiscount<=1?Math.round(s.directDiscount*100):s.directDiscount));
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
-  document.getElementById('setOpen').value=s.openTime||"";
-  document.getElementById('setClose').value=s.closeTime||"";
   renderHours();
   const lp=document.getElementById('logoPrev');
   if(s.logo){lp.src=s.logo;lp.style.display='block';}else{lp.style.display='none';}
@@ -855,8 +934,9 @@ function saveSettings(){
   DATA.settings.whatsapp=document.getElementById('setWa').value.trim();
   {let p=parseFloat(document.getElementById('setDisc').value)||0;if(p>1)p=p/100;DATA.settings.directDiscount=Math.max(0,Math.min(p,0.95));}
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
-  DATA.settings.openTime=document.getElementById('setOpen').value||"";
-  DATA.settings.closeTime=document.getElementById('setClose').value||"";
+  /* المواعيد كلها من نطاقات hours — نشيل الإعداد القديم عشان ما يفضلش مصدر تاني */
+  delete DATA.settings.openTime; delete DATA.settings.closeTime;
+  (DATA.settings.hours||[]).forEach(r=>{ if(r&&r.open&&r.close){ delete r.time; delete r.timeEn; } });
   if(DATA.settings.currency==null)DATA.settings.currency="د.ك";
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ الإعدادات":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));

@@ -1575,26 +1575,26 @@ function showToast(t){const e=document.getElementById('toast');e.textContent=t;e
 /* مواعيد العمل: مصدر واحد فقط = لوحة التحكم (settings.hours) */
 function renderHours(){
   const box=document.getElementById('hoursList');if(!box)return;
-  const hrs=(CONFIG.hours||[]).filter(h=>h&&((h.days||'').trim()||(h.time||'').trim()));
+  const rows=hourRows().map(h=>({d:daysLabel(h),t:timeLabelRow(h)})).filter(x=>x.d||x.t);
   const head=document.querySelector('[data-i18n="contact.hoursT"]');
-  if(!hrs.length){box.innerHTML='';if(head)head.style.display='none';return;}
+  if(!rows.length){box.innerHTML='';if(head)head.style.display='none';return;}
   if(head)head.style.display='';
-  box.innerHTML=hrs.map(h=>{
-    const d=(LANG==='en'&&(h.daysEn||'').trim())?h.daysEn:(h.days||'');
-    const t=(LANG==='en'&&(h.timeEn||'').trim())?h.timeEn:(h.time||'');
-    return '<div class="hours-row"><span>'+escH(d)+'</span><strong>'+escH(t)+'</strong></div>';
-  }).join('');
+  box.innerHTML=rows.map(x=>'<div class="hours-row"><span>'+escH(x.d)+'</span><strong>'+escH(x.t)+'</strong></div>').join('');
 }
 /* بيانات جوجل المنظمة تُبنى من نفس الإعدادات بدل نسخة ثابتة في الكود */
 function syncSchemaHours(){
   try{
-    const o=CONFIG.openTime,c=CONFIG.closeTime;
     const el=document.getElementById('ldJson');if(!el)return;
     const j=JSON.parse(el.textContent);
-    if(o&&c){
+    const spec=hourRows().filter(h=>rowDays(h)&&h.open&&h.close).map(h=>({
+      "@type":"OpeningHoursSpecification",
+      dayOfWeek:rowDays(h).map(d=>DAY_EN[d]),
+      opens:h.open, closes:h.close}));
+    if(spec.length){ j.openingHoursSpecification=spec; }
+    else if(CONFIG.openTime&&CONFIG.closeTime){
       j.openingHoursSpecification=[{"@type":"OpeningHoursSpecification",
         dayOfWeek:["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"],
-        opens:o,closes:c}];
+        opens:CONFIG.openTime,closes:CONFIG.closeTime}];
     }else{ delete j.openingHoursSpecification; }
     el.textContent=JSON.stringify(j);
   }catch(_){}
@@ -1641,21 +1641,80 @@ function initHeroVideo(){
 /* ===== حالة المطعم مفتوح/مغلق ===== */
 function parseHM(s){const m=(''+s).match(/(\d{1,2}):(\d{2})/);return m?(parseInt(m[1],10)*60+parseInt(m[2],10)):null;}
 function fmtHM(s){const m=(''+s).match(/(\d{1,2}):(\d{2})/);if(!m)return s;let h=parseInt(m[1],10);const mm=m[2];const ap=h<12?(LANG==='en'?'AM':'ص'):(LANG==='en'?'PM':'م');let h12=h%12;if(h12===0)h12=12;return h12+':'+mm+' '+ap;}
+/* ===== مواعيد العمل: نطاقات متعددة، مصدرها الوحيد لوحة التحكم =====
+   كل صف: { days:[أرقام الأيام 0=الأحد..6=السبت], open:"HH:MM", close:"HH:MM", label?, labelEn? }
+   نفس الصفوف تُستخدم للعرض للعميل وللتنبيه «مغلق حالياً» — فلا يوجد مكانان لنفس المواعيد. */
+const DAY_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const DAY_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEK_ORDER=[6,0,1,2,3,4,5];              /* ترتيب الأسبوع الكويتي: السبت أولاً */
+function hourRows(){return Array.isArray(CONFIG.hours)?CONFIG.hours.filter(Boolean):[];}
+function rowDays(h){return Array.isArray(h.days)?h.days.map(Number).filter(n=>n>=0&&n<=6):null;}
+function daysLabel(h){
+  if(LANG==='en'&&(h.labelEn||'').trim())return h.labelEn.trim();
+  if((h.label||'').trim())return h.label.trim();
+  const ds=rowDays(h);
+  if(!ds)return (typeof h.days==='string')?h.days:'';         /* صيغة قديمة: نص جاهز */
+  if(!ds.length)return '';
+  const names=LANG==='en'?DAY_EN:DAY_AR;
+  if(ds.length===7)return LANG==='en'?'All week':'كل أيام الأسبوع';
+  const pos=WEEK_ORDER.map((d,i)=>ds.indexOf(d)>=0?i:-1).filter(i=>i>=0);
+  const run=pos.every((v,i)=>i===0||v===pos[i-1]+1);
+  if(run&&pos.length>2)return names[WEEK_ORDER[pos[0]]]+' - '+names[WEEK_ORDER[pos[pos.length-1]]];
+  return pos.map(i=>names[WEEK_ORDER[i]]).join(LANG==='en'?', ':'، ');
+}
+function fmtClock(v){
+  const m=parseHM(v); if(m==null)return '';
+  if(m===0)return LANG==='en'?'Midnight':'منتصف الليل';
+  return fmtHM(v);
+}
+function timeLabelRow(h){
+  if(h.open&&h.close){
+    if(parseHM(h.open)===parseHM(h.close))return LANG==='en'?'24 hours':'٢٤ ساعة';
+    return fmtClock(h.open)+' - '+fmtClock(h.close);
+  }
+  if(LANG==='en'&&(h.timeEn||'').trim())return h.timeEn.trim();
+  return (h.time||'').trim();                                  /* صيغة قديمة */
+}
+function kwNow(){const d=new Date(Date.now()+3*3600*1000);return {day:d.getUTCDay(),min:d.getUTCHours()*60+d.getUTCMinutes()};}
+/* الصفوف التي تسري على اليوم الحالي (للرسالة عند الإغلاق) */
+function todaysRows(){
+  const {day}=kwNow();
+  return hourRows().filter(h=>{const ds=rowDays(h);return ds&&ds.indexOf(day)>=0;});
+}
 function isOpenNow(){
-  const o=parseHM(CONFIG.openTime), c=parseHM(CONFIG.closeTime);
-  if(o==null||c==null)return true;
-  const d=new Date(Date.now()+3*3600*1000);
-  let now=d.getUTCHours()*60+d.getUTCMinutes();
-  let oo=o, cc=c; if(cc<=oo)cc+=1440;
-  let n=now; if(n<oo)n+=1440;
-  return n>=oo && n<cc;
+  const rows=hourRows().filter(h=>rowDays(h)&&h.open&&h.close);
+  if(!rows.length){                                            /* رجوع للإعداد القديم لو موجود */
+    const o=parseHM(CONFIG.openTime), c=parseHM(CONFIG.closeTime);
+    if(o==null||c==null)return true;
+    const {min}=kwNow(); let cc=c, n=min; if(cc<=o)cc+=1440; if(n<o)n+=1440;
+    return n>=o&&n<cc;
+  }
+  const {day,min}=kwNow();
+  for(const h of rows){
+    const ds=rowDays(h), o=parseHM(h.open), c=parseHM(h.close);
+    if(o==null||c==null)continue;
+    if(o===c){ if(ds.indexOf(day)>=0)return true; continue; }   /* ٢٤ ساعة */
+    if(c>o){ if(ds.indexOf(day)>=0&&min>=o&&min<c)return true; }
+    else{                                                       /* يمتد بعد منتصف الليل */
+      if(ds.indexOf(day)>=0&&min>=o)return true;
+      const prev=(day+6)%7; if(ds.indexOf(prev)>=0&&min<c)return true;
+    }
+  }
+  return false;
 }
 function closeClosed(){document.getElementById('closedOverlay').classList.remove('open');}
 function checkOpenStatus(){
   if(isOpenNow())return;
   if(CONFIG.logo){const cl=document.getElementById('closedLogo');if(cl)cl.innerHTML='<img src="'+CONFIG.logo+'">';}
   const el=document.getElementById('closedMsg');
-  el.textContent=(CONFIG.openTime&&CONFIG.closeTime)?T('closed.hours').replace('{a}',fmtHM(CONFIG.openTime)).replace('{b}',fmtHM(CONFIG.closeTime)):'';
+  const tr=todaysRows().filter(h=>h.open&&h.close);
+  if(tr.length){
+    el.textContent=T('closed.hours').replace('{a}',fmtClock(tr[0].open)).replace('{b}',fmtClock(tr[0].close));
+  }else{
+    const all=hourRows().map(h=>{const d=daysLabel(h),t=timeLabelRow(h);return (d&&t)?(d+': '+t):(d||t);}).filter(Boolean);
+    el.textContent=all.length?('🕒 '+all.join('  •  '))
+      :((CONFIG.openTime&&CONFIG.closeTime)?T('closed.hours').replace('{a}',fmtHM(CONFIG.openTime)).replace('{b}',fmtHM(CONFIG.closeTime)):'');
+  }
   document.getElementById('closedOverlay').classList.add('open');
 }
 /* ===== الفاتورة ===== */
