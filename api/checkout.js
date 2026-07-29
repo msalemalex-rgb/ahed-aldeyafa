@@ -20,6 +20,25 @@ module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
+
+  // GET = تسخين: يوقظ الدالة ويفتح اتصال TLS مع بوابة الدفع وقاعدة البيانات
+  // قبل ما يضغط الزبون "ادفع"، فيختفي زمن البدء البارد من رحلة الدفع نفسها.
+  if (req.method === "GET") {
+    const B = (process.env.HSB_BASE_URL || "https://api.hesabe.com").trim().replace(/\/+$/, "");
+    const t0 = Date.now();
+    try {
+      await Promise.race([
+        Promise.all([
+          fetch(B + "/", { method: "GET" }).then((r) => r.arrayBuffer()).catch(() => {}),
+          kvOrders && kvOrders.cmd ? kvOrders.cmd(["PING"]).catch(() => {}) : null,
+        ]),
+        new Promise((r) => setTimeout(r, 1500)),
+      ]);
+    } catch (_) {}
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(200).json({ warm: 1, ms: Date.now() - t0 });
+  }
+
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
@@ -55,24 +74,14 @@ module.exports = async (req, res) => {
     if (!amountNum || amountNum < 0.1 || amountNum > 100000)
       return res.status(400).json({ error: "Invalid amount", got: body.amount });
     const amount = amountNum.toFixed(3);
-    // إنشاء الطلب هنا مباشرة (يوفّر رحلة كاملة للسيرفر ويسرّع الانتقال للدفع)
-    let createdOrder = null;
-    if (!body.orderRef && body.order && kvOrders && kvOrders.addOrder) {
-      try {
-        const b = body.order;
-        createdOrder = await kvOrders.addOrder({
-          items: b.items, total: Number(b.total) || amountNum, channel: "knet",
-          name: b.name || "", phone: b.phone || "", note: b.note || "",
-          deliveryType: b.deliveryType || "", area: b.area || "", address: b.address || "",
-          deliveryFee: Number(b.deliveryFee) || 0, deliveryTime: b.deliveryTime || "",
-          mapUrl: b.mapUrl || "", scheduledFor: b.scheduledFor || "",
-          lines: Array.isArray(b.lines) ? b.lines : [],
-          itemsSubtotal: Number(b.itemsSubtotal) || 0, discountPct: Number(b.discountPct) || 0,
-          status: "pending",
-        });
-      } catch (_) {}
-    }
-    const orderRef = (body.orderRef || (createdOrder && createdOrder.id) || ("AHD-" + Date.now())).toString().slice(0, 40);
+
+    // رقم الطلب يُولَّد محلياً قبل أي كتابة، فنقدر نبدأ طلب بوابة الدفع فوراً
+    // بدل ما ننتظر قاعدة البيانات — الاتنين بيشتغلوا بالتوازي.
+    const willCreate = !!(!body.orderRef && body.order && kvOrders && kvOrders.addOrder);
+    const orderRef = (
+      body.orderRef ||
+      (willCreate && kvOrders.newId ? kvOrders.newId("ORD") : "AHD-" + Date.now())
+    ).toString().slice(0, 40);
 
     const payload = {
       merchantCode: MERCHANT, amount, currency: "KWD", paymentType: PAY_TYPE, version: "2.0",
@@ -80,12 +89,36 @@ module.exports = async (req, res) => {
     };
 
     const encrypted = encrypt(JSON.stringify(payload), ENC_KEY, IV_KEY);
-    const r = await fetch(`${BASE}/checkout`, {
+    const hesabeP = fetch(`${BASE}/checkout`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded", accessCode: ACCESS },
       body: new URLSearchParams({ data: encrypted }).toString(),
-    });
-    const raw = (await r.text()).trim();
+    }).then(async (rr) => ({ status: rr.status, raw: (await rr.text()).trim() }));
+
+    const orderP = willCreate
+      ? (async () => {
+          const b = body.order;
+          return kvOrders.addOrder({
+            items: b.items, total: Number(b.total) || amountNum, channel: "knet",
+            name: b.name || "", phone: b.phone || "", note: b.note || "",
+            deliveryType: b.deliveryType || "", area: b.area || "", address: b.address || "",
+            deliveryFee: Number(b.deliveryFee) || 0, deliveryTime: b.deliveryTime || "",
+            mapUrl: b.mapUrl || "", scheduledFor: b.scheduledFor || "",
+            lines: Array.isArray(b.lines) ? b.lines : [],
+            itemsSubtotal: Number(b.itemsSubtotal) || 0, discountPct: Number(b.discountPct) || 0,
+            status: "pending",
+          }, orderRef);
+        })().catch(() => null)
+      : Promise.resolve(null);
+
+    const _t0 = Date.now();
+    let _tHesabe = 0, _tOrder = 0;
+    hesabeP.then(() => { _tHesabe = Date.now() - _t0; }).catch(() => {});
+    orderP.then(() => { _tOrder = Date.now() - _t0; }).catch(() => {});
+    const [hres, createdOrder] = await Promise.all([hesabeP, orderP]);
+    const r = { status: hres.status };
+    const raw = hres.raw;
+    const timings = { gatewayMs: _tHesabe, orderSaveMs: _tOrder, totalMs: Date.now() - _t0 };
 
     let encResp = raw;
     try { const j = JSON.parse(raw); encResp = j.response || j.data || raw; } catch (_) {}
@@ -102,11 +135,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "hesabe_error", message: json.message, details: json });
 
     const token = json.response.data;
-    return res.status(200).json({
+    const out = {
       paymentUrl: `${BASE}/payment?data=${encodeURIComponent(token)}`,
       orderRef,
       orderNo: createdOrder ? createdOrder.no : undefined,
-    });
+    };
+    // ?debug=1 يرجّع تفصيل الزمن لتشخيص أي بطء لاحق
+    if (req.query && (req.query.debug === "1" || req.query.debug === "true")) out.timings = timings;
+    return res.status(200).json(out);
   } catch (e) {
     return res.status(500).json({ error: "Server error", message: e.message });
   }
