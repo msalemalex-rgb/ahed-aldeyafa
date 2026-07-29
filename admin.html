@@ -248,10 +248,10 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
         <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
-        <label class="fld">مواعيد العمل (تظهر للعميل)</label>
+        <label class="fld">مواعيد العمل — دي وحدها اللي بتظهر للعميل في صفحة الموقع</label>
         <div id="hoursBox"></div>
         <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
-        <label class="fld" style="margin-top:16px">وقت الفتح والإغلاق (لتنبيه العميل لو دخل خارج أوقات العمل)</label>
+        <label class="fld" style="margin-top:16px">وقت الفتح والإغلاق — مش بيظهر للعميل كنص، بيستخدم بس لتنبيه «المطعم مغلق حالياً»</label>
         <div style="display:flex;gap:10px;align-items:center">
           <span style="font-family:'Cairo';font-weight:700">من</span><input id="setOpen" type="time" style="flex:1;margin:0">
           <span style="font-family:'Cairo';font-weight:700">إلى</span><input id="setClose" type="time" style="flex:1;margin:0">
@@ -764,7 +764,7 @@ function loadMenuData(){
   fetch('/api/menu?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(d=>{
     DATA.menu=d.menu||[]; DATA.settings=d.settings||{};
     if(!Array.isArray(DATA.settings.areas))DATA.settings.areas=[];
-    if(!Array.isArray(DATA.settings.hours)||!DATA.settings.hours.length)DATA.settings.hours=[{days:"السبت - الخميس",time:"١١ ص - ١٢ م"},{days:"الجمعة",time:"١ ظ - ١٢ م"}];
+    if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
     renderMenuEditor(); fillSettings(); renderAreas('');
   }).catch(()=>{});
 }
@@ -833,9 +833,11 @@ function delArea(i){if(!confirm("حذف هذه المنطقة؟"))return;DATA.se
 function renderHours(){
   const box=document.getElementById('hoursBox');if(!box)return;
   const hrs=DATA.settings.hours||[];
-  box.innerHTML=hrs.map((h,i)=>`<div class="hour-row"><input value="${(h.days||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].days=this.value" placeholder="الأيام (السبت - الخميس)"><input value="${(h.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].time=this.value" placeholder="الوقت (١١ص - ١٢م)"><button class="delx" onclick="delHour(${i})">🗑</button></div>`).join('');
+  box.innerHTML=(hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ مفيش مواعيد — قسم أوقات العمل مش هيظهر للعميل خالص</div>')
+    +hrs.map((h,i)=>`<div class="hour-row"><input value="${(h.days||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].days=this.value" placeholder="الأيام (السبت - الخميس)"><input value="${(h.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].time=this.value" placeholder="الوقت (١١ص - ١٢م)"><button class="delx" onclick="delHour(${i})">🗑</button></div>
+    <div class="hour-row" style="margin-top:-4px"><input dir="ltr" value="${(h.daysEn||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].daysEn=this.value" placeholder="Days in English (optional)"><input dir="ltr" value="${(h.timeEn||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].timeEn=this.value" placeholder="Time in English (optional)"><span style="width:34px"></span></div>`).join('');
 }
-function addHour(){if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];DATA.settings.hours.push({days:"",time:""});renderHours();}
+function addHour(){if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];DATA.settings.hours.push({days:"",time:"",daysEn:"",timeEn:""});renderHours();}
 function delHour(i){DATA.settings.hours.splice(i,1);renderHours();}
 function fillSettings(){
   const s=DATA.settings||{};

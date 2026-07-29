@@ -69,7 +69,7 @@ src="https://www.facebook.com/tr?id=1849161062727719&ev=PageView&noscript=1"
 <meta name="twitter:title" content="مطعم عهد الضيافة | المأكولات الكويتية الأصيلة">
 <meta name="twitter:description" content="مجبوس، برياني، مطبق وأطباق كويتية أصيلة. طلب أونلاين وتوصيل بحولي.">
 <meta name="twitter:image" content="https://ahed-aldeyafa.vercel.app/about.jpg">
-<script type="application/ld+json">
+<script type="application/ld+json" id="ldJson">
 {
   "@context": "https://schema.org",
   "@type": "Restaurant",
@@ -473,8 +473,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
       <div class="info-row"><span class="ic">📞</span><div class="t"><strong data-i18n="contact.phoneL">الهاتف / واتساب</strong><span id="phoneText">—</span></div></div>
       <div class="info-row"><span class="ic">📷</span><div class="t"><strong data-i18n="contact.instaL">إنستجرام</strong><span>@ahedaldeyafa</span></div></div>
       <h3 style="margin-top:26px" data-i18n="contact.hoursT">أوقات العمل</h3>
-      <div class="hours-row"><span data-i18n="contact.d1">السبت - الخميس</span><strong data-i18n="contact.d1t">11 ص - 12 م</strong></div>
-      <div class="hours-row"><span data-i18n="contact.d2">الجمعة</span><strong data-i18n="contact.d2t">1 ظ - 12 م</strong></div>
+      <div id="hoursList"></div>
       <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap"><a href="#menu" class="btn btn-red" data-i18n="contact.order">🍽️ اطلب الآن</a><a id="waContactBtn" class="btn btn-wa" target="_blank" data-i18n="contact.wa">📲 واتساب</a><a href="https://www.google.com/maps/dir/?api=1&destination=29.328963,48.0252862" target="_blank" rel="noopener" class="btn btn-gold" data-i18n="contact.dir">🧭 الاتجاهات</a></div>
     </div>
     <iframe class="map-embed" loading="lazy" allowfullscreen src="https://www.google.com/maps?q=29.328963,48.0252862&z=17&output=embed"></iframe>
@@ -650,7 +649,7 @@ footer .copy{opacity:.55;font-size:13px;margin-top:20px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,hours:[],openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
 ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل","nav.orders":"📋 طلباتي","mo.title":"طلباتي السابقة","mo.empty":"لا توجد طلبات سابقة على هذا الجهاز — سيظهر طلبك الأول هنا تلقائياً","mo.note":"بدون تسجيل دخول — تُستعاد طلباتك السابقة المرتبطة برقمك تلقائياً","mo.track":"🛵 تتبع","mo.again":"🔁 إعادة الطلب","mo.readded":"✓ تمت إضافة طلبك إلى السلة","mo.partial":"تمت إضافة الأصناف المتاحة — بعض الأصناف لم تعد متوفرة","mo.noLines":"تفاصيل هذا الطلب غير متاحة لإعادة الطلب",
@@ -662,7 +661,7 @@ ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضي�
 "cat.p1t":"صواني تكفّي من شخصين حتى 10 أشخاص","cat.p1d":"مجبوس لحم أو دجاج، برياني، مطبق وروبيان — تُجهّز طازجة بالكمية التي تناسب ضيوفكم","cat.p2t":"الذبائح — ربع، نصف، أو قوزي كامل","cat.p2d":"قوزي استرالي أو عربي على أصول الكويت، مفروش على العيش المبهّر — متوفر ربع ونصف وقوزي كامل","cat.p3t":"تفصيل على مقاسك","cat.p3d":"عدد ضيوفك يحتاج ترتيباً خاصاً؟ تواصل معنا ونُجهّز لك عرضاً بأسعار الكميات","cat.weekly":"🤝 خصم خاص للديوانيات التي تطلب أسبوعياً",
 "cat.formTitle":"احجز للمناسبات والديوانيات","cat.openForm":"📝 احجز الآن — تعبئة بيانات الحجز","cat.closeForm":"✕ إخفاء نموذج الحجز","cat.deposit":"💡 يتطلب عربون مقدّم لتأكيد الحجز","cat.name":"الاسم","cat.namePh":"اسمك الكريم","cat.phone":"رقم التواصل","cat.type":"نوع المناسبة","cat.o1":"ديوانية","cat.o2":"عرس","cat.o3":"عزيمة عائلية","cat.o4":"مناسبة شركة","cat.o5":"أخرى","cat.count":"عدد الأشخاص","cat.c1":"شخصين","cat.c2":"3 أشخاص","cat.c3":"4 أشخاص","cat.c4":"5 أشخاص","cat.c5":"7 أشخاص","cat.c6":"10 أشخاص","cat.date":"التاريخ المطلوب","cat.notes":"تفاصيل إضافية","cat.notesPh":"الأطباق المطلوبة ووقت التسليم","cat.send":"📲 أرسل طلب الحجز على واتساب",
 "about.eyebrow":"قصتنا","about.title":"طعمٌ كويتيٌّ أصيل","about.p1":"في عهد الضيافة، نؤمن أن الأكل الكويتي إرثٌ وكرم. نُعدّ أطباقنا على الطريقة التقليدية بأجود المكوّنات، طازجة كل يوم.","about.p2":"من المجبوس والمطبق إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل.","about.s1":"أكل كويتي أصيل","about.s2n":"طازج","about.s2":"يومياً","about.s3n":"حولي","about.s3":"قلب الكويت",
-"contact.eyebrow":"زورنا","contact.title":"الموقع والتواصل","contact.sub":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.infoT":"معلومات التواصل","contact.addrL":"العنوان","contact.addrV":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.phoneL":"الهاتف / واتساب","contact.instaL":"إنستجرام","contact.hoursT":"أوقات العمل","contact.d1":"السبت - الخميس","contact.d1t":"11 ص - 12 م","contact.d2":"الجمعة","contact.d2t":"1 ظ - 12 م","contact.order":"🍽️ اطلب الآن","contact.wa":"📲 واتساب","contact.dir":"🧭 الاتجاهات",
+"contact.eyebrow":"زورنا","contact.title":"الموقع والتواصل","contact.sub":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.infoT":"معلومات التواصل","contact.addrL":"العنوان","contact.addrV":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.phoneL":"الهاتف / واتساب","contact.instaL":"إنستجرام","contact.hoursT":"أوقات العمل","contact.order":"🍽️ اطلب الآن","contact.wa":"📲 واتساب","contact.dir":"🧭 الاتجاهات",
 "footer.tag":"المأكولات الكويتية الأصيلة • حولي، الكويت","footer.rights":"عهد الضيافة. جميع الحقوق محفوظة.",
 "cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"🛒 إتمام الطلب","cart.addMore":"＋ إضافة أصناف أخرى","cart.clear":"تفريغ السلة","cart.clearSure":"اضغط مرة أخرى للتأكيد","t.cleared":"تم تفريغ السلة","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
 "m.add":"＋ أضف للسلة","m.unavail":"غير متوفر","m.soldout":"غير متوفر حالياً","t.added":"✓ أُضيف ","t.unavail":"هذا الصنف غير متوفر حالياً","t.empty":"السلة فارغة 🛒","t.invWait":"جارٍ تجهيز الفاتورة، يُرجى المحاولة بعد لحظات",
@@ -682,7 +681,7 @@ en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.
 "cat.p1t":"Trays serving 2 to 10 people","cat.p1d":"Meat or chicken majboos, biryani, mutabbaq & shrimp — prepared fresh in the quantity that suits your guests","cat.p2t":"Whole Lamb — quarter, half or full ghuzi","cat.p2d":"Australian or Arabic ghuzi cooked the Kuwaiti way over spiced rice — available as quarter, half or whole","cat.p3t":"Tailored to your headcount","cat.p3d":"Hosting an unusual number of guests? Talk to us and we will build a custom quote at bulk pricing","cat.weekly":"🤝 Special discount for weekly diwaniya orders",
 "cat.formTitle":"Book for Events & Diwaniyas","cat.openForm":"📝 Book Now — fill in your details","cat.closeForm":"✕ Hide booking form","cat.deposit":"💡 A deposit is required to confirm your booking","cat.name":"Name","cat.namePh":"Your name","cat.phone":"Contact Number","cat.type":"Occasion Type","cat.o1":"Diwaniya","cat.o2":"Wedding","cat.o3":"Family Gathering","cat.o4":"Corporate Event","cat.o5":"Other","cat.count":"Number of Guests","cat.c1":"2 people","cat.c2":"3 people","cat.c3":"4 people","cat.c4":"5 people","cat.c5":"7 people","cat.c6":"10 people","cat.date":"Preferred Date","cat.notes":"Extra Details","cat.notesPh":"Requested dishes, delivery time...","cat.send":"📲 Send Booking Request on WhatsApp",
 "about.eyebrow":"Our Story","about.title":"Authentic Kuwaiti Taste","about.p1":"At Ahd Al-Diyafa, we believe Kuwaiti food is heritage and generosity. We prepare our dishes the traditional way with the finest ingredients, fresh every day.","about.p2":"From majboos and mutabbaq to large diwaniya trays, we bring you the authentic taste of the Kuwaiti home.","about.s1":"Authentic Kuwaiti Food","about.s2n":"Fresh","about.s2":"Daily","about.s3n":"Hawally","about.s3":"Heart of Kuwait",
-"contact.eyebrow":"Visit Us","contact.title":"Location & Contact","contact.sub":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.infoT":"Contact Information","contact.addrL":"Address","contact.addrV":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.phoneL":"Phone / WhatsApp","contact.instaL":"Instagram","contact.hoursT":"Working Hours","contact.d1":"Saturday - Thursday","contact.d1t":"11 AM - 12 AM","contact.d2":"Friday","contact.d2t":"1 PM - 12 AM","contact.order":"🍽️ Order Now","contact.wa":"📲 WhatsApp","contact.dir":"🧭 Directions",
+"contact.eyebrow":"Visit Us","contact.title":"Location & Contact","contact.sub":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.infoT":"Contact Information","contact.addrL":"Address","contact.addrV":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.phoneL":"Phone / WhatsApp","contact.instaL":"Instagram","contact.hoursT":"Working Hours","contact.order":"🍽️ Order Now","contact.wa":"📲 WhatsApp","contact.dir":"🧭 Directions",
 "footer.tag":"Authentic Kuwaiti Cuisine • Hawally, Kuwait","footer.rights":"Ahd Al-Diyafa. All rights reserved.",
 "cart.title":"🛒 Your Cart","cart.disc":"✅ 10% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"🛒 Checkout","cart.addMore":"＋ Add More Items","cart.clear":"Clear cart","cart.clearSure":"Tap again to confirm","t.cleared":"Cart cleared","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
 "m.add":"＋ Add to Cart","m.unavail":"Unavailable","m.soldout":"Currently unavailable","t.added":"✓ Added ","t.unavail":"This item is currently unavailable","t.empty":"Your cart is empty 🛒","t.invWait":"Invoice is being prepared, try again in a moment",
@@ -725,6 +724,7 @@ function applyLang(){
     try{document.title=T('title.doc');}catch(_){}
     renderMenu();updateCart();
     try{updPayBtn();}catch(_){}
+    try{renderHours();}catch(_){}
   }catch(_){}
 }
 function setLang(l){LANG=(l==='en')?'en':'ar';try{localStorage.setItem('ahd_lang',LANG);}catch(_){}applyLang();closeNav();}
@@ -1393,12 +1393,40 @@ function submitCatering(e){
 }
 function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');window._toastAt=Date.now();clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove('show'),2200)}
 ;['click','touchstart','visibilitychange','scroll'].forEach(ev=>document.addEventListener(ev,function(){try{const e=document.getElementById('toast');if(e&&e.classList.contains('show')&&Date.now()-(window._toastAt||0)>2400)e.classList.remove('show');}catch(_){}},{passive:true}));
+/* مواعيد العمل: مصدر واحد فقط = لوحة التحكم (settings.hours) */
+function renderHours(){
+  const box=document.getElementById('hoursList');if(!box)return;
+  const hrs=(CONFIG.hours||[]).filter(h=>h&&((h.days||'').trim()||(h.time||'').trim()));
+  const head=document.querySelector('[data-i18n="contact.hoursT"]');
+  if(!hrs.length){box.innerHTML='';if(head)head.style.display='none';return;}
+  if(head)head.style.display='';
+  box.innerHTML=hrs.map(h=>{
+    const d=(LANG==='en'&&(h.daysEn||'').trim())?h.daysEn:(h.days||'');
+    const t=(LANG==='en'&&(h.timeEn||'').trim())?h.timeEn:(h.time||'');
+    return '<div class="hours-row"><span>'+escH(d)+'</span><strong>'+escH(t)+'</strong></div>';
+  }).join('');
+}
+/* بيانات جوجل المنظمة تُبنى من نفس الإعدادات بدل نسخة ثابتة في الكود */
+function syncSchemaHours(){
+  try{
+    const o=CONFIG.openTime,c=CONFIG.closeTime;
+    const el=document.getElementById('ldJson');if(!el)return;
+    const j=JSON.parse(el.textContent);
+    if(o&&c){
+      j.openingHoursSpecification=[{"@type":"OpeningHoursSpecification",
+        dayOfWeek:["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"],
+        opens:o,closes:c}];
+    }else{ delete j.openingHoursSpecification; }
+    el.textContent=JSON.stringify(j);
+  }catch(_){}
+}
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
   try{[waFloat,waFooter,waContactBtn].forEach(el=>{if(el&&!el._fbc){el._fbc=1;el.addEventListener('click',()=>fbTrack('Contact',{content_category:'whatsapp'}));}});}catch(_){}
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
+  renderHours();syncSchemaHours();
   const dt=document.getElementById('discTag');
   if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct+'% مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
@@ -1550,7 +1578,7 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}
   renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }

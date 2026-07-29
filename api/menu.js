@@ -105,6 +105,12 @@ if(!data.settings) data.settings = {};
 if(!Array.isArray(data.settings.areas) || !data.settings.areas.length) data.settings.areas = DEFAULT_AREAS;
 if(data.settings.pickupEnabled == null) data.settings.pickupEnabled = true;
 if(data.settings.currency == null) data.settings.currency = "د.ك";
+// المواعيد المعروضة للعميل: مصدرها الوحيد لوحة التحكم. دي قيمة ابتدائية
+// مطابقة للي كان ظاهر بالموقع، وتُستبدل أول ما يحفظ صاحب المطعم مواعيده.
+if(!Array.isArray(data.settings.hours) || !data.settings.hours.length) data.settings.hours = [
+  { days:"السبت - الخميس", time:"١١ ص - ١٢ م", daysEn:"Saturday - Thursday", timeEn:"11 AM - 12 AM" },
+  { days:"الجمعة", time:"١ ظ - ١٢ م", daysEn:"Friday", timeEn:"1 PM - 12 AM" },
+];
 if(!Array.isArray(data.menu)) data.menu = [];
 data.menu.forEach(c=>{ (c.items||[]).forEach(it=>{ if(it.prepTime==null) it.prepTime=20; if(it.available==null) it.available=true; }); });
 return data;
