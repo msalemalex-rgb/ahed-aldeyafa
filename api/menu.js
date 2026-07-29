@@ -160,7 +160,14 @@ if(req.query && req.query.report==="1"){
     }
   }
   const sec=(t,a)=>`### ${t} (${a.length})\n`+(a.length?a.map((x,i)=>`${i+1}. ${x}`).join("\n"):"—")+"\n";
+  const st=(raw?JSON.parse(raw):{}).settings||{};
+  const hoursRaw=Object.prototype.hasOwnProperty.call(st,"hours")?JSON.stringify(st.hours):"(المفتاح غير موجود)";
   const body=`# تقرير المنيو\nالأقسام: ${(d.menu||[]).length} | الأصناف: ${total}\n\n`
+    +`### الإعدادات المحفوظة فعلاً (كما هي في قاعدة البيانات)\n`
+    +`settings.hours = ${hoursRaw}\n`
+    +`settings.openTime = ${Object.prototype.hasOwnProperty.call(st,"openTime")?JSON.stringify(st.openTime):"(المفتاح غير موجود)"}\n`
+    +`settings.closeTime = ${Object.prototype.hasOwnProperty.call(st,"closeTime")?JSON.stringify(st.closeTime):"(المفتاح غير موجود)"}\n`
+    +`مفاتيح settings الموجودة: ${Object.keys(st).join(", ")||"—"}\n\n`
     +sec("أصناف بدون صورة",noImg)+"\n"+sec("أصناف بدون اسم إنجليزي",noEn)+"\n"+sec("أصناف غير متاحة للزبائن",off);
   res.setHeader("Content-Type","text/plain; charset=utf-8");
   res.setHeader("Cache-Control","no-store");
