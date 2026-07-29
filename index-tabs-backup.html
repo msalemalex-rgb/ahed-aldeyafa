@@ -1322,7 +1322,11 @@ async function submitCheckout(){
   }
   err.textContent='';
   const food=Number(total().toFixed(3));const grand=Number((food+fee).toFixed(3));
-  const lines=cart.map(l=>({name:l.name,opts:lineOptsText(l),note:l.note||'',qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
+  /* id + الاختيارات المختارة تُرسل عشان السيرفر يعيد حساب الإجمالي من أسعاره بنفسه
+     (الأسعار الجاية من المتصفح ما تُصدَّق عليها في الدفع). */
+  const lines=cart.map(l=>({id:l.id,name:l.name,opts:lineOptsText(l),
+    sel:(l.opts||[]).map(o=>({l:o.label,c:o.choice})),
+    note:l.note||'',qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
   const itemsSub=Number(subtotal().toFixed(3));
   const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
   const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent=(coPayMethod==='cod')?T('pay.sending'):T('pay.redirect');
