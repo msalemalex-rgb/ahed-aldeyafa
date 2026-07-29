@@ -8,7 +8,8 @@
 //    payload to reveal its real structure.
 //  - Links the payment result to the order in the dashboard
 //    (paid -> new, failed -> failed).
-//  - Sandbox mode (?sandbox=1) uses Hesabe public test keys.
+//  - Sandbox mode is enabled ONLY by env HSB_SANDBOX=1 (never from the URL:
+//    the public test keys would otherwise let anyone forge a paid order).
 // =====================================================================
 const { decrypt } = require("../lib/hesabeCrypt");
 let kv = null;
@@ -64,7 +65,9 @@ async function logDebug(entry) {
 
 module.exports = async (req, res) => {
   const SITE = (process.env.SITE_URL || "").trim().replace(/\/+$/, "");
-  const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
+  // وضع التجربة يُفعّل من متغيّر بيئة فقط. لو كان من الرابط (?sandbox=1) يبقى أي شخص
+  // يقدر يشفّر رداً مزيّفاً بمفاتيح Hesabe التجريبية المنشورة ويعلّم أي طلب كمدفوع.
+  const SANDBOX = String(process.env.HSB_SANDBOX || "") === "1";
   const dbg = { at: new Date().toISOString(), method: req.method, ct: req.headers["content-type"] || "", sandbox: !!SANDBOX };
 
   try {
@@ -123,7 +126,15 @@ module.exports = async (req, res) => {
 
     // Link payment result to the order in the dashboard
     if (orderId && kv && kv.setOrderStatus) {
-      try { await kv.setOrderStatus(orderId, ok ? "new" : "failed"); } catch (_) {}
+      try {
+        // انتقال محكوم: نتيجة الدفع تُطبَّق فقط على طلب لسه مستني الدفع.
+        // يمنع إحياء طلب ملغي/مكتمل لو حد فتح رابط الـ callback من التاريخ أو كرّره.
+        const cur = await kv.cmd(["GET", "order:" + orderId]);
+        let st = null; try { st = cur ? (JSON.parse(cur).status || null) : null; } catch (_) {}
+        if (["pending", "failed", "awaiting"].indexOf(st) >= 0 || st === null) {
+          await kv.setOrderStatus(orderId, ok ? "new" : "failed");
+        } else { dbg.skipped = "status:" + st; }
+      } catch (_) {}
     }
 
     // إشعار دفع (Push) لكل أجهزة لوحة التحكم — حتى لو التطبيق مقفول

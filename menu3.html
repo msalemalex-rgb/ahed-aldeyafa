@@ -100,18 +100,12 @@ src="https://www.facebook.com/tr?id=1849161062727719&ev=PageView&noscript=1"
   "openingHoursSpecification": [
     {
       "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+      "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       "opens": "11:00",
-      "closes": "23:59"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": "Friday",
-      "opens": "13:00",
-      "closes": "23:59"
+      "closes": "23:30"
     }
   ],
-  "acceptsReservations": "True"
+  "acceptsReservations": true
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1475,6 +1469,9 @@ function renderHours(){
 /* بيانات جوجل المنظمة تُبنى من نفس الإعدادات بدل نسخة ثابتة في الكود */
 function syncSchemaHours(){
   try{
+    /* لا نلمس بيانات جوجل قبل ما الإعدادات توصل فعلاً — وإلا زاحف البحث
+       (اللي مش بيقدر يقرا /api/menu) يشوف الساعات محذوفة. */
+    if(!CONFIG._loaded)return;
     const el=document.getElementById('ldJson');if(!el)return;
     const j=JSON.parse(el.textContent);
     const spec=hourRows().filter(h=>rowDays(h)&&h.open&&h.close).map(h=>({
@@ -1707,7 +1704,7 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}
   renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }

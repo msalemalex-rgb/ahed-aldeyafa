@@ -1,5 +1,5 @@
 // POST /api/checkout — ينشئ طلب دفع Hesabe ويرجّع رابط صفحة الدفع
-// (وضع تجربة: أضف ?sandbox=1 لاستخدام مفاتيح Hesabe التجريبية العامة)
+// وضع التجربة: متغيّر البيئة HSB_SANDBOX=1 فقط (مش من الرابط — الرابط كان يسمح بتزوير الدفع)
 const { encrypt, decrypt } = require("../lib/hesabeCrypt");
 let kvOrders = null;
 try { kvOrders = require("../lib/kv"); } catch (_) {}
@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const SANDBOX = req.query && (req.query.sandbox === "1" || req.query.sandbox === "true");
+  const SANDBOX = String(process.env.HSB_SANDBOX || "") === "1";  // من البيئة فقط — مش من الرابط
 
   try {
     let MERCHANT, ACCESS, ENC_KEY, IV_KEY, BASE;
@@ -60,8 +60,7 @@ module.exports = async (req, res) => {
       BASE     = (process.env.HSB_BASE_URL || "https://api.hesabe.com").trim().replace(/\/+$/, "");
     }
     const SITE     = (process.env.SITE_URL || "").trim().replace(/\/+$/, "");
-    // في وضع التجربة نمرر sandbox=1 للـ callback ليفك التشفير بمفاتيح التجربة
-    const CB = `${SITE}/api/callback${SANDBOX ? "?sandbox=1" : ""}`;
+    const CB = `${SITE}/api/callback`;   // الطرفان يقرآن نفس متغيّر البيئة
 
     if (!MERCHANT || !ACCESS || !ENC_KEY || !IV_KEY || !SITE)
       return res.status(500).json({ error: "Missing env" });
