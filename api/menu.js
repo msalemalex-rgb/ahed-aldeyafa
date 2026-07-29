@@ -99,9 +99,33 @@ menu: [
 ],
 };
 
+// ===== ترحيل لمرة واحدة لمواعيد العمل =====
+// الصفوف القديمة كانت نصاً حراً (يظهر للعميل) ووقت الفتح/الإغلاق كان إعداداً منفصلاً
+// بنفس المواعيد — مصدرين لنفس الشيء. هنا نحوّلهم لنطاق واحد قابل للقراءة آلياً
+// مبني على وقت الفتح/الإغلاق المحفوظ فعلاً، ونشيل الإعداد القديم.
+const HOURS_MIGRATION_V = 1;
+function migrateHours(settings){
+  if(!settings || settings._hoursV === HOURS_MIGRATION_V) return false;
+  const hm = (v)=>{ const m=/^(\d{1,2}):(\d{2})$/.exec(String(v||"").trim());
+    return m && +m[1]<24 && +m[2]<60 ? (String(+m[1]).padStart(2,"0")+":"+m[2]) : ""; };
+  const o = hm(settings.openTime), c = hm(settings.closeTime);
+  const rows = Array.isArray(settings.hours) ? settings.hours.filter(Boolean) : [];
+  const allLegacy = rows.length>0 && rows.every(r=>typeof r==="object" && !Array.isArray(r.days));
+  let did = false;
+  if(allLegacy && o && c){
+    // كل الصفوف القديمة كانت بنفس النافذة المحفوظة، فتتجمع في نطاق واحد لكل الأسبوع
+    settings.hours = [{ days:[0,1,2,3,4,5,6], open:o, close:c }];
+    delete settings.openTime; delete settings.closeTime;
+    did = true;
+  }
+  settings._hoursV = HOURS_MIGRATION_V;   // لا يتكرر أبداً، فأي تعديل لاحق منك محفوظ
+  return did || true;                     // نحفظ العلامة على أي حال
+}
+
 function ensureFields(data){
 if(!data || typeof data!=="object") data = JSON.parse(JSON.stringify(DEFAULT_DATA));
 if(!data.settings) data.settings = {};
+migrateHours(data.settings);
 if(!Array.isArray(data.settings.areas) || !data.settings.areas.length) data.settings.areas = DEFAULT_AREAS;
 if(data.settings.pickupEnabled == null) data.settings.pickupEnabled = true;
 if(data.settings.currency == null) data.settings.currency = "د.ك";
@@ -197,13 +221,16 @@ if(req.query && req.query.i18nReport==="1"){
 }
 let raw=await cmd(["GET","menu_data"]);
 if(!raw){ await cmd(["SET","menu_data",JSON.stringify(DEFAULT_DATA)]); raw=JSON.stringify(DEFAULT_DATA); }
+const _rawSettings = (()=>{ try{ return JSON.parse(raw).settings||{}; }catch(_){ return {}; } })();
+const _hoursVBefore = _rawSettings._hoursV;
 const data = ensureFields(JSON.parse(raw));
+const migrated = data.settings._hoursV !== _hoursVBefore;
 // ترحيل لمرة واحدة: انقل صور base64 القديمة لروابط مخدومة
 const changed = await offloadImages(data);
 // تنظيف لمرة واحدة: نقل الأسماء الإنجليزية من الوصف + إكمال الناقص من قاموس qonsole
 let fixed = false;
 if (i18nFix && data._i18nFixV !== i18nFix.I18N_FIX_V) { try { i18nFix.applyI18nFix(data); data._i18nFixV = i18nFix.I18N_FIX_V; fixed = true; } catch (_) {} }
-if(changed||fixed){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
+if(changed||fixed||migrated){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
 res.setHeader("Cache-Control","no-store");
 return res.status(200).json(data);
 }
