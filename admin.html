@@ -228,6 +228,11 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <button class="btn" style="background:#1faa54;width:auto;padding:8px 16px;font-size:13px" onclick="showAllItems()">✅ إتاحة الكل للزبائن</button>
         <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listHidden()">👁 عرض أسماءها</button>
       </div>
+      <div id="noimgBar" style="display:none;background:#fff6e3;border:1px solid #e0c98a;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="noimgTxt" style="font-family:'Cairo';font-weight:800;color:#8a6300;font-size:14px"></span>
+        <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listNoImg()">👁 عرض أسماءها</button>
+        <button class="btn" style="background:#2563c9;width:auto;padding:8px 16px;font-size:13px" onclick="copyNoImg()">📋 نسخ القائمة</button>
+      </div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
       <div class="savebar"><button class="btn" onclick="saveMenu()">💾 حفظ المنيو</button></div>
@@ -532,6 +537,39 @@ function hiddenItems(){
   (DATA.menu||[]).forEach((c,ci)=>(c.items||[]).forEach((it,ii)=>{ if(it.available===false) out.push({ci,ii,cat:c.cat,name:it.name||'(بدون اسم)'}); }));
   return out;
 }
+/* ===== الأصناف بدون صورة ===== */
+function noImgItems(){
+  const out=[];
+  (DATA.menu||[]).forEach(c=>(c.items||[]).forEach(it=>{
+    const im=(it.img||'').trim();
+    if(!im) out.push({cat:c.cat,name:it.name||'(بدون اسم)'});
+  }));
+  return out;
+}
+function noImgText(){
+  const l=noImgItems();
+  const byCat={};l.forEach(x=>{(byCat[x.cat]=byCat[x.cat]||[]).push(x.name);});
+  return Object.keys(byCat).map(c=>c+':\n'+byCat[c].map(n=>'  • '+n).join('\n')).join('\n\n');
+}
+function refreshNoImgBar(){
+  const bar=document.getElementById('noimgBar');if(!bar)return;
+  const l=noImgItems();
+  if(!l.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  document.getElementById('noimgTxt').textContent='🖼 '+l.length+' صنف بدون صورة';
+}
+function listNoImg(){const t=noImgText();if(t)alert('أصناف بدون صورة ('+noImgItems().length+'):\n\n'+t);}
+function copyNoImg(){
+  const t='أصناف بدون صورة ('+noImgItems().length+'):\n\n'+noImgText();
+  const done=()=>toast('📋 تم نسخ القائمة');
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fallback());return;} }catch(_){}
+  fallback();
+  function fallback(){
+    try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}
+    catch(_){alert(t);}
+  }
+}
 function refreshHiddenBar(){
   const bar=document.getElementById('hiddenBar');if(!bar)return;
   const h=hiddenItems();
@@ -752,7 +790,7 @@ function renderMenuEditor(){
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
   }).join('');
-  refreshHiddenBar();
+  refreshHiddenBar();refreshNoImgBar();
 }
 function toggleAvail(ci,ii){const it=DATA.menu[ci].items[ii];it.available=(it.available===false);renderMenuEditor();}
 function onItemImg(ci,ii,inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=500;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.72);}catch(_){url=rd.result;}DATA.menu[ci].items[ii].img=url;renderMenuEditor();toast("✅ تم اختيار الصورة — اضغط حفظ المنيو");};img.src=rd.result;};rd.readAsDataURL(f);}

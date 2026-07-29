@@ -1,6 +1,12 @@
 {
   "cleanUrls": true,
   "functions": { "api/*.js": { "maxDuration": 15 } },
+  "rewrites": [
+    { "source": "/menu.json", "destination": "/api/menu" }
+  ],
+  "headers": [
+    { "source": "/menu.json", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+  ],
   "redirects": [
     { "source": "/ig", "destination": "/?utm_source=instagram", "permanent": false },
     { "source": "/insta", "destination": "/?utm_source=instagram", "permanent": false },
