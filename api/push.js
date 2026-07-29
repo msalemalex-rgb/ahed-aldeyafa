@@ -5,6 +5,7 @@
 //  POST {action:ack}   (أدمن) → يوقف المنبّه المتكرر (الأدمن فتح اللوحة)
 //  POST {action:test}  (أدمن) → إشعار تجريبي
 const { getPublicKey, addSub, sendPush, countSubs, clearActive, tick, getTickToken } = require("../lib/push");
+const { rateLimit, clientIp } = require("../lib/kv");
 
 function readBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
@@ -22,6 +23,12 @@ module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
   if (req.method === "OPTIONS") return res.status(200).end();
   try {
+    // حد أقصى لمحاولات كلمة السر الخاطئة من نفس الاتصال
+    const supplied = (req.query && req.query.key) || req.headers["x-admin-key"];
+    if (supplied && !isAdmin(req)) {
+      const r = await rateLimit("authfail:" + clientIp(req), 10, 900);
+      if (!r.ok) { res.setHeader("Retry-After", "900"); return res.status(429).json({ error: "too_many_attempts" }); }
+    }
     if (req.method === "GET") {
       if (req.query && req.query.action === "tick") {
         const key = (req.query && req.query.key) || req.headers["x-admin-key"];
@@ -42,6 +49,8 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const b = await readBody(req);
       if (b.action === "subscribe" && b.subscription) {
+        // التسجيل للإشعارات للأدمن فقط — الإشعارات فيها أسماء الزبائن وروابط اللوحة
+        if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
         await addSub(b.subscription);
         return res.status(200).json({ ok: true, subs: await countSubs() });
       }

@@ -1,6 +1,24 @@
 // /api/orders — POST: إنشاء طلب | GET: قائمة الطلبات (أدمن) | PATCH: تحديث الحالة (أدمن)
 // GET ?debug=1 (أدمن): يرجّع آخر تشخيصات الدفع (pay_debug) لمتابعة عمليات Hesabe
-const { addOrder, listOrders, setOrderStatus, addReservation, listReservations, cmd } = require("../lib/kv");
+const { addOrder, listOrders, setOrderStatus, addReservation, listReservations, cmd, rateLimit, clientIp } = require("../lib/kv");
+const { priceOrder } = require("../lib/pricing");
+
+// حدود إنشاء الطلبات — تمنع إغراق لوحة التحكم بطلبات وهمية
+const LIMITS = {
+  orderPerIp:   { limit: 6,  win: 600 },    // ٦ طلبات كل ١٠ دقايق من نفس الاتصال
+  orderPerIpHr: { limit: 30, win: 3600 },
+  orderPerPhone:{ limit: 5,  win: 600 },
+  rsvPerIp:     { limit: 4,  win: 600 },
+};
+const cut = (v, n) => String(v == null ? "" : v).slice(0, n);
+function numIn(v, min, max) { const x = Number(v); return isFinite(x) && x >= min && x <= max ? x : null; }
+async function tooMany(req, buckets) {
+  for (const [name, cfg, id] of buckets) {
+    const r = await rateLimit(name + ":" + id, cfg.limit, cfg.win);
+    if (!r.ok) return { name, retryAfter: cfg.win };
+  }
+  return null;
+}
 let push = null;
 try { push = require("../lib/push"); } catch (_) {}
 
@@ -35,7 +53,11 @@ async function decrFloor(key, n) {
 // حذف طلبات الكاش التجريبية ليوم محدد + تنظيف عدادات الفانل
 // GET /api/orders?key=..&cleanupCod=1[&apply=1][&date=YYYYMMDD]
 async function cleanupCod(req, res) {
-  const apply = req.query.apply === "1" || req.query.apply === "true";
+  // التنفيذ يحتاج POST — عشان مجرد فتح/معاينة رابط ما يمسحش بيانات
+  const wantApply = req.query.apply === "1" || req.query.apply === "true";
+  const apply = wantApply && req.method === "POST";
+  if (wantApply && !apply)
+    return res.status(405).json({ error: "apply_requires_post", hint: "استخدم POST /api/orders?key=..&cleanupCod=1&apply=1" });
   const day = /^\d{8}$/.test(req.query.date || "") ? req.query.date : kwToday();
   const orders = await listOrders(1000);
   const targets = orders.filter(o => o && o.channel === "cod" && kwDateFromISO(o.createdAt) === day);
@@ -65,7 +87,17 @@ module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
   if (req.method === "OPTIONS") return res.status(200).end();
   try {
+    // حد أقصى لمحاولات كلمة السر الخاطئة — ده مسار تسجيل الدخول للوحة
+    const supplied = (req.query && req.query.key) || req.headers["x-admin-key"];
+    if (supplied && !isAdmin(req)) {
+      const rl = await rateLimit("authfail:" + clientIp(req), 10, 900);
+      if (!rl.ok) { res.setHeader("Retry-After", "900"); return res.status(429).json({ error: "too_many_attempts" }); }
+    }
     if (req.method === "POST") {
+      if (req.query && req.query.cleanupCod === "1") {
+        if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
+        return await cleanupCod(req, res);
+      }
       const b = await readBody(req);
       // تحديث موقع السائق (تطبيق السائق) — التفويض بمعرفة معرف الطلب غير القابل للتخمين
       if (b.locFor) {
@@ -92,20 +124,56 @@ module.exports = async (req, res) => {
       // حجز مناسبة/ديوانية (مدموج من /api/reservations)
       if (b.kind === "reservation") {
         if (!b.name || !b.date) return res.status(400).json({ error: "missing name/date" });
-        const r = await addReservation({ name: b.name, phone: b.phone || "", type: b.type || "", count: b.count || "", date: b.date, time: b.time || "", notes: b.notes || "" });
+        const hitR = await tooMany(req, [["rsv", LIMITS.rsvPerIp, clientIp(req)]]);
+        if (hitR) { res.setHeader("Retry-After", String(hitR.retryAfter)); return res.status(429).json({ error: "too_many_requests" }); }
+        const r = await addReservation({ name: cut(b.name, 80), phone: cut(b.phone, 25), type: cut(b.type, 60),
+          count: cut(b.count, 20), date: cut(b.date, 30), time: cut(b.time, 20), notes: cut(b.notes, 400) });
         return res.status(200).json({ ok: true, id: r.id });
       }
       if (!b.items || b.total == null) return res.status(400).json({ error: "missing items/total" });
+
+      const ip = clientIp(req);
+      const phoneKey = String(b.phone || "").replace(/\D/g, "").slice(-8) || "nophone";
+      const hit = await tooMany(req, [
+        ["ord", LIMITS.orderPerIp, ip],
+        ["ordh", LIMITS.orderPerIpHr, ip],
+        ["ordp", LIMITS.orderPerPhone, phoneKey],
+      ]);
+      if (hit) { res.setHeader("Retry-After", String(hit.retryAfter)); return res.status(429).json({ error: "too_many_requests" }); }
+
+      let total = numIn(b.total, 0.05, 100000);
+      if (total == null) return res.status(400).json({ error: "bad_total", got: b.total });
+      let fee = numIn(b.deliveryFee, 0, 50) || 0;
+      let sub = numIn(b.itemsSubtotal, 0, 100000) || 0;
+      let dpct = numIn(b.discountPct, 0, 95) || 0;
+      const lines = Array.isArray(b.lines) ? b.lines.slice(0, 60) : [];
+
+      // لو الأسطر فيها أرقام أصناف، نحسب الإجمالي من أسعارنا ونستخدم حسابنا
+      if (lines.length && lines.every(l => l && l.id != null)) {
+        try {
+          const raw = await cmd(["GET", "menu_data"]);
+          const data = raw ? JSON.parse(raw) : null;
+          if (data) {
+            const p = priceOrder(data, { deliveryType: b.deliveryType, area: b.area, lines });
+            if (!p.ok) return res.status(400).json({ error: "price_check_failed", reason: p.reason, detail: p.detail });
+            if (Math.abs(p.total - total) > 0.0015)
+              return res.status(409).json({ error: "amount_mismatch", expected: p.total, got: total });
+            total = p.total; fee = p.fee; sub = p.subtotal;
+          }
+        } catch (_) { /* لو القراءة فشلت نكمل بالقيم المحدودة */ }
+      }
+
       const order = await addOrder({
-        items: b.items, total: b.total, channel: b.channel || "web",
-        name: b.name || "", phone: b.phone || "", note: b.note || "",
-        deliveryType: b.deliveryType || "", area: b.area || "",
-        address: b.address || "", deliveryFee: Number(b.deliveryFee) || 0,
-        deliveryTime: b.deliveryTime || "", mapUrl: b.mapUrl || "",
-        scheduledFor: b.scheduledFor || "",
-        lines: Array.isArray(b.lines) ? b.lines : [],
-        itemsSubtotal: Number(b.itemsSubtotal) || 0,
-        discountPct: Number(b.discountPct) || 0,
+        items: cut(b.items, 2000), total, channel: cut(b.channel, 20) || "web",
+        name: cut(b.name, 80), phone: cut(b.phone, 25), note: cut(b.note, 300),
+        deliveryType: b.deliveryType === "pickup" ? "pickup" : (b.deliveryType ? "delivery" : ""),
+        area: cut(b.area, 60),
+        address: cut(b.address, 300), deliveryFee: fee,
+        deliveryTime: cut(b.deliveryTime, 60), mapUrl: cut(b.mapUrl, 300),
+        scheduledFor: cut(b.scheduledFor, 40),
+        lines,
+        itemsSubtotal: sub,
+        discountPct: dpct,
         // KNET: "pending" حتى نجاح الدفع | واتساب: "awaiting" (بانتظار تأكيد الأدمن) | غيرهم: "new"
         status: (b.channel === "knet") ? "pending" : (b.channel === "whatsapp") ? "awaiting" : "new",
       });

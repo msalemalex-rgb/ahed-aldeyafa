@@ -396,7 +396,7 @@ async function subscribePush(){
       if(!j||!j.publicKey)return;
       sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(j.publicKey)});
     }
-    await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',subscription:sub})});
+    await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'subscribe',subscription:sub})});
   }catch(_){}
 }
 function beep(){
