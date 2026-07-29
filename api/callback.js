@@ -146,12 +146,15 @@ module.exports = async (req, res) => {
       } catch (_) {}
     }
 
-    const ref    = encodeURIComponent(orderId);
-    const payId  = encodeURIComponent(f.paymentid || "");
-    const amount = encodeURIComponent(f.amount || "");
+    // رقم الطلب مفتاح لبيانات الزبون، فما ينفعش يمشي في رابط الصفحة:
+    // بكسل ميتا وتحليلات جوجل بيقروا الرابط أول ما الصفحة تفتح ويبعتوه لسيرفراتهم.
+    // بنمرّره في كوكي قصير الأجل على نفس النطاق — ما يوصلش لأي طرف تالت.
+    const payload = JSON.stringify({ ref: orderId, pid: f.paymentid || "", amt: f.amount || "" });
+    res.setHeader("Set-Cookie",
+      "ahd_pay=" + encodeURIComponent(payload) + "; Max-Age=900; Path=/; SameSite=Lax");
 
-    if (ok) return res.redirect(302, `${SITE}/?payment=success&ref=${ref}&pid=${payId}&amt=${amount}`);
-    return res.redirect(302, `${SITE}/?payment=failed&ref=${ref}`);
+    if (ok) return res.redirect(302, `${SITE}/?payment=success`);
+    return res.redirect(302, `${SITE}/?payment=failed`);
   } catch (e) {
     dbg.decision = "failed:exception"; dbg.err = e.message;
     await logDebug(dbg);
