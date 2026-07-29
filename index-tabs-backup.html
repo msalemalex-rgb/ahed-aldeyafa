@@ -1337,11 +1337,21 @@ async function submitCheckout(){
 
   // دفع إلكتروني: طلب واحد ينشئ الطلب ويجهّز صفحة الدفع معاً
   try{
-    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
+    /* ?paydebug=1 يعرض تفصيل زمن الدفع بدل التحويل الفوري (للتشخيص فقط) */
+    const DBG=(function(){try{return new URLSearchParams(location.search).get('paydebug')==='1';}catch(_){return false;}})();
+    const _t0=Date.now();
+    const res=await fetch('/api/checkout'+(DBG?'?debug=1':''),{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({amount:grand,method:(coPayMethod==='applepay'?'applepay':(coPayMethod==='other'?'other':'knet')),order:payload})});
     const data=await res.json();
     if(data.paymentUrl){
       remember(data.orderRef,data.orderNo);
+      if(DBG){
+        const t=data.timings||{};
+        err.textContent='⏱ الرحلة كاملة '+(Date.now()-_t0)+'ms | البوابة '+(t.gatewayMs||'?')+'ms | حفظ الطلب '+(t.orderSaveMs||'?')+'ms';
+        try{console.log('AHD pay timings',{roundTripMs:Date.now()-_t0,server:t});}catch(_){}
+        btn.disabled=false;updPayBtn();
+        return;
+      }
       window.location.href=data.paymentUrl;return;
     }
     err.textContent=T('e.payStart');
