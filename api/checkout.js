@@ -1,6 +1,8 @@
 // POST /api/checkout — ينشئ طلب دفع Hesabe ويرجّع رابط صفحة الدفع
 // (وضع تجربة: أضف ?sandbox=1 لاستخدام مفاتيح Hesabe التجريبية العامة)
 const { encrypt, decrypt } = require("../lib/hesabeCrypt");
+let kvOrders = null;
+try { kvOrders = require("../lib/kv"); } catch (_) {}
 
 async function readBody(req) {
   if (req.body !== undefined && req.body !== null) {
@@ -53,7 +55,24 @@ module.exports = async (req, res) => {
     if (!amountNum || amountNum < 0.1 || amountNum > 100000)
       return res.status(400).json({ error: "Invalid amount", got: body.amount });
     const amount = amountNum.toFixed(3);
-    const orderRef = (body.orderRef || ("AHD-" + Date.now())).toString().slice(0, 40);
+    // إنشاء الطلب هنا مباشرة (يوفّر رحلة كاملة للسيرفر ويسرّع الانتقال للدفع)
+    let createdOrder = null;
+    if (!body.orderRef && body.order && kvOrders && kvOrders.addOrder) {
+      try {
+        const b = body.order;
+        createdOrder = await kvOrders.addOrder({
+          items: b.items, total: Number(b.total) || amountNum, channel: "knet",
+          name: b.name || "", phone: b.phone || "", note: b.note || "",
+          deliveryType: b.deliveryType || "", area: b.area || "", address: b.address || "",
+          deliveryFee: Number(b.deliveryFee) || 0, deliveryTime: b.deliveryTime || "",
+          mapUrl: b.mapUrl || "", scheduledFor: b.scheduledFor || "",
+          lines: Array.isArray(b.lines) ? b.lines : [],
+          itemsSubtotal: Number(b.itemsSubtotal) || 0, discountPct: Number(b.discountPct) || 0,
+          status: "pending",
+        });
+      } catch (_) {}
+    }
+    const orderRef = (body.orderRef || (createdOrder && createdOrder.id) || ("AHD-" + Date.now())).toString().slice(0, 40);
 
     const payload = {
       merchantCode: MERCHANT, amount, currency: "KWD", paymentType: PAY_TYPE, version: "2.0",
@@ -83,7 +102,11 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "hesabe_error", message: json.message, details: json });
 
     const token = json.response.data;
-    return res.status(200).json({ paymentUrl: `${BASE}/payment?data=${encodeURIComponent(token)}`, orderRef });
+    return res.status(200).json({
+      paymentUrl: `${BASE}/payment?data=${encodeURIComponent(token)}`,
+      orderRef,
+      orderNo: createdOrder ? createdOrder.no : undefined,
+    });
   } catch (e) {
     return res.status(500).json({ error: "Server error", message: e.message });
   }

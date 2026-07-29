@@ -110,13 +110,18 @@ module.exports = async (req, res) => {
         status: (b.channel === "knet") ? "pending" : (b.channel === "whatsapp") ? "awaiting" : "new",
       });
       // إشعار Push للأدمن حسب حالة الطلب
+      // إشعارات بدون انتظار — لا تؤخر رد السيرفر على الزبون
       try {
         if (push && push.sendPush) {
-          try { if (order.status === "new" || order.status === "awaiting") await push.addActive(order.id); } catch (_) {}
-          if (order.status === "awaiting")
-            await push.sendPush({ title: "🟡 طلب بانتظار التأكيد", body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك", url: "/admin.html" });
-          else if (order.status === "new")
-            await push.sendPush({ title: "🔔 طلب جديد — عهد الضيافة", body: "وصلك طلب جديد، تابعه من لوحة التحكم", url: "/admin.html" });
+          (async () => {
+            try { if (order.status === "new" || order.status === "awaiting") await push.addActive(order.id); } catch (_) {}
+            try {
+              if (order.status === "awaiting")
+                await push.sendPush({ title: "🟡 طلب بانتظار التأكيد", body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك", url: "/admin.html" });
+              else if (order.status === "new")
+                await push.sendPush({ title: "🔔 طلب جديد — عهد الضيافة", body: "وصلك طلب جديد، تابعه من لوحة التحكم", url: "/admin.html" });
+            } catch (_) {}
+          })();
         }
       } catch (_) {}
       return res.status(200).json({ ok: true, id: order.id, no: order.no });

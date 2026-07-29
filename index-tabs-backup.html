@@ -1239,32 +1239,43 @@ async function submitCheckout(){
   const itemsSub=Number(subtotal().toFixed(3));
   const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
   const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent=(coPayMethod==='cod')?T('pay.sending'):T('pay.redirect');
-  let orderRef,orderNo;
-  try{
-    const o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      items:orderItemsText(arr),total:grand,channel:(coPayMethod==='cod')?"cod":"knet",
-      name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,deliveryTime:dtime,mapUrl:coMapUrl,
-      note:(document.getElementById('coNote').value||'').trim().slice(0,300),scheduledFor:schedFor,
-      lines:lines,itemsSubtotal:itemsSub,discountPct:discPct
-    })}).then(r=>r.json());
-    orderRef=o&&o.id;orderNo=o&&o.no;
-  }catch(_){}
-  try{if(orderNo)sessionStorage.setItem('lastOrderNo',orderNo);}catch(_){}
-  try{if(orderRef)myOrdersAdd({id:orderRef,no:orderNo||'',total:grand,at:new Date().toISOString(),itemsTxt:orderItemsText(arr),lines:cart.map(l=>({id:l.id,qty:l.qty,opts:l.opts})),st:(coPayMethod==='cod')?'ok':'pending'});}catch(_){}
-  try{localStorage.setItem('ahd_phone',phone);localStorage.setItem('ahd_name',name);}catch(_){}
+  const payload={
+    items:orderItemsText(arr),total:grand,
+    name:name,phone:phone,deliveryType:coDType,area:area,address:address,deliveryFee:fee,deliveryTime:dtime,mapUrl:coMapUrl,
+    note:(document.getElementById('coNote').value||'').trim().slice(0,300),scheduledFor:schedFor,
+    lines:lines,itemsSubtotal:itemsSub,discountPct:discPct
+  };
+  const remember=(ref,no)=>{
+    try{if(no)sessionStorage.setItem('lastOrderNo',no);}catch(_){}
+    try{if(ref)myOrdersAdd({id:ref,no:no||'',total:grand,at:new Date().toISOString(),itemsTxt:payload.items,lines:cart.map(l=>({id:l.id,qty:l.qty,opts:l.opts})),st:(coPayMethod==='cod')?'ok':'pending'});}catch(_){}
+    try{localStorage.setItem('ahd_phone',phone);localStorage.setItem('ahd_name',name);}catch(_){}
+  };
+
   if(coPayMethod==='cod'){
-    if(!orderRef){err.textContent=T('e.codFail');btn.disabled=false;updPayBtn();return;}
-    window._trackId=orderRef;
-    loadInvoice(orderRef,'');
+    let o=null;
+    try{o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({channel:'cod'},payload))}).then(r=>r.json());}catch(_){}
+    const ref=o&&o.id;
+    if(!ref){err.textContent=T('e.codFail');btn.disabled=false;updPayBtn();return;}
+    remember(ref,o&&o.no);
+    window._trackId=ref;
+    fbTrack('Purchase',{value:grand,currency:'KWD'});
+    loadInvoice(ref,'');
     closeCheckout();
     showResult('cod');
+    try{cart=[];updateCart();}catch(_){}
     btn.disabled=false;updPayBtn();
     return;
   }
+
+  // دفع إلكتروني: طلب واحد ينشئ الطلب ويجهّز صفحة الدفع معاً
   try{
-    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:grand,orderRef:orderRef,method:(coPayMethod==='applepay'?'applepay':(coPayMethod==='other'?'other':'knet'))})});
+    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({amount:grand,method:(coPayMethod==='applepay'?'applepay':(coPayMethod==='other'?'other':'knet')),order:payload})});
     const data=await res.json();
-    if(data.paymentUrl){window.location.href=data.paymentUrl;return;}
+    if(data.paymentUrl){
+      remember(data.orderRef,data.orderNo);
+      window.location.href=data.paymentUrl;return;
+    }
     err.textContent=T('e.payStart');
   }catch(e){err.textContent=T('e.payConn');}
   btn.disabled=false;updPayBtn();
