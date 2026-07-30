@@ -596,7 +596,7 @@ footer .eyebrow,footer .ornament{color:var(--gold-light)}
     <div id="clearWrap"><button type="button" class="cart-clear" id="clearBtn" onclick="clearCartAsk()">🗑 <span data-i18n="cart.clear">تفريغ السلة</span></button></div>
     <div id="noteWrap"><div class="field"><label data-i18n="co.note">ملاحظات (اختياري)</label><textarea id="coNote" rows="2" data-i18n-ph="co.notePh" placeholder="مثال: يُرجى الاتصال قبل الوصول"></textarea></div></div>
     <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold);width:100%;justify-content:center" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ إضافة أصناف أخرى</button>
-    <div class="discount-tag" id="discTag" data-i18n="cart.disc" style="margin-top:12px">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="discount-tag" id="discTag" style="margin-top:12px"></div>
     <div id="coInline" style="margin-top:14px">
 <div class="field"><label data-i18n="co.name">الاسم *</label><input id="coName" data-i18n-ph="co.namePh" placeholder="اسمك الكريم"></div>
       <div class="field"><label data-i18n="co.phone">رقم التواصل *</label><input id="coPhone" type="tel" inputmode="numeric" placeholder="9XXXXXXX"></div>
@@ -765,7 +765,7 @@ ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضي�
 "about.eyebrow":"قصتنا","about.title":"طعمٌ كويتيٌّ أصيل","about.p1":"في عهد الضيافة، نؤمن أن الأكل الكويتي إرثٌ وكرم. نُعدّ أطباقنا على الطريقة التقليدية بأجود المكوّنات، طازجة كل يوم.","about.p2":"من المجبوس والمطبق إلى أطباق الديوانيات الكبيرة، نقدّم لك طعم البيت الكويتي الأصيل.","about.s1":"أكل كويتي أصيل","about.s2n":"طازج","about.s2":"يومياً","about.s3n":"حولي","about.s3":"قلب الكويت",
 "contact.eyebrow":"زورنا","contact.title":"الموقع والتواصل","contact.sub":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.infoT":"معلومات التواصل","contact.addrL":"العنوان","contact.addrV":"حولي، شارع سراقة بن مالك، المتفرّع من شارع شرحبيل بن حسنة","contact.phoneL":"الهاتف / واتساب","contact.instaL":"إنستجرام","contact.hoursT":"أوقات العمل","contact.order":"🍽️ اطلب الآن","contact.wa":"📲 واتساب","contact.dir":"🧭 الاتجاهات",
 "footer.tag":"المأكولات الكويتية الأصيلة • حولي، الكويت","footer.menuLink":"📋 استعرض المنيو كاملاً بالأسعار","footer.rights":"عهد الضيافة. جميع الحقوق محفوظة.",
-"cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"🛒 إتمام الطلب","cart.addMore":"＋ إضافة أصناف أخرى","cart.clear":"تفريغ السلة","cart.clearSure":"اضغط مرة أخرى للتأكيد","t.cleared":"تم تفريغ السلة","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
+"cart.title":"🛒 سلة الطلبات","cart.disc":"✅ خصم {n}% مطبّق تلقائياً على الطلب الأونلاين","cart.totalL":"الإجمالي","cart.note":"التوصيل والرسوم تُحتسب عند تأكيد الطلب","cart.paynow":"🛒 إتمام الطلب","cart.addMore":"＋ إضافة أصناف أخرى","cart.clear":"تفريغ السلة","cart.clearSure":"اضغط مرة أخرى للتأكيد","t.cleared":"تم تفريغ السلة","cart.empty":"<div class=\"big\">🍽️</div><p>سلتك فارغة<br>أضف أطباقك من المنيو</p>",
 "m.add":"＋ أضف للسلة","m.count":"{n} صنف","ip.back":"الأقسام","m.unavail":"غير متوفر","m.soldout":"غير متوفر حالياً","t.added":"✓ أُضيف ","t.unavail":"هذا الصنف غير متوفر حالياً","t.empty":"السلة فارغة 🛒","t.invWait":"جارٍ تجهيز الفاتورة، يُرجى المحاولة بعد لحظات",
 "opt.add":"＋ أضف للسلة","opt.choice":"اختيار","opt.none":"لا توجد اختيارات",
 "co.title":"تفاصيل الطلب","co.name":"الاسم *","co.namePh":"اسمك الكريم","co.phone":"رقم التواصل *","co.dtype":"طريقة الاستلام","co.delivery":"🛵 توصيل","co.pickup":"🏠 استلام من المطعم","co.area":"المنطقة *","co.areaPh":"🔎 اكتب اسم منطقتك","co.address":"عنوان التوصيل *","co.addrPh":"القطعة، الشارع، رقم المنزل، علامة مميزة","co.locate":"📍 تحديد موقعي على الخريطة (لمساعدة المندوب)","co.payM":"طريقة الدفع","co.cod":"💵 الدفع عند الاستلام","co.payOther":"بطاقة ائتمانية أو محفظة","co.knetL":"الدفع عبر كنت","co.appleL":"ادفع بـ Apple Pay","pay.apple":" ادفع ","pay.other":"💳 ادفع ","co.noArea":"لا توجد منطقة بهذا الاسم","co.areaFee":"توصيل","co.when":"وقت التوصيل / الاستلام","co.asap":"⚡ في أقرب وقت","co.later":"🕐 وقت محدد / يوم لاحق","co.day":"اليوم","co.time":"الساعة","co.note":"ملاحظات (اختياري)","co.notePh":"مثال: يُرجى الاتصال قبل الوصول","opt.note":"ملاحظة على الصنف (اختياري)","opt.notePh":"مثال: بدون بصل","ln.add":"📝 إضافة ملاحظة","ln.edit":"📝 تعديل الملاحظة","ln.title":"ملاحظة على الصنف","ln.hint":"تصل هذه الملاحظة إلى المطبخ مع طلبك","ln.save":"✓ حفظ الملاحظة","e.sched":"فضلاً اختر اليوم والساعة","res.track":"🛵 تتبع طلبك","trk.title":"تتبع طلبك","trk.s1":"تم استلام الطلب","trk.s2":"قيد التحضير","trk.s3":"في الطريق إليك","trk.s3p":"جاهز للاستلام من المطعم","trk.s4":"تم التسليم — بالهنا والشفا!","trk.s4p":"تم الاستلام — بالهنا والشفا!","trk.pending":"بانتظار إتمام عملية الدفع","trk.cancelled":"تم إلغاء هذا الطلب","trk.failed":"لم يكتمل دفع هذا الطلب","trk.notfound":"تعذّر العثور على هذا الطلب — يُرجى التأكد من الرابط","trk.sched":"الموعد المطلوب","trk.auto":"يُحدَّث تلقائياً كل ٣٠ ثانية","trk.close":"إغلاق","trk.wa":"📲 تواصل واتساب","trk.driverMap":"مكان السائق الآن","trk.lastSig":"آخر إشارة من السائق منذ {s} ثانية","trk.away":"يبعد عنك تقريباً {km} كم",
@@ -785,7 +785,7 @@ en:{"brand.name":"Ahd Al-Diyafa","brand.full":"Ahd Al-Diyafa Restaurant","title.
 "about.eyebrow":"Our Story","about.title":"Authentic Kuwaiti Taste","about.p1":"At Ahd Al-Diyafa, we believe Kuwaiti food is heritage and generosity. We prepare our dishes the traditional way with the finest ingredients, fresh every day.","about.p2":"From majboos and mutabbaq to large diwaniya trays, we bring you the authentic taste of the Kuwaiti home.","about.s1":"Authentic Kuwaiti Food","about.s2n":"Fresh","about.s2":"Daily","about.s3n":"Hawally","about.s3":"Heart of Kuwait",
 "contact.eyebrow":"Visit Us","contact.title":"Location & Contact","contact.sub":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.infoT":"Contact Information","contact.addrL":"Address","contact.addrV":"Hawally, Suraqa Bin Malik St., off Sharhabeel Bin Hasana St.","contact.phoneL":"Phone / WhatsApp","contact.instaL":"Instagram","contact.hoursT":"Working Hours","contact.order":"🍽️ Order Now","contact.wa":"📲 WhatsApp","contact.dir":"🧭 Directions",
 "footer.tag":"Authentic Kuwaiti Cuisine • Hawally, Kuwait","footer.menuLink":"📋 View the full menu with prices","footer.rights":"Ahd Al-Diyafa. All rights reserved.",
-"cart.title":"🛒 Your Cart","cart.disc":"✅ 10% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"🛒 Checkout","cart.addMore":"＋ Add More Items","cart.clear":"Clear cart","cart.clearSure":"Tap again to confirm","t.cleared":"Cart cleared","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
+"cart.title":"🛒 Your Cart","cart.disc":"✅ {n}% discount applied automatically on online orders","cart.totalL":"Total","cart.note":"Delivery fees are calculated at checkout","cart.paynow":"🛒 Checkout","cart.addMore":"＋ Add More Items","cart.clear":"Clear cart","cart.clearSure":"Tap again to confirm","t.cleared":"Cart cleared","cart.empty":"<div class=\"big\">🍽️</div><p>Your cart is empty<br>Add dishes from the menu</p>",
 "m.add":"＋ Add to Cart","m.count":"{n} items","ip.back":"Categories","m.unavail":"Unavailable","m.soldout":"Currently unavailable","t.added":"✓ Added ","t.unavail":"This item is currently unavailable","t.empty":"Your cart is empty 🛒","t.invWait":"Invoice is being prepared, try again in a moment",
 "opt.add":"＋ Add to Cart","opt.choice":"Choice","opt.none":"No options available",
 "co.title":"Order Details","co.name":"Name *","co.namePh":"Your name","co.phone":"Contact Number *","co.dtype":"Order Type","co.delivery":"🛵 Delivery","co.pickup":"🏠 Pickup","co.area":"Area *","co.areaPh":"🔎 Type your area name...","co.address":"Delivery Address *","co.addrPh":"Block, street, house no., landmark...","co.locate":"📍 Pin my location on the map (helps the driver)","co.payM":"Payment Method","co.cod":"💵 Cash on Delivery","co.payOther":"Card or Wallet","co.knetL":"Pay with KNET","co.appleL":"Pay with Apple Pay","pay.apple":" Pay ","pay.other":"💳 Pay ","co.noArea":"No area found with this name","co.areaFee":"Delivery","co.when":"Delivery / Pickup Time","co.asap":"⚡ As soon as possible","co.later":"🕐 Schedule for later","co.day":"Day","co.time":"Time","co.note":"Notes (optional)","co.notePh":"e.g. call before arrival...","opt.note":"Item note (optional)","opt.notePh":"e.g. no onions...","ln.add":"📝 Add note","ln.edit":"📝 Edit note","ln.title":"Item Note","ln.hint":"This note reaches the kitchen with your order","ln.save":"✓ Save Note","e.sched":"Please choose the day and time","res.track":"🛵 Track Your Order","trk.title":"Track Your Order","trk.s1":"Order Received","trk.s2":"Being Prepared","trk.s3":"On Its Way to You","trk.s3p":"Ready for Pickup","trk.s4":"Delivered — Enjoy!","trk.s4p":"Picked Up — Enjoy!","trk.pending":"Waiting for payment...","trk.cancelled":"This order was cancelled","trk.failed":"Payment for this order was not completed","trk.notfound":"Order not found — check your link","trk.sched":"Requested Time","trk.auto":"Auto-refreshes every 30 seconds","trk.close":"Close","trk.wa":"📲 Contact on WhatsApp","trk.driverMap":"Driver Location Now","trk.lastSig":"Last driver signal {s}s ago","trk.away":"About {km} km away from you",
@@ -827,6 +827,7 @@ function applyLang(){
     renderMenu();if(document.getElementById('itemsPanel').classList.contains('open')&&window._ipCat!=null){openItems(window._ipCat);}updateCart();
     try{updPayBtn();}catch(_){}
     try{renderHours();}catch(_){}
+    try{applyDiscTag();}catch(_){}
   }catch(_){}
 }
 function setLang(l){LANG=(l==='en')?'en':'ar';try{localStorage.setItem('ahd_lang',LANG);}catch(_){}applyLang();closeNav();}
@@ -1622,6 +1623,16 @@ function syncSchemaHours(){
     el.textContent=JSON.stringify(j);
   }catch(_){}
 }
+/* شارة الخصم: النسبة من الإعدادات دايماً، والنص من قاموس اللغة —
+   قبل كده كانت النسبة مكتوبة ثابتة 10% في القاموس، فتغيير اللغة كان
+   يرجّعها 10% مهما كانت النسبة الحقيقية. */
+function applyDiscTag(){
+  const dt=document.getElementById('discTag');if(!dt)return;
+  const raw=Number(CONFIG.directDiscount)||0;
+  const pct=Math.round(raw<=1?raw*100:raw);
+  if(pct>0){dt.style.display='block';dt.textContent=T('cart.disc').replace('{n}',pct);}
+  else{dt.style.display='none';dt.textContent='';}
+}
 function applySettings(){
   const wa=`https://wa.me/${CONFIG.whatsapp}`;
   waFloat.href=wa;waFooter.href=wa;waContactBtn.href=wa;
@@ -1629,8 +1640,7 @@ function applySettings(){
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
   renderHours();syncSchemaHours();
-  const dt=document.getElementById('discTag');
-  if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct+'% مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
+  applyDiscTag();
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){
