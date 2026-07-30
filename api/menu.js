@@ -202,6 +202,25 @@ if(req.query && req.query.report==="1"){
     }
   }
   const sec=(t,a)=>`### ${t} (${a.length})\n`+(a.length?a.map((x,i)=>`${i+1}. ${x}`).join("\n"):"—")+"\n";
+  // ملخّص أسعار (بيانات عامة أصلاً) — يستخدم في حساب اقتصاديات الطلب
+  const px=[],perCat=[];
+  for(const c of (d.menu||[])){
+    const ps=(c.items||[]).map(it=>Number(it.price)||0).filter(v=>v>0);
+    ps.forEach(v=>px.push(v));
+    const avg=ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:0;
+    perCat.push(`${c.cat} | عدد ${(c.items||[]).length} | أقل ${ps.length?Math.min(...ps):0} | متوسط ${avg.toFixed(3)} | أعلى ${ps.length?Math.max(...ps):0}`);
+    }
+  const sorted=px.slice().sort((a,b)=>a-b);
+  const med=sorted.length?(sorted.length%2?sorted[(sorted.length-1)/2]:(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2):0;
+  const allItems=[];
+  for(const c of (d.menu||[])) for(const it of (c.items||[])) if(Number(it.price)>0) allItems.push({n:(it.name||"").trim(),p:Number(it.price),c:c.cat});
+  allItems.sort((a,b)=>b.p-a.p);
+  const priceBlock=`### ملخّص الأسعار\n`
+    +`أصناف بسعر > 0: ${px.length} من ${total}\n`
+    +`أقل سعر: ${sorted[0]||0} | الوسيط: ${med.toFixed(3)} | المتوسط: ${(px.reduce((a,b)=>a+b,0)/(px.length||1)).toFixed(3)} | أعلى سعر: ${sorted[sorted.length-1]||0}\n`
+    +`توزيع: أقل من 2 = ${px.filter(v=>v<2).length} | 2–4.999 = ${px.filter(v=>v>=2&&v<5).length} | 5–9.999 = ${px.filter(v=>v>=5&&v<10).length} | 10–19.999 = ${px.filter(v=>v>=10&&v<20).length} | 20+ = ${px.filter(v=>v>=20).length}\n\n`
+    +`#### حسب القسم\n`+perCat.map((x,i)=>`${i+1}. ${x}`).join("\n")+"\n\n"
+    +`#### أعلى 20 صنف سعراً\n`+allItems.slice(0,20).map((x,i)=>`${i+1}. ${x.p} — ${x.n} (${x.c})`).join("\n")+"\n";
   const st=(raw?JSON.parse(raw):{}).settings||{};
   const hoursRaw=Object.prototype.hasOwnProperty.call(st,"hours")?JSON.stringify(st.hours):"(المفتاح غير موجود)";
   const body=`# تقرير المنيو\nالأقسام: ${(d.menu||[]).length} | الأصناف: ${total}\n\n`
@@ -210,6 +229,7 @@ if(req.query && req.query.report==="1"){
     +`settings.openTime = ${Object.prototype.hasOwnProperty.call(st,"openTime")?JSON.stringify(st.openTime):"(المفتاح غير موجود)"}\n`
     +`settings.closeTime = ${Object.prototype.hasOwnProperty.call(st,"closeTime")?JSON.stringify(st.closeTime):"(المفتاح غير موجود)"}\n`
     +`مفاتيح settings الموجودة: ${Object.keys(st).join(", ")||"—"}\n\n`
+    +priceBlock+"\n"
     +sec("أصناف بدون صورة",noImg)+"\n"+sec("أصناف بدون اسم إنجليزي",noEn)+"\n"+sec("أصناف غير متاحة للزبائن",off);
   res.setHeader("Content-Type","text/plain; charset=utf-8");
   res.setHeader("Cache-Control","no-store");
