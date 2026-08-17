@@ -379,7 +379,14 @@ function doLogin(e){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
-    setInterval(loadOrders,6000); setInterval(loadReservations,12000);
+    /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
+       في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
+       والأدمن ينظر إلى اللوحة، ونحدّث فورًا لحظة عودته إليها. */
+    setInterval(function(){if(document.visibilityState==='visible')loadOrders();},6000);
+    setInterval(function(){if(document.visibilityState==='visible')loadReservations();},30000);
+    document.addEventListener('visibilitychange',function(){
+      if(document.visibilityState==='visible'){loadOrders();loadReservations();ackServer(1);}
+    });
     /* السجل الكامل يُحمَّل مرة عند الدخول؛ بعدها يبقى العدّاد حيًّا من دورة الطلبات. */
   }).catch(()=>{document.getElementById('loginErr').textContent="خطأ في الاتصال";});
   return false;
@@ -664,12 +671,21 @@ function startAlarm(){
   if(alarmTimer)return;
   alarmTimer=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
 }
-function ackServer(){ try{ if(KEY) fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}}
+/* إيقاف التنبيه المتكرر على السيرفر. كان يُرسَل مع كل دورة طلبات (كل ٦ ثوانٍ)
+   بلا داعٍ، وهو نداء كامل للسيرفر — مرة كل دقيقة تؤدّي الغرض نفسه. */
+let lastAck=0;
+function ackServer(force){
+  if(!KEY)return;
+  const t=Date.now();
+  if(!force&&t-lastAck<60000)return;
+  lastAck=t;
+  try{ fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
+}
 function stopAlarm(){
   if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='none';
   document.title="لوحة التحكم — عهد الضيافة";
-  ackServer(); // إيقاف التنبيه من اللوحة يوقفه على كل الأجهزة (بما فيها التطبيق)
+  ackServer(1); // إيقاف التنبيه من اللوحة يوقفه على كل الأجهزة (بما فيها التطبيق)
 }
 /* ===== صوت فشل الدفع (نغمة مختلفة منخفضة هابطة) ===== */
 function beepFail(){
@@ -704,7 +720,7 @@ function startFailAlarm(){
 function stopFailAlarm(){
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
   const bar=document.getElementById('failBar');if(bar)bar.style.display='none';
-  ackServer();
+  ackServer(1);
 }
 // استئناف الصوت عند أي تفاعل
 document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();});
@@ -722,7 +738,7 @@ function loadOrders(){
     if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد'); }
     if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
-    try{ if(document.visibilityState==='visible') fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
+    if(document.visibilityState==='visible') ackServer();
     first=false; orders=d.orders; renderOrders();
     /* كل الأرقام تتحدّث مع كل دورة طلبات (كل ٦ ثوانٍ) بدل انتظار فتح التبويب */
     try{ syncCustomers(); }catch(_){}
