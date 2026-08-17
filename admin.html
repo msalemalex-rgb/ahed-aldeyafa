@@ -949,7 +949,9 @@ function renderReservations(){
   const pending=reservations.filter(r=>!r.status||r.status==='new').length;
   document.getElementById('cntRes').textContent=pending;
   const todayList=reservations.filter(r=>r.date&&sameDay(resDate(r),now)&&isActive(r));
-  const upcoming=reservations.filter(r=>r.date&&resDate(r)>now&&!sameDay(resDate(r),now)&&isActive(r));
+  /* الحجوزات بدون تاريخ محدد تظهر هنا أيضًا — هي طلبات مفتوحة تحتاج متابعة،
+     وإخفاؤها كان يجعل القسم يبدو فارغًا مع وجود طلبات حجز فعلية. */
+  const upcoming=reservations.filter(r=>isActive(r)&&(!r.date||(resDate(r)>now&&!sameDay(resDate(r),now))));
   document.getElementById('cntRToday').textContent=todayList.length;
   document.getElementById('cntRUp').textContent=upcoming.length;
   // بانر اليوم
@@ -972,7 +974,7 @@ function renderReservations(){
     const stKey=r.status||'new';
     const st=stMap[stKey]||stMap.new;
     const dt=r.date?resDate(r):null;
-    const d=dt?toEn(dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'})):'—';
+    const d=dt?toEn(dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'})):'التاريخ غير محدد — يُرجى الاتصال بالعميل';
     const isToday=dt&&sameDay(dt,now);
     const hrsTo=dt?(dt-now)/3600000:999;
     const isSoon=isToday&&hrsTo>=0&&hrsTo<=3&&(stKey==='new'||stKey==='confirmed');
