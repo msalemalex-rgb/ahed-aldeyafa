@@ -226,7 +226,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
   <div class="wrap">
     <div class="tabs">
       <div class="tab active" onclick="showView('orders',this)">📋 الطلبات <span class="badge" id="cntNew">0</span></div>
-      <div class="tab" onclick="showView('res',this)">📅 الحجوزات <span class="badge" id="cntRes">0</span></div>
+      <div class="tab" onclick="showView('res',this)">📅 الحجوزات والمؤجَّل <span class="badge" id="cntRes">0</span></div>
       <div class="tab" onclick="showView('cust',this)">👥 العملاء <span class="badge" id="cntCust">0</span></div>
       <div class="tab" onclick="showView('menu',this)">🍲 المنيو</div>
       <div class="tab" onclick="showView('stats',this)">📊 الإحصائيات</div>
@@ -566,6 +566,14 @@ function saveCustomer(k){
     .catch(function(){toast('تعذّر حفظ بيانات العميل');if(btn){btn.disabled=false;btn.textContent='💾 حفظ';}});
 }
 
+/* الانتقال إلى تبويب الطلبات من بطاقة الطلب المؤجَّل */
+function goOrders(){
+  let el=null;
+  document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(function(t){
+    if(!el&&(t.textContent||'').indexOf('الطلبات')>=0)el=t;
+  });
+  showView('orders',el);
+}
 function showView(v,el){
   document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
@@ -941,6 +949,41 @@ function loadReservations(){
 function setRFilter(f,el){rfilter=f;if(el){el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}renderReservations();}
 function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
 function resDate(r){return new Date(r.date||r.createdAt);}
+/* ===== الطلبات المؤجَّلة تظهر مع الحجوزات =====
+   الطلب المؤجَّل ارتباط على موعد تمامًا مثل الحجز، فمكانه الطبيعي في نفس الشاشة
+   بدل أن يضيع وسط طلبات اليوم. الموعد مخزَّن بتوقيت الكويت فنحوّله صراحةً. */
+const SCHED_DEAD={cancelled:1,failed:1,done:1,delivered:1,pending:1};
+function schedMs(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return 0;
+  return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-3*3600000;
+}
+function schedItems(){
+  return (orders||[]).filter(function(o){return o&&o.scheduledFor&&!SCHED_DEAD[o.status];})
+    .map(function(o){return {o:o,ms:schedMs(o.scheduledFor)};})
+    .filter(function(s){return s.ms;});
+}
+function schedCard(s,now){
+  const o=s.o, dt=new Date(s.ms);
+  const isToday=sameDay(dt,now), hrsTo=(s.ms-now.getTime())/3600000;
+  const isSoon=hrsTo>=0&&hrsTo<=3;
+  const late=hrsTo<0;
+  const items=(o.lines&&o.lines.length)?o.lines.map(function(l){return esc(l.name)+' ×'+l.qty+(l.note?(' 📝 '+esc(l.note)):'');}).join('، '):esc(String(o.items||''));
+  return '<div class="order '+(isToday?'is-today ':'')+(isSoon?'is-soon':'')+'" style="border-right:5px solid #c8a349">'
+    +'<div class="top">'
+      +'<div><span class="oid">'+esc(o.name||'عميل')+'</span> <span class="status-tag st-confirmed">طلب مؤجَّل</span>'
+      +(isToday?' <span class="status-tag st-new">اليوم</span>':'')
+      +(late?' <span class="status-tag st-cancelled">فات موعده</span>':'')+'</div>'
+      +'<div style="text-align:left"><div class="time">⏰ '+esc(fmtSched(o.scheduledFor))+'</div></div>'
+    +'</div>'
+    +'<div class="meta">📞 <a href="tel:'+esc(o.phone||'')+'" style="color:inherit">'+esc(o.phone||'—')+'</a> • '+esc(String(o.no||o.id))+' • '+(Number(o.total)||0).toFixed(3)+' د.ك</div>'
+    +(items?'<div class="meta">'+items+'</div>':'')
+    +(o.note?'<div class="meta" style="color:#a2333f;font-weight:800">📝 '+esc(o.note)+'</div>':'')
+    +'<div class="actions">'
+      +'<button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ طباعة</button>'
+      +'<button class="sbtn done" onclick="goOrders()">📋 فتحه في الطلبات</button>'
+    +'</div></div>';
+}
 function renderReservations(){
   const box=document.getElementById('reservations');
   const now=new Date();
@@ -952,24 +995,33 @@ function renderReservations(){
   /* الحجوزات بدون تاريخ محدد تظهر هنا أيضًا — هي طلبات مفتوحة تحتاج متابعة،
      وإخفاؤها كان يجعل القسم يبدو فارغًا مع وجود طلبات حجز فعلية. */
   const upcoming=reservations.filter(r=>isActive(r)&&(!r.date||(resDate(r)>now&&!sameDay(resDate(r),now))));
-  document.getElementById('cntRToday').textContent=todayList.length;
-  document.getElementById('cntRUp').textContent=upcoming.length;
-  // بانر اليوم
+  const sched=schedItems();
+  const schedToday=sched.filter(function(s){return sameDay(new Date(s.ms),now);});
+  const schedUp=sched.filter(function(s){return s.ms>now.getTime()&&!sameDay(new Date(s.ms),now);});
+  document.getElementById('cntRToday').textContent=todayList.length+schedToday.length;
+  document.getElementById('cntRUp').textContent=upcoming.length+schedUp.length;
+  // بانر اليوم — الحجوزات والطلبات المؤجَّلة معًا
   const tConf=todayList.filter(r=>r.status==='confirmed').length, tNew=todayList.length-tConf;
+  const tAll=todayList.length+schedToday.length;
+  const tSub=[todayList.length?(tNew+' حجز بانتظار التأكيد • '+tConf+' حجز مؤكد'):'',schedToday.length?(schedToday.length+' طلب مؤجَّل'):''].filter(Boolean).join(' • ');
   document.getElementById('resToday').innerHTML=`<div class="today-banner">
-    <div class="tb-num">${todayList.length}</div>
-    <div><div class="tb-txt">حجوزات اليوم</div>
-    <div class="tb-sub">${todayList.length?(tNew+' بانتظار التأكيد • '+tConf+' مؤكد'):'لا توجد حجوزات لهذا اليوم'}</div></div>
+    <div class="tb-num">${tAll}</div>
+    <div><div class="tb-txt">ارتباطات اليوم</div>
+    <div class="tb-sub">${tAll?tSub:'لا توجد حجوزات ولا طلبات مؤجَّلة لهذا اليوم'}</div></div>
   </div>`;
-  // الفلترة
-  let list;
-  if(rfilter==='today')list=todayList;
-  else if(rfilter==='upcoming')list=upcoming;
-  else if(rfilter==='past')list=reservations.filter(r=>r.status==='done'||r.status==='cancelled'||(r.date&&resDate(r)<now&&!sameDay(resDate(r),now)));
-  else list=reservations.slice();
-  const sorted=list.sort((a,b)=>resDate(a)-resDate(b));
-  if(!sorted.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات في هذا القسم</p></div>';return;}
-  box.innerHTML=sorted.map(r=>{
+  // الفلترة — الحجوزات والطلبات المؤجَّلة في قائمة واحدة مرتّبة بالموعد
+  let list, sl;
+  if(rfilter==='today'){list=todayList;sl=schedToday;}
+  else if(rfilter==='upcoming'){list=upcoming;sl=schedUp;}
+  else if(rfilter==='past'){list=reservations.filter(r=>r.status==='done'||r.status==='cancelled'||(r.date&&resDate(r)<now&&!sameDay(resDate(r),now)));sl=[];}
+  else {list=reservations.slice();sl=sched;}
+  const items=list.map(function(r){const t=resDate(r).getTime();return {ms:isFinite(t)?t:0,html:resCard(r,now)};})
+    .concat(sl.map(function(s){return {ms:s.ms,html:schedCard(s,now)};}));
+  items.sort(function(a,b){return a.ms-b.ms;});
+  if(!items.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات ولا طلبات مؤجَّلة في هذا القسم</p></div>';return;}
+  box.innerHTML=items.map(function(x){return x.html;}).join('');
+}
+function resCard(r,now){
     const stMap={new:['جديد','st-new'],confirmed:['مؤكد','st-confirmed'],done:['تم','st-done'],cancelled:['ملغي','st-cancelled']};
     const stKey=r.status||'new';
     const st=stMap[stKey]||stMap.new;
@@ -1002,7 +1054,6 @@ function renderReservations(){
         ${stKey!=='cancelled'?`<button class="sbtn cancel" onclick="updRes('${r.id}','cancelled')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
-  }).join('');
 }
 function updRes(id,status){
   fetch('/api/orders',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({kind:'reservation',id,status})})
