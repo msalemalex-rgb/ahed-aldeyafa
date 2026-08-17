@@ -12,16 +12,16 @@
 <style>
 :root{--maroon:#6e1423;--maroon-dark:#4d0d18;--gold:#c8962f;--gold-light:#e6c061;--cream:#fdf6ea;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--green:#1faa54}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Tajawal',sans-serif;background:var(--cream);color:var(--ink)}
-h1,h2,h3{font-family:'Cairo',sans-serif}
+body{font-family:Calibri,'Segoe UI','Tajawal',sans-serif;background:var(--cream);color:var(--ink)}
+h1,h2,h3{font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--maroon-dark),var(--maroon))}
 .login-box{background:#fff;padding:40px;border-radius:14px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;border-top:5px solid var(--gold)}
 .login-box .logo{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#a8242b,var(--maroon-dark));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:32px;margin:0 auto 14px;border:2px solid var(--gold)}
 .login-box h2{color:var(--maroon);margin-bottom:6px}
 .login-box p{color:var(--muted);font-size:14px;margin-bottom:20px}
-input,select,textarea{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:8px;font-family:'Tajawal';font-size:16px;margin-bottom:14px}
+input,select,textarea{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:8px;font-family:Calibri,'Segoe UI','Tajawal',sans-serif;font-size:16px;margin-bottom:14px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
-.btn{background:var(--maroon);color:var(--gold-light);border:none;padding:13px 24px;border-radius:8px;font-family:'Cairo';font-weight:700;font-size:16px;cursor:pointer;width:100%;transition:.2s}
+.btn{background:var(--maroon);color:var(--gold-light);border:none;padding:13px 24px;border-radius:8px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:16px;cursor:pointer;width:100%;transition:.2s}
 .btn:hover{background:var(--maroon-dark)}
 .err{color:#c0392b;font-size:14px;margin-bottom:10px;min-height:18px}
 header{background:var(--maroon);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
@@ -31,45 +31,45 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 @keyframes pulse{50%{opacity:.4}}
 .wrap{max-width:1000px;margin:0 auto;padding:18px}
 .tabs{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.tab{background:#fff;border:1.5px solid var(--line);padding:9px 18px;border-radius:50px;cursor:pointer;font-family:'Cairo';font-weight:700;font-size:14px}
+.tab{background:#fff;border:1.5px solid var(--line);padding:9px 18px;border-radius:50px;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:14px}
 .tab.active{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
 .tab .badge{background:var(--gold);color:var(--maroon-dark);border-radius:50px;padding:1px 8px;font-size:12px;margin-right:5px}
 .order{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(78,13,24,.08);border-right:5px solid var(--gold)}
 .order.new{border-right-color:var(--green);background:#f6fff9}
 .order .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.order .oid{font-family:'Cairo';font-weight:700;color:var(--maroon)}
+.order .oid{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon)}
 .order .time{font-size:12px;color:var(--muted)}
-.order .chan{font-size:12px;padding:3px 10px;border-radius:50px;font-family:'Cairo';font-weight:700}
+.order .chan{font-size:12px;padding:3px 10px;border-radius:50px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700}
 .chan.knet{background:rgba(200,150,47,.18);color:#9a6b00}
 .chan.whatsapp{background:rgba(31,170,84,.15);color:#178c44}
 .chan.cod{background:rgba(110,20,35,.12);color:#6e1423}
 .chan.web{background:#eee;color:#666}
 .order .items{font-size:14px;color:var(--ink);margin:6px 0;line-height:1.8}
-.order .total{font-family:'Cairo';font-weight:900;color:var(--maroon);font-size:18px}
+.order .total{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:900;color:var(--maroon);font-size:18px}
 .order .meta{font-size:13px;color:var(--muted);margin-top:4px}
 .order .dinfo{font-size:13px;color:var(--ink);margin-top:6px;background:rgba(200,150,47,.10);padding:8px 10px;border-radius:7px;line-height:1.8}
 .order .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.sbtn{border:none;padding:7px 14px;border-radius:7px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer}
+.sbtn{border:none;padding:7px 14px;border-radius:7px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .sbtn.prep{background:#fff3d6;color:#9a6b00}
 .sbtn.done{background:rgba(31,170,84,.15);color:#178c44}
 .sbtn.cancel{background:#fde8e8;color:#c0392b}
-.status-tag{font-size:12px;font-family:'Cairo';font-weight:700;padding:2px 10px;border-radius:50px}
+.status-tag{font-size:12px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;padding:2px 10px;border-radius:50px}
 .st-new{background:#e8fff1;color:#178c44}.st-preparing{background:#fff3d6;color:#9a6b00}.st-delivering{background:#e7f0ff;color:#2563c9}.st-done{background:#eee;color:#666}.st-confirmed{background:#e7f0ff;color:#2563c9}.st-cancelled{background:#fde8e8;color:#c0392b}
 .sbtn.deliver{background:#e7f0ff;color:#2563c9}
 .empty{text-align:center;color:var(--muted);padding:60px 20px}
 .empty .big{font-size:60px}
 .today-banner{background:linear-gradient(135deg,#6e1423,#8a1c2e);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(110,20,35,.25)}
-.today-banner .tb-num{font-size:34px;font-weight:800;font-family:'Cairo';line-height:1;color:#f3c969}
-.today-banner .tb-txt{font-family:'Cairo';font-weight:700;font-size:15px}
-.today-banner .tb-sub{font-family:'Tajawal';font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
+.today-banner .tb-num{font-size:34px;font-weight:800;font-family:Calibri,'Segoe UI','Cairo',sans-serif;line-height:1;color:#f3c969}
+.today-banner .tb-txt{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:15px}
+.today-banner .tb-sub{font-family:Calibri,'Segoe UI','Tajawal',sans-serif;font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
 .order.is-today{border:2px solid #c8962f;box-shadow:0 2px 12px rgba(200,150,47,.2)}
 .order.is-soon{border-right:4px solid #c0392b}
-.pipeline{display:flex;align-items:center;gap:4px;margin:8px 0 4px;font-family:'Cairo';font-size:11px}
+.pipeline{display:flex;align-items:center;gap:4px;margin:8px 0 4px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:11px}
 .pipeline .pstep{flex:1;text-align:center;padding:4px 2px;border-radius:6px;background:#f0f0f0;color:#999;font-weight:700}
 .pipeline .pstep.on{background:#e8fff1;color:#178c44}
 .pipeline .pstep.cancel{background:#fde8e8;color:#c0392b}
 .pipeline .parrow{color:#ccc;font-size:12px}
-.soundbar{background:#fff3d6;color:#9a6b00;padding:10px;text-align:center;font-size:13px;font-family:'Cairo';font-weight:700;cursor:pointer}
+.soundbar{background:#fff3d6;color:#9a6b00;padding:10px;text-align:center;font-size:13px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer}
 .view{display:none}.view.active{display:block}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(78,13,24,.08)}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
@@ -82,19 +82,19 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .oe-c{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .oe-c input:first-child{flex:1;margin:0;padding:8px}
 .oe-c input[type=number]{width:96px;margin:0;padding:8px;text-align:center}
-.oe-cu{font-size:12px;color:var(--muted);font-family:'Cairo'}
-.oe-req{display:flex;align-items:center;gap:5px;font-family:'Cairo';font-weight:700;font-size:13px;white-space:nowrap}
+.oe-cu{font-size:12px;color:var(--muted);font-family:Calibri,'Segoe UI','Cairo',sans-serif}
+.oe-req{display:flex;align-items:center;gap:5px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;white-space:nowrap}
 .oe-req input{width:auto;margin:0;transform:scale(1.3)}
 .optedit-overlay{position:fixed;inset:0;background:rgba(40,8,12,.6);display:none;align-items:center;justify-content:center;z-index:120;padding:18px}
 .optedit-overlay.open{display:flex}
 .optedit-box{background:#fff;border-radius:12px;padding:20px;width:560px;max-width:95vw;max-height:88vh;overflow:auto;border-top:5px solid var(--gold)}
 .optedit-box h3{color:var(--maroon);margin-bottom:14px}
-.item-head{font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin:0 4px 5px;text-align:center}
+.item-head{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;color:var(--muted);margin:0 4px 5px;text-align:center}
 .item-block{border:1px solid var(--line);border-radius:8px;padding:5px 6px;margin-bottom:6px}
 .item-block input{margin:0;padding:9px 8px;width:100%;min-width:0}
 .item-block .num{text-align:center}
 .ib-thumb,.ib-thumb.noimg{width:40px;height:40px;border-radius:7px;object-fit:cover;background:linear-gradient(135deg,var(--maroon),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px}
-.avail-btn{border:none;border-radius:8px;padding:7px 2px;font-family:'Cairo';font-weight:700;font-size:15px;cursor:pointer}
+.avail-btn{border:none;border-radius:8px;padding:7px 2px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:15px;cursor:pointer}
 .avail-on{background:rgba(31,170,84,.15);color:#178c44}
 .avail-off{background:#fde8e8;color:#c0392b}
 .iconbtn{border:none;border-radius:8px;height:34px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
@@ -103,35 +103,35 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .iconbtn input[type=file]{display:none}
 @media(max-width:680px){.item-head{display:none}.item-block{grid-template-columns:36px 1fr 1fr;gap:5px}.item-block .ib-thumb{grid-row:1/3}.item-block .avail-btn,.item-block .iconbtn{grid-row:auto}}
 .delx{background:#fde8e8;color:#c0392b;border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0}
-.addbtn{background:rgba(31,170,84,.12);color:#178c44;border:1.5px dashed var(--green);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Cairo';font-weight:700;font-size:13px}
-.area-head{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
+.addbtn{background:rgba(31,170,84,.12);color:#178c44;border:1.5px dashed var(--green);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
+.area-head{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
 .area-row{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .area-row input{margin:0;padding:9px;font-size:14px}
 .hour-row{display:grid;grid-template-columns:1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .hour-row input{margin:0;padding:9px;font-size:14px}
 .hr-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
 .hr-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
-.hr-ttl{font-family:'Cairo';font-weight:800;color:var(--maroon);font-size:13.5px}
+.hr-ttl{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:var(--maroon);font-size:13.5px}
 .hr-days{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
-.hr-day{font-family:'Cairo';font-weight:700;font-size:12.5px;padding:6px 11px;border-radius:50px;border:1.5px solid var(--line);background:#fff;color:#7a6a58;cursor:pointer}
+.hr-day{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12.5px;padding:6px 11px;border-radius:50px;border:1.5px solid var(--line);background:#fff;color:#7a6a58;cursor:pointer}
 .hr-day.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
 .hr-times{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:8px;align-items:center}
-.hr-times span{font-family:'Cairo';font-weight:700;font-size:13px}
+.hr-times span{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
 .hr-times input{margin:0;padding:9px;font-size:14px}
 .hr-presets{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
-.hr-presets button{font-family:'Cairo';font-weight:700;font-size:12px;padding:5px 10px;border-radius:50px;border:1px dashed var(--gold);background:#fffaf0;color:#8a6300;cursor:pointer}
-.hr-prev{font-family:'Cairo';font-size:12.5px;color:#178c44;font-weight:700;margin-top:8px}
+.hr-presets button{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;padding:5px 10px;border-radius:50px;border:1px dashed var(--gold);background:#fffaf0;color:#8a6300;cursor:pointer}
+.hr-prev{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12.5px;color:#178c44;font-weight:700;margin-top:8px}
 .hr-lbl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .hr-lbl input{margin:0;padding:8px;font-size:13px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:'Cairo';font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
 .toast.show{opacity:1}
 .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--cream) 40%);padding:14px 0 4px;display:flex;gap:10px}
 .savebar .btn{width:auto;flex:1}
-label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);font-size:14px;margin-bottom:6px}
+label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);font-size:14px;margin-bottom:6px}
 .logoprev{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);display:block;margin-bottom:10px}
-.chk{display:flex;align-items:center;gap:10px;font-family:'Cairo';font-weight:700;color:var(--maroon);margin-bottom:14px}
+.chk{display:flex;align-items:center;gap:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin-bottom:14px}
 .chk input{width:auto;margin:0;transform:scale(1.4)}
-.snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer}
+.snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .sbtn.print{background:#e7f0ff;color:#2563c9}
 #printArea{display:none}
 @media print{ body>*:not(#printArea){display:none!important} #printArea{display:block!important;padding:6px} }
@@ -139,18 +139,18 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .scard{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(78,13,24,.06)}
 .scard .sic{font-size:22px}
-.scard .sval{font-size:24px;font-weight:900;color:#6e1423;font-family:'Cairo',sans-serif;margin:4px 0}
+.scard .sval{font-size:24px;font-weight:900;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif;margin:4px 0}
 .scard .slbl{font-size:13px;color:#666}
 .scard .ssub{font-size:12px;color:#999;margin-top:4px}
 .spanel{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 4px 14px rgba(78,13,24,.06)}
-.spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:'Cairo',sans-serif}
+.spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .bars{display:flex;gap:5px;align-items:flex-end;height:170px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;max-width:100%}
 .barcol{flex:1 0 20px;min-width:20px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .barlbl{white-space:nowrap}
-.daterow{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:9px;padding:6px 10px;margin-bottom:14px;font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:700;color:#6e1423;width:fit-content;max-width:100%}
+.daterow{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:9px;padding:6px 10px;margin-bottom:14px;font-size:12.5px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:#6e1423;width:fit-content;max-width:100%}
 .daterow label{color:#666;font-size:12px}
-.daterow input[type=date]{padding:4px 7px;border:1px solid #ddd;border-radius:7px;font-family:'Cairo',sans-serif;font-size:12px;max-width:132px}
-.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:5px 13px;border-radius:7px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12.5px}
+.daterow input[type=date]{padding:4px 7px;border:1px solid #ddd;border-radius:7px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12px;max-width:132px}
+.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:5px 13px;border-radius:7px;font-weight:700;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12.5px}
 .barwrap{position:relative;width:100%;height:130px;display:flex;align-items:flex-end;justify-content:center;gap:3px}
 .bar{width:42%;border-radius:5px 5px 0 0;min-height:2px}
 .bar-v{background:linear-gradient(#c8962f,#e6c061)}
@@ -163,7 +163,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .funnel{display:flex;gap:8px;flex-wrap:wrap}
 .fstep{flex:1;min-width:110px;background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:12px;text-align:center}
 .fstep span{display:block;font-size:12px;color:#666}
-.fstep b{display:block;font-size:22px;color:#6e1423;font-family:'Cairo',sans-serif}
+.fstep b{display:block;font-size:22px;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .fstep small{color:#c8962f;font-weight:700}
 .stwo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:760px){.stwo{grid-template-columns:1fr}}
@@ -176,7 +176,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .empty{color:#999;font-size:13px;padding:10px 0}
 .sgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
 .stbox{background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:10px;text-align:center}
-.stbox b{display:block;font-size:20px;color:#6e1423;font-family:'Cairo',sans-serif}
+.stbox b{display:block;font-size:20px;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .stbox span{font-size:12px;color:#666}
 
 /* ===== صفحة العملاء ===== */
@@ -185,8 +185,8 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .cst-sum .b .n{font-size:20px;font-weight:900;color:var(--maroon);line-height:1.3}
 .cst-sum .b .l{font-size:11.5px;color:var(--muted);margin-top:2px}
 .cst-bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.cst-bar input{flex:1;min-width:170px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo';font-size:14px}
-.cst-bar select{padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo';font-weight:700;font-size:13px}
+.cst-bar input{flex:1;min-width:170px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:14px}
+.cst-bar select{padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
 .cst-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;gap:10px;align-items:center}
 .cst-card:hover{border-color:var(--gold)}
 .cst-card .av{width:40px;height:40px;border-radius:50%;background:#f7ecd8;color:var(--maroon);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex:none}
@@ -203,8 +203,8 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 </style>
 </head>
 <body>
-<div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
-<div id="failBar" onclick="stopFailAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:301;background:#b5460f;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت</div>
+<div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
+<div id="failBar" onclick="stopFailAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:301;background:#b5460f;color:#fff;text-align:center;padding:15px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت</div>
 
 <div class="login" id="loginScreen">
   <form class="login-box" onsubmit="return doLogin(event)">
@@ -277,12 +277,12 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="btn" style="background:#9a6b00;width:auto;padding:11px 18px;cursor:pointer">📤 استيراد المنيو (Excel)<input type="file" accept=".xlsx,.xls" onchange="importMenu(this)" style="display:none"></label>
       </div>
       <div id="hiddenBar" style="display:none;background:#fdecea;border:1px solid #e2a49c;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
-        <span id="hiddenTxt" style="font-family:'Cairo';font-weight:800;color:#c0392b;font-size:14px"></span>
+        <span id="hiddenTxt" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:#c0392b;font-size:14px"></span>
         <button class="btn" style="background:#1faa54;width:auto;padding:8px 16px;font-size:13px" onclick="showAllItems()">✅ إتاحة الكل للزبائن</button>
         <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listHidden()">👁 عرض أسماءها</button>
       </div>
       <div id="noimgBar" style="display:none;background:#fff6e3;border:1px solid #e0c98a;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
-        <span id="noimgTxt" style="font-family:'Cairo';font-weight:800;color:#8a6300;font-size:14px"></span>
+        <span id="noimgTxt" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:#8a6300;font-size:14px"></span>
         <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listNoImg()">👁 عرض أسماءها</button>
         <button class="btn" style="background:#2563c9;width:auto;padding:8px 16px;font-size:13px" onclick="copyNoImg()">📋 نسخ القائمة</button>
       </div>
@@ -388,8 +388,15 @@ function logout(){try{sessionStorage.removeItem('ak');}catch(_){}; location.relo
 
 /* ===== صفحة العملاء: تُبنى من الطلبات نفسها — من غير جدول جديد =====
    المفتاح هو رقم التليفون (آخر ٨ أرقام) عشان صيغ الكتابة تختلف: 965.. / 00965.. / بدون. */
-let CUST=[], custLoaded=false, custRaw=[];
+let CUST=[], custLoaded=false, custRaw=[], CUSTX={};
 function normPhone(p){const d=String(p||'').replace(/\D/g,'');return d.length>8?d.slice(-8):d;}
+/* تاريخ الطلب مخزَّن كنص ISO، وقراءته كرقم كانت ترجع NaN — فكان تاريخ آخر طلب
+   يظهر «—» وتظهر لكل العملاء لافتة «منقطع منذ 999 يومًا». نقرأ الصيغتين هنا. */
+function tms(v){
+  if(v==null||v==='')return 0;
+  const n=Number(v); if(isFinite(n)&&n>0)return n;
+  const t=Date.parse(v); return isFinite(t)?t:0;
+}
 function waNum(p){const d=String(p||'').replace(/\D/g,'');return d.length===8?('965'+d):d;}
 function dayDiff(ms){return Math.floor((Date.now()-ms)/86400000);}
 function fmtD(ms){try{return toEn(new Date(ms).toLocaleDateString('ar-KW',{day:'2-digit',month:'2-digit',year:'2-digit'}));}catch(_){return '';}}
@@ -401,13 +408,21 @@ function buildCustomers(list){
     let c=map.get(k);
     if(!c){c={key:k,phone:o.phone||'',name:'',area:'',address:'',orders:[],spent:0,paid:0,first:0,last:0};map.set(k,c);}
     c.orders.push(o);
-    const t=Number(o.createdAt)||0;
+    const t=tms(o.createdAt);
     if(t&&(!c.last||t>c.last)){c.last=t;c.name=o.name||c.name;c.area=o.area||c.area;c.address=o.address||c.address;c.phone=o.phone||c.phone;}
     if(t&&(!c.first||t<c.first))c.first=t;
     if(!CST_DEAD[o.status]){c.spent+=Number(o.total)||0;c.paid++;}
   });
   const arr=[...map.values()];
-  arr.forEach(function(c){c.orders.sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});c.avg=c.paid?c.spent/c.paid:0;c.gap=c.last?dayDiff(c.last):999;});
+  arr.forEach(function(c){
+    c.orders.sort(function(a,b){return tms(b.createdAt)-tms(a.createdAt);});
+    c.avg=c.paid?c.spent/c.paid:0;
+    c.gap=c.last?dayDiff(c.last):null;          /* null = تاريخ غير معروف، وليس ٩٩٩ يومًا */
+    /* البيانات المحفوظة يدويًا تَغلب على المستخرَجة من آخر طلب */
+    const x=CUSTX[c.key];
+    c.note='';c.edited=false;
+    if(x){c.edited=true;if(x.name)c.name=x.name;if(x.area)c.area=x.area;if(x.address)c.address=x.address;c.note=x.note||'';}
+  });
   return arr;
 }
 /* الانتقال من الطلب إلى ملف صاحبه مباشرة */
@@ -424,7 +439,12 @@ function openCustFromOrder(phone){
 function loadCustomers(force,cb){
   if(custLoaded&&!force){renderCustomers();if(cb)cb();return;}
   document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">جاري التحميل…</div>';
-  fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}).then(function(d){
+  Promise.all([
+    fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}),
+    fetch('/api/customers',{headers:akHdr()}).then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(a){
+    const d=a[0]||{};
+    CUSTX=(a[1]&&a[1].customers)||{};
     custRaw=(d&&d.orders)||[]; CUST=buildCustomers(custRaw); custLoaded=true; renderCustomers(); if(cb)cb();
   }).catch(function(){document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:#b32d1f">تعذّر تحميل العملاء، يرجى الضغط على تحديث</div>';});
 }
@@ -447,9 +467,9 @@ function renderCustomers(){
   if(sort==='spent')arr.sort(function(a,b){return b.spent-a.spent;});
   else if(sort==='count')arr.sort(function(a,b){return b.paid-a.paid||b.spent-a.spent;});
   else if(sort==='recent')arr.sort(function(a,b){return b.last-a.last;});
-  else arr.sort(function(a,b){return (b.paid>=2?1:0)-(a.paid>=2?1:0)||b.gap-a.gap;});
+  else arr.sort(function(a,b){return (b.paid>=2?1:0)-(a.paid>=2?1:0)||((b.gap==null?-1:b.gap)-(a.gap==null?-1:a.gap));});
   document.getElementById('custList').innerHTML=arr.length?arr.map(function(c){
-    const tag=c.paid>=2?(c.gap>30?'<span class="cst-tag gone">منقطع منذ '+c.gap+' يومًا</span>':'<span class="cst-tag rep">متكرر ×'+c.paid+'</span>')
+    const tag=c.paid>=2?((c.gap!=null&&c.gap>30)?'<span class="cst-tag gone">منقطع منذ '+c.gap+' يومًا</span>':'<span class="cst-tag rep">متكرر ×'+c.paid+'</span>')
                        :'<span class="cst-tag new">أول طلب</span>';
     return '<div class="cst-card" onclick="openCustomer(\''+c.key+'\')">'
       +'<div class="av">'+esc((c.name||'؟').trim().charAt(0)||'؟')+'</div>'
@@ -487,14 +507,63 @@ function openCustomer(k,retried){
       +bx(c.spent.toFixed(3),'إجمالي إنفاقه')
       +bx(c.avg.toFixed(3),'متوسط الطلب')
       +bx(c.first?fmtD(c.first):'—','أول طلب')
-      +bx(c.last?(c.gap+' يومًا'):'—','منذ آخر طلب')
+      +bx(c.gap!=null?(c.gap+' يومًا'):'—','منذ آخر طلب')
     +'</div>'
+    +(c.note?'<div style="margin-top:10px;background:#fff8e7;border:1px solid #eddca5;border-radius:9px;padding:8px 11px;color:#7a5c00;font-weight:700">📝 '+esc(c.note)+'</div>':'')
     +'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
+      +'<button class="sbtn print" onclick="editCustomer(\''+c.key+'\')">✏️ تعديل البيانات</button>'
       +'<a class="sbtn deliver" style="text-decoration:none" target="_blank" href="https://wa.me/'+waNum(c.phone)+'">📲 واتساب</a>'
       +'<a class="sbtn print" style="text-decoration:none" href="tel:'+esc(c.phone||'')+'">📞 اتصال</a>'
-    +'</div></div>'
+    +'</div>'
+    +'<div id="custEditBox" style="display:none;margin-top:11px"></div>'
+    +'</div>'
     +'<div style="font-weight:900;color:var(--maroon);margin-bottom:7px">طلباته السابقة ('+c.orders.length+')</div>'
     +rows;
+}
+
+/* ===== تعديل بيانات العميل =====
+   الاسم والمنطقة والعنوان تُؤخذ تلقائيًا من آخر طلب، وما يُحفظ هنا يَغلب عليها
+   ويبقى ثابتًا مهما تغيّرت الطلبات. رقم الهاتف هو مفتاح تجميع الطلبات فلا يُعدَّل. */
+function cxFld(lbl,id,val,ml,ta){
+  return '<label style="display:block;margin-bottom:9px">'
+    +'<span style="display:block;font-weight:800;color:var(--maroon);font-size:13px;margin-bottom:4px">'+lbl+'</span>'
+    +(ta?('<textarea id="'+id+'" rows="2" maxlength="'+ml+'" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;min-height:44px">'+esc(val||'')+'</textarea>')
+        :('<input id="'+id+'" maxlength="'+ml+'" value="'+esc(val||'')+'" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;min-height:44px">'))
+    +'</label>';
+}
+function editCustomer(k){
+  const c=CUST.find(function(x){return x.key===k;}); if(!c)return;
+  const box=document.getElementById('custEditBox'); if(!box)return;
+  box.innerHTML='<div style="background:#faf7f2;border:1px solid var(--line);border-radius:11px;padding:12px 13px">'
+    +cxFld('الاسم','cxName',c.name,80,0)
+    +cxFld('المنطقة','cxArea',c.area,60,0)
+    +cxFld('العنوان','cxAddr',c.address,300,0)
+    +cxFld('ملاحظة خاصة (تظهر لك في اللوحة فقط)','cxNote',c.note,400,1)
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">'
+      +'<button class="sbtn done" id="cxSave" onclick="saveCustomer(\''+k+'\')">💾 حفظ</button>'
+      +'<button class="sbtn" onclick="openCustomer(\''+k+'\')">إلغاء</button>'
+    +'</div>'
+    +'<div style="color:var(--muted);font-size:12px;margin-top:8px;line-height:1.7">رقم الهاتف <b>'+esc(c.phone||'')+'</b> هو المُعرِّف الذي تُجمَع به طلبات العميل، ولذلك لا يُعدَّل من هنا.<br>ترك الحقول فارغة يُعيد البيانات المأخوذة تلقائيًا من آخر طلب.</div>'
+    +'</div>';
+  box.style.display='';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const f=document.getElementById('cxName'); if(f)f.focus();
+}
+function saveCustomer(k){
+  const btn=document.getElementById('cxSave');
+  const g=function(id){const e=document.getElementById(id);return e?e.value:'';};
+  const body={key:k,name:g('cxName'),area:g('cxArea'),address:g('cxAddr'),note:g('cxNote')};
+  if(btn){btn.disabled=true;btn.textContent='… جارٍ الحفظ';}
+  fetch('/api/customers',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},akHdr()),body:JSON.stringify(body)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||d.error){toast('تعذّر حفظ بيانات العميل');if(btn){btn.disabled=false;btn.textContent='💾 حفظ';}return;}
+      if(d.cleared)delete CUSTX[k]; else CUSTX[k]=d.customer;
+      CUST=buildCustomers(custRaw);
+      toast('تم حفظ بيانات العميل');
+      openCustomer(k);
+    })
+    .catch(function(){toast('تعذّر حفظ بيانات العميل');if(btn){btn.disabled=false;btn.textContent='💾 حفظ';}});
 }
 
 function showView(v,el){
@@ -827,7 +896,7 @@ function printOrder(id){
   if(fee>0)totals+=`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`;
   totals+=`<div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>`;
   const info=(l,v)=>v?`<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #eee"><span style="color:#888">${l}</span><b>${esc(v)}</b></div>`:'';
-  const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
+  const html=`<div style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
     <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
     <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:6px;margin:10px 0">🧾 فاتورة طلب</div>
     ${o.scheduledFor?`<div style="text-align:center;background:#fff3cd;border:2px solid #e0a800;border-radius:8px;padding:9px;margin:8px 0;font-weight:900;color:#7a5c00;font-size:15.5px">\u23f0 طلب مؤجل — يُسلَّم ${esc(fmtSched(o.scheduledFor))}</div>`:''}
@@ -968,8 +1037,8 @@ function renderMenuEditor(){
     }).join('');
     return `<div class="card">
       <div class="cat-head">
-        <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0">
-        <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0;max-width:190px">
+        <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0">
+        <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0;max-width:190px">
         <button class="delx" onclick="delCat(${ci})">🗑</button>
       </div>
       ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>English</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
@@ -1047,7 +1116,7 @@ function renderHours(){
   if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
   DATA.settings.hours=DATA.settings.hours.map(hrNorm);
   const hrs=DATA.settings.hours;
-  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ لا توجد مواعيد — لن يظهر قسم أوقات العمل للعميل</div>';
+  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ لا توجد مواعيد — لن يظهر قسم أوقات العمل للعميل</div>';
   box.innerHTML=warn+hrs.map((h,i)=>`<div class="hr-card">
     <div class="hr-top"><span class="hr-ttl">نطاق ${i+1}</span><button class="delx" onclick="delHour(${i})">🗑</button></div>
     <div class="hr-days">${HR_DAYS.map(d=>`<button type="button" class="hr-day ${(h.days||[]).indexOf(d.i)>=0?'on':''}" onclick="hrToggleDay(${i},${d.i})">${d.n}</button>`).join('')}</div>
@@ -1298,7 +1367,7 @@ async function loadStats(range,el){
   const rangeLbl=(statsCustom&&statsCustom.label)?statsCustom.label:(d.mode==='custom'?('من '+fmt(d.from)+' إلى '+fmt(d.to)):(({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||''));
   const KWD=v=>Number(v||0).toFixed(3)+' د.ك';
   const card=(ic,lb,vl,sb)=>`<div class="scard"><div class="sic">${ic}</div><div class="sval">${vl}</div><div class="slbl">${lb}</div>${sb?`<div class="ssub">${sb}</div>`:''}</div>`;
-  let h='<div style="font-family:\'Cairo\';font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
+  let h='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
   h+=card('💰','الإيرادات (مدفوعة)',KWD(o.revenue),'اليوم: '+KWD(o.revToday));
   h+=card('🧾','الطلبات',o.total||0);
   h+=card('✅','طلبات مدفوعة',o.paidCount||0);
