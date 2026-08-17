@@ -4,7 +4,7 @@
 //  POST {action:subscribe, subscription} → يسجّل جهاز
 //  POST {action:ack}   (أدمن) → يوقف المنبّه المتكرر (الأدمن فتح اللوحة)
 //  POST {action:test}  (أدمن) → إشعار تجريبي
-const { getPublicKey, addSub, sendPush, countSubs, clearActive, tick, getTickToken } = require("../lib/push");
+const { getPublicKey, addSub, sendPush, countSubs, clearActive, tick, getTickToken, runSchedReminders } = require("../lib/push");
 const { rateLimit, clientIp } = require("../lib/kv");
 
 function readBody(req) {
@@ -30,6 +30,16 @@ module.exports = async (req, res) => {
       if (!r.ok) { res.setHeader("Retry-After", "900"); return res.status(429).json({ error: "too_many_attempts" }); }
     }
     if (req.method === "GET") {
+      // كنس تنبيهات الطلبات المؤجَّلة وحدها — تناديه مهمة دورية كل ٥ دقائق.
+      // بلا مفتاح: لا يرسل شيئًا إلا تنبيهًا حان موعده فعلاً، فتكرار النداء لا
+      // ينتج إزعاجًا، ومعه حدّ عام يمنع تنفيذه أكثر من مرة كل ٤٥ ثانية.
+      if (req.query && req.query.action === "sched") {
+        let g = { ok: true };
+        try { g = await rateLimit("schedsweep", 1, 45); } catch (_) {}
+        if (!g.ok) return res.status(200).json({ ok: true, skipped: "throttled" });
+        const fired = await runSchedReminders(Date.now());
+        return res.status(200).json({ ok: true, fired: fired.length });
+      }
       if (req.query && req.query.action === "tick") {
         const key = (req.query && req.query.key) || req.headers["x-admin-key"];
         const tok = await getTickToken();
