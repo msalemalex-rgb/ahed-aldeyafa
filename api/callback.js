@@ -141,7 +141,24 @@ module.exports = async (req, res) => {
     if (push && push.sendPush) {
       try {
         if (ok) { try { await push.addActive(orderId); } catch (_) {} }
-        if (ok) await push.sendPush({ title: "\uD83D\uDD14 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u2014 \u0639\u0647\u062F \u0627\u0644\u0636\u064A\u0627\u0641\u0629", body: "\u0648\u0635\u0644\u0643 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u0645\u062F\u0641\u0648\u0639 \u2014 \u062A\u0627\u0628\u0639\u0647 \u0645\u0646 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", url: "/admin.html" });
+        // طلب مؤجل مدفوع: سجّل تنبيه التحضير قبل الموعد
+        let sched = "";
+        if (ok && kv && kv.cmd) {
+          try {
+            const raw = await kv.cmd(["GET", "order:" + orderId]);
+            const od = raw ? JSON.parse(raw) : null;
+            if (od && od.scheduledFor) {
+              sched = od.scheduledFor;
+              if (push.addSchedReminder) await push.addSchedReminder(orderId, sched);
+            }
+          } catch (_) {}
+        }
+        // الإشعار الأول لازم يفرّق: طلب دلوقتي ولا طلب لموعد لاحق
+        if (ok && sched) await push.sendPush({
+          title: "\u23f0 \u0637\u0644\u0628 \u0645\u062f\u0641\u0648\u0639 \u2014 \u0645\u0624\u062c\u0651\u0644",
+          body: "\u0627\u0644\u062a\u0633\u0644\u064a\u0645 " + (push.schedLabel ? push.schedLabel(sched) : sched) + " \u2014 \u0644\u0627 \u064a\u0644\u0632\u0645 \u062a\u062d\u0636\u064a\u0631\u0647 \u0627\u0644\u0622\u0646\u060c \u0648\u0633\u064a\u0635\u0644\u0643 \u062a\u0646\u0628\u064a\u0647 \u0641\u064a \u0645\u0648\u0639\u062f\u0647",
+          url: "/admin.html" });
+        else if (ok) await push.sendPush({ title: "\uD83D\uDD14 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u2014 \u0639\u0647\u062F \u0627\u0644\u0636\u064A\u0627\u0641\u0629", body: "\u0648\u0635\u0644\u0643 \u0637\u0644\u0628 \u062C\u062F\u064A\u062F \u0645\u062F\u0641\u0648\u0639 \u2014 \u062A\u0627\u0628\u0639\u0647 \u0645\u0646 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", url: "/admin.html" });
         else await push.sendPush({ title: "\uD83D\uDCB3 \u0645\u062D\u0627\u0648\u0644\u0629 \u062F\u0641\u0639 \u0641\u0627\u0634\u0644\u0629", body: "\u0639\u0645\u064A\u0644 \u062D\u0627\u0648\u0644 \u0627\u0644\u062F\u0641\u0639 \u0648\u0644\u0645 \u064A\u0643\u062A\u0645\u0644 \u2014 \u0642\u062F \u062A\u062D\u062A\u0627\u062C \u0645\u062A\u0627\u0628\u0639\u062A\u0647", url: "/admin.html" });
       } catch (_) {}
     }

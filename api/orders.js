@@ -183,11 +183,17 @@ module.exports = async (req, res) => {
         if (push && push.sendPush) {
           (async () => {
             try { if (order.status === "new" || order.status === "awaiting") await push.addActive(order.id); } catch (_) {}
+            // طلب مؤجل: سجّل تنبيه قبل موعد التسليم (الدفع الإلكتروني بيتسجّل بعد نجاح الدفع)
+            try { if (order.scheduledFor && order.status !== "pending" && push.addSchedReminder) await push.addSchedReminder(order.id, order.scheduledFor); } catch (_) {}
             try {
+              // الإشعار الأول لازم يفرّق: طلب دلوقتي ولا طلب لموعد لاحق
+              const schedTxt = order.scheduledFor
+                ? (" — التسليم " + (push.schedLabel ? push.schedLabel(order.scheduledFor) : order.scheduledFor) + "، ولا يلزم تحضيره الآن")
+                : "";
               if (order.status === "awaiting")
-                await push.sendPush({ title: "🟡 طلب بانتظار التأكيد", body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك", url: "/admin.html" });
+                await push.sendPush({ title: (order.scheduledFor ? "⏰ طلب مؤجّل بانتظار التأكيد" : "🟡 طلب بانتظار التأكيد"), body: (order.name || "عميل") + " أرسل طلب — بانتظار تأكيدك" + schedTxt, url: "/admin.html" });
               else if (order.status === "new")
-                await push.sendPush({ title: "🔔 طلب جديد — عهد الضيافة", body: "وصلك طلب جديد، تابعه من لوحة التحكم", url: "/admin.html" });
+                await push.sendPush({ title: (order.scheduledFor ? "⏰ طلب جديد — مؤجّل" : "🔔 طلب جديد — عهد الضيافة"), body: (order.scheduledFor ? ("طلب جديد" + schedTxt + "، وسيصلك تنبيه في موعده") : "وصلك طلب جديد، تابعه من لوحة التحكم"), url: "/admin.html" });
             } catch (_) {}
           })();
         }
@@ -244,7 +250,11 @@ module.exports = async (req, res) => {
         const debug = (rows || []).map((s) => { try { return JSON.parse(s); } catch { return s; } });
         return res.status(200).json({ debug });
       }
-      return res.status(200).json({ orders: await listOrders(200) });
+      {
+        // ?limit= للأدمن (لصفحة العملاء) — الافتراضي 200 والحد الأقصى 1000
+        const lim = Math.max(1, Math.min(parseInt((req.query && req.query.limit) || "200", 10) || 200, 1000));
+        return res.status(200).json({ orders: await listOrders(lim) });
+      }
     }
     if (req.method === "PATCH") {
       if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
