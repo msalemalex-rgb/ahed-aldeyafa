@@ -811,7 +811,8 @@ function renderOrders(){
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
       <div class="actions">
-        <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ طباعة</button>
+        <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ فاتورة</button>
+        <button class="sbtn prep" onclick="printKitchen('${o.id}')">👨‍🍳 تذكرة المطبخ</button>
         ${o.phone?`<button class="sbtn" style="background:#efe7f7;color:#5b3a86" onclick="openCustFromOrder('${String(o.phone).replace(/[^0-9+]/g,'')}')">👤 ملف العميل</button>`:''}
         ${o.status==='awaiting'?`<button class="sbtn done" onclick="updOrder('${o.id}','new')">✅ أكّد الطلب</button>`:''}
         ${o.status==='new'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
@@ -927,59 +928,133 @@ function cancelOrder(id){
   if(!confirm("متأكد من إلغاء هذا الطلب؟"))return;
   updOrder(id,'cancelled');
 }
+/* ===== الطباعة =====
+   الورق حراري ضيّق وأحادي اللون: الخلفيات الملوّنة تخرج رماديّة متّسخة، والجدول
+   ذو الأعمدة الأربعة كان يضغط اسم الصنف في عمود ضيّق فيتقطّع على أسطر كثيرة.
+   لذلك: أبيض وأسود وخطوط فاصلة فقط، وكل صنف في سطر كامل بعرض الورقة. */
+function invEn(nm){
+  const t=String(nm||'').trim(); const ms=(DATA&&DATA.menu)||[];
+  for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return String(it.nameEn||'').trim();
+  return '';
+}
+function prLines(o){
+  if(o.lines&&o.lines.length)return o.lines.map(function(l){
+    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',note:l.note||''};
+  });
+  const findP=function(nm){const t=String(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return Number(it.price)||0;return null;};
+  return String(o.items||'').split('،').map(function(s){return s.trim();}).filter(Boolean).map(function(p){
+    const qm=p.match(/×\s*(\d+)/); const qty=qm?parseInt(qm[1],10):1;
+    const nm=p.split('×')[0].trim(); const u=findP(nm);
+    return {name:nm,en:invEn(nm),qty:qty,unit:u==null?null:u,total:u==null?null:u*qty,opts:'',note:''};
+  });
+}
+function doPrint(html){
+  const pa=document.getElementById('printArea');
+  pa.innerHTML=html;
+  let fired=false; const go=function(){if(fired)return;fired=true;window.print();};
+  const imgs=Array.prototype.slice.call(pa.querySelectorAll('img'));
+  if(!imgs.length){go();return;}
+  Promise.all(imgs.map(function(i){return i.decode?i.decode().catch(function(){}):Promise.resolve();})).then(go);
+  setTimeout(go,3000);
+}
+
+/* فاتورة العميل */
 function printOrder(id){
-  const o=orders.find(x=>x.id===id); if(!o)return;
+  const o=orders.find(function(x){return x.id===id;}); if(!o)return;
   const cur='د.ك';
   const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
-  const lg=(DATA&&DATA.settings&&DATA.settings.logo)?`<img src="${DATA.settings.logo}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #c8962f;display:block;margin:0 auto 6px">`:'';
-  const hasLines=o.lines&&o.lines.length;
+  const lg=(DATA&&DATA.settings&&DATA.settings.logo)?'<img src="'+DATA.settings.logo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px">':'';
   const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
-  let sub=Number(o.itemsSubtotal)||0, itemsBlock;
-  const findP=nm=>{const t=(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
-  const TH='<thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead>';
-  if(hasLines){const rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}${l.note?`<div style="font-size:12px;color:#a2333f;font-weight:800">\ud83d\udcdd ${esc(l.note)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');
-    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;}
-  else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);let computed=0,anyP=false;
-    const rows=parts.map(p=>{const qm=p.match(/×\s*(\d+)/);const qty=qm?parseInt(qm[1]):1;const nm=p.split('×')[0].trim();const u=findP(nm);if(u!=null){anyP=true;computed+=u*qty;}return `<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?u.toFixed(3):'—'}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?(u*qty).toFixed(3):'—'}</td></tr>`;}).join('');
-    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;
-    if(!sub&&anyP)sub=computed;}
-  let disc=o.discountPct?sub*(o.discountPct/100):0;const discLbl=o.discountPct?('الخصم ('+o.discountPct+'%)'):'الخصم';
+  const L=prLines(o);
+  let sub=Number(o.itemsSubtotal)||0;
+  if(!sub)L.forEach(function(l){if(l.total!=null)sub+=l.total;});
+
+  const rule='<div style="border-top:1px dashed #000;margin:7px 0"></div>';
+  const strong='<div style="border-top:2px solid #000;margin:7px 0"></div>';
+  const row=function(a,b){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px"><span>'+a+'</span><span style="white-space:nowrap;font-weight:700">'+b+'</span></div>';};
+  const info=function(ar,en,v){return v?'<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:12.5px"><span style="white-space:nowrap">'+ar+' <span style="font-size:10.5px;opacity:.6">'+en+'</span></span><b style="text-align:left">'+esc(v)+'</b></div>':'';};
+
+  const items=L.map(function(l){
+    return '<div style="padding:6px 0;border-bottom:1px dotted #999">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'
+        +'<span style="font-size:14.5px;font-weight:700;line-height:1.45">'+esc(l.name)+'</span>'
+        +'<span style="font-size:14px;font-weight:700;white-space:nowrap">'+(l.total==null?'—':l.total.toFixed(3))+'</span>'
+      +'</div>'
+      +(l.en?'<div style="font-size:11.5px;opacity:.7;line-height:1.35" dir="ltr">'+esc(l.en)+'</div>':'')
+      +'<div style="font-size:11.5px;opacity:.75;margin-top:1px">'+l.qty+' × '+(l.unit==null?'—':l.unit.toFixed(3))+'</div>'
+      +(l.opts?'<div style="font-size:11.5px;opacity:.75">'+esc(l.opts)+'</div>':'')
+      +(l.note?'<div style="font-size:12.5px;font-weight:700;margin-top:2px">ملاحظة: '+esc(l.note)+'</div>':'')
+      +'</div>';
+  }).join('');
+
+  let disc=o.discountPct?sub*(o.discountPct/100):0;
   if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
   let totals='';
-  if(sub>0){ totals+=`<div style="display:flex;justify-content:space-between"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>`; if(disc>0.001)totals+=`<div style="display:flex;justify-content:space-between;color:#178c44"><span>${discLbl}</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`; }
-  if(fee>0)totals+=`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`;
-  totals+=`<div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>`;
-  const info=(l,v)=>v?`<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #eee"><span style="color:#888">${l}</span><b>${esc(v)}</b></div>`:'';
-  const html=`<div style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
-    <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
-    <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:6px;margin:10px 0">🧾 فاتورة طلب</div>
-    ${o.scheduledFor?`<div style="text-align:center;background:#fff3cd;border:2px solid #e0a800;border-radius:8px;padding:9px;margin:8px 0;font-weight:900;color:#7a5c00;font-size:15.5px">\u23f0 طلب مؤجل — يُسلَّم ${esc(fmtSched(o.scheduledFor))}</div>`:''}
-    <div style="border:1px solid #e8d9bf;border-radius:8px;padding:8px 12px;margin-bottom:10px;background:#fdf6ea;font-size:13px">
-      ${info('رقم الفاتورة', esc(o.no||o.id))}
-      ${info('التاريخ', dt)}
-      ${info('العميل', o.name||'')}
-      ${info('الهاتف', o.phone||'')}
-      ${info('طريقة الاستلام', dtype)}
-      ${info('المنطقة', o.area||'')}
-      ${info('العنوان', o.address||'')}
-      ${info('وقت التوصيل المتوقع', o.deliveryTime||'')}
-      ${info('\u23f0 موعد التسليم المطلوب', o.scheduledFor?fmtSched(o.scheduledFor):'')}
-    </div>
-    ${o.note?`<div style="padding:9px 11px;margin-bottom:10px;background:#fdecea;border:1.5px solid #e2a49c;border-radius:8px;color:#a2333f;font-weight:800;font-size:13.5px;line-height:1.7">\ud83d\udcdd ملاحظات العميل: ${esc(o.note)}</div>`:''}
-    ${itemsBlock}
-    <div style="margin-top:8px;font-size:14px">${totals}</div>
-    <div style="text-align:center;font-size:12px;color:#888;margin-top:12px;line-height:1.8">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية</div>
-  </div>`;
-  const pa=document.getElementById('printArea');
-  pa.innerHTML=html;
-  let fired=false;const go=function(){if(fired)return;fired=true;window.print();};
-  const imgs=Array.prototype.slice.call(pa.querySelectorAll('img'));
-  if(!imgs.length){go();}
-  else{
-    Promise.all(imgs.map(function(i){return i.decode?i.decode().catch(function(){}):Promise.resolve();})).then(go);
-    setTimeout(go,3000);
-  }
+  if(sub>0)totals+=row('المجموع <span style="font-size:10.5px;opacity:.6">Subtotal</span>',sub.toFixed(3));
+  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:10.5px;opacity:.6">Discount</span>','- '+disc.toFixed(3));
+  if(fee>0)totals+=row('التوصيل <span style="font-size:10.5px;opacity:.6">Delivery</span>',fee.toFixed(3));
+
+  const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
+    +'<div style="text-align:center">'+lg
+      +'<div style="font-size:21px;font-weight:900;letter-spacing:.5px">عهد الضيافة</div>'
+      +'<div style="font-size:11px;letter-spacing:2px" dir="ltr">AHD AL-DIYAFA</div>'
+      +'<div style="font-size:11px;opacity:.75;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
+    +'</div>'
+    +strong
+    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:11px;opacity:.7" dir="ltr">INVOICE</span></div>'
+    +rule
+    +info('رقم الفاتورة','No.',o.no||o.id)
+    +info('التاريخ','Date',dt)
+    +info('العميل','Customer',o.name||'')
+    +info('الهاتف','Phone',o.phone||'')
+    +info('الاستلام','Type',dtype)
+    +info('المنطقة','Area',o.area||'')
+    +info('العنوان','Address',o.address||'')
+    +info('وقت التوصيل','ETA',o.deliveryTime||'')
+    +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'</div>':'')
+    +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
+    +strong
+    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:10.5px;opacity:.6" dir="ltr">ITEMS</span></div>'
+    +items
+    +'<div style="margin-top:7px">'+totals+'</div>'
+    +strong
+    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:11px;opacity:.7" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
+    +strong
+    +'<div style="text-align:center;font-size:11.5px;opacity:.8;line-height:1.8;margin-top:6px">شكرًا لاختياركم عهد الضيافة<br><span dir="ltr">Thank you for your order</span></div>'
+    +'</div>';
+  doPrint(html);
+}
+
+/* تذكرة المطبخ — أسماء وكميات بخط كبير، بلا أسعار ولا بيانات دفع */
+function printKitchen(id){
+  const o=orders.find(function(x){return x.id===id;}); if(!o)return;
+  const t=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit'})):'';
+  const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const L=prLines(o);
+  const items=L.map(function(l){
+    return '<div style="padding:8px 0;border-bottom:1px dashed #000">'
+      +'<div style="display:flex;gap:10px;align-items:baseline">'
+        +'<span style="font-size:26px;font-weight:900;white-space:nowrap">'+l.qty+'×</span>'
+        +'<span style="font-size:19px;font-weight:900;line-height:1.4">'+esc(l.name)+'</span>'
+      +'</div>'
+      +(l.en?'<div style="font-size:12px;opacity:.7;padding-right:44px" dir="ltr">'+esc(l.en)+'</div>':'')
+      +(l.opts?'<div style="font-size:13px;padding-right:44px">'+esc(l.opts)+'</div>':'')
+      +(l.note?'<div style="font-size:16px;font-weight:900;border:2px solid #000;border-radius:4px;padding:4px 7px;margin-top:5px">ملاحظة: '+esc(l.note)+'</div>':'')
+      +'</div>';
+  }).join('');
+  const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
+    +'<div style="text-align:center;font-size:19px;font-weight:900;letter-spacing:1px">تذكرة تحضير</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:5px"><span>'+esc(String(o.no||o.id))+'</span><span>'+t+'</span></div>'
+    +'<div style="border-top:2px solid #000;margin:7px 0"></div>'
+    +(o.scheduledFor?'<div style="border:3px solid #000;border-radius:4px;padding:8px;margin-bottom:8px;text-align:center;font-size:17px;font-weight:900">مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'<div style="font-size:12px;font-weight:700;margin-top:3px">لا يلزم تحضيره الآن</div></div>':'')
+    +items
+    +(o.note?'<div style="border:3px solid #000;border-radius:4px;padding:7px 9px;margin-top:9px;font-size:16px;font-weight:900;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
+    +'<div style="border-top:2px solid #000;margin:8px 0"></div>'
+    +'<div style="font-size:14px;font-weight:700">'+esc([dtype,o.area||''].filter(Boolean).join(' — '))+'</div>'
+    +(o.name?'<div style="font-size:13px;margin-top:2px">'+esc(o.name)+(o.phone?(' — '+esc(o.phone)):'')+'</div>':'')
+    +'</div>';
+  doPrint(html);
 }
 
 /* ===== الحجوزات ===== */
@@ -1027,7 +1102,8 @@ function schedCard(s,now){
     +(items?'<div class="meta">'+items+'</div>':'')
     +(o.note?'<div class="meta" style="color:#a2333f;font-weight:800">📝 '+esc(o.note)+'</div>':'')
     +'<div class="actions">'
-      +'<button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ طباعة</button>'
+      +'<button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ فاتورة</button>'
+      +'<button class="sbtn prep" onclick="printKitchen(\''+o.id+'\')">👨‍🍳 تذكرة المطبخ</button>'
       +'<button class="sbtn done" onclick="goOrders()">📋 فتحه في الطلبات</button>'
     +'</div></div>';
 }
