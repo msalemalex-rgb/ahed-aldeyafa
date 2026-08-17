@@ -380,13 +380,7 @@ function doLogin(e){
     document.getElementById('app').style.display='block';
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     setInterval(loadOrders,6000); setInterval(loadReservations,12000);
-    /* عدّاد العملاء كان يبقى صفرًا حتى يُفتح التبويب، لأنه لا يُحسب إلا عند عرضه.
-       نحمّله مع الدخول ونحدّثه دوريًا، مع تجنّب المقاطعة أثناء تصفّح ملف عميل. */
-    setInterval(function(){
-      const v=document.getElementById('view-cust');
-      if(v&&v.classList.contains('active'))return;
-      loadCustomers(1);
-    },120000);
+    /* السجل الكامل يُحمَّل مرة عند الدخول؛ بعدها يبقى العدّاد حيًّا من دورة الطلبات. */
   }).catch(()=>{document.getElementById('loginErr').textContent="خطأ في الاتصال";});
   return false;
 }
@@ -730,7 +724,23 @@ function loadOrders(){
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     try{ if(document.visibilityState==='visible') fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
     first=false; orders=d.orders; renderOrders();
+    /* كل الأرقام تتحدّث مع كل دورة طلبات (كل ٦ ثوانٍ) بدل انتظار فتح التبويب */
+    try{ syncCustomers(); }catch(_){}
+    try{ renderReservations(); }catch(_){}
   }).catch(()=>{});
+}
+/* عدّاد العملاء مبنيّ على الطلبات نفسها، فنُحدِّثه من دورة الطلبات الجارية بدل
+   إعادة تحميل ألف طلب. التحميل الكامل يحدث مرة عند الدخول ومع زر التحديث. */
+function syncCustomers(){
+  const byId={};
+  (custRaw||[]).forEach(function(o){if(o&&o.id)byId[o.id]=o;});
+  (orders||[]).forEach(function(o){if(o&&o.id)byId[o.id]=o;});
+  custRaw=Object.keys(byId).map(function(k){return byId[k];});
+  CUST=buildCustomers(custRaw);
+  const b=document.getElementById('cntCust'); if(b)b.textContent=CUST.length;
+  /* نعيد رسم قائمة العملاء فقط إذا كان الأدمن ينظر إليها ولم يفتح ملف عميل */
+  const v=document.getElementById('view-cust'), det=document.getElementById('custDetail');
+  if(custLoaded&&v&&v.classList.contains('active')&&det&&det.style.display==='none')renderCustomers();
 }
 function setOFilter(f,el){ofilter=f;el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderOrders();}
 function renderOrders(){
