@@ -1,0 +1,32 @@
+# منبّه الطلبات المؤجَّلة
+#
+# السيرفر لا يعمل من تلقاء نفسه؛ يحتاج من ينبّهه ليفحص المواعيد المستحقة.
+# هذه المهمة تناديه كل ٥ دقائق خلال ساعات العمل فقط (١١:٠٠ حتى ٢٣:٥٥ بتوقيت
+# الكويت = ٠٨:٠٠ حتى ٢٠:٥٥ بالتوقيت العالمي)، فلا تُستهلك حصة التشغيل ليلاً.
+#
+# النداء لا يحمل أي مفتاح لأنه لا ينفّذ إلا إرسال تنبيه حان موعده فعلاً،
+# والسيرفر يرفض تكراره أكثر من مرة كل ٤٥ ثانية.
+
+name: sched-reminder
+
+on:
+  schedule:
+    - cron: "*/5 8-20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sched-reminder
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: نداء فحص المواعيد المستحقة
+        run: |
+          curl -fsS --max-time 20 --retry 2 --retry-delay 5 \
+            "https://ahed-aldeyafa.vercel.app/api/push?action=sched"
