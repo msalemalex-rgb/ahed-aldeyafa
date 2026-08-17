@@ -745,6 +745,7 @@ footer .eyebrow,footer .ornament{color:var(--gold-light)}
     <h2 id="resTitle"></h2>
     <p id="resMsg"></p>
     <div class="ono" id="resOno" style="display:none"></div>
+    <div id="resSched" style="display:none;background:#fff3cd;border:2px solid #e0a800;border-radius:12px;padding:11px 14px;margin:12px 0;font-weight:900;color:#7a5c00;font-size:15px;line-height:1.7"></div>
     <div class="sub" id="resSub"></div>
     <div class="acts" id="resActs"></div>
   </div>
@@ -1362,7 +1363,7 @@ function fillTimeSlots(){
     const hh=String(Math.floor(m/60)%24).padStart(2,'0'),mm=String(m%60).padStart(2,'0');
     const op=document.createElement('option');op.value=hh+':'+mm;op.textContent=fmtHM(hh+':'+mm);sel.appendChild(op);
   }
-  if(!sel.options.length){const op=document.createElement('option');op.value='';op.textContent=LANG==='en'?'No slots today — pick another day':'مفيش مواعيد متاحة اليوم — اختر يوم تاني';sel.appendChild(op);}
+  if(!sel.options.length){const op=document.createElement('option');op.value='';op.textContent=LANG==='en'?'No slots today — pick another day':'لا توجد مواعيد متاحة اليوم، يرجى اختيار يوم آخر';sel.appendChild(op);}
   if(cur)sel.value=cur;if(!sel.value&&sel.options.length)sel.selectedIndex=0;
 }
 function schedDisp(sf){
@@ -1540,6 +1541,7 @@ async function submitCheckout(){
   };
   const remember=(ref,no)=>{
     try{if(no)sessionStorage.setItem('lastOrderNo',no);}catch(_){}
+    try{sessionStorage.setItem('lastSched',schedFor||'');}catch(_){}
     try{if(ref)myOrdersAdd({id:ref,no:no||'',total:grand,at:new Date().toISOString(),itemsTxt:payload.items,lines:cart.map(l=>({id:l.id,qty:l.qty,opts:l.opts})),st:(coPayMethod==='cod')?'ok':'pending'});}catch(_){}
     try{localStorage.setItem('ahd_phone',phone);localStorage.setItem('ahd_name',name);}catch(_){}
   };
@@ -1735,9 +1737,14 @@ function isOpenNow(){
   }
   return false;
 }
-function closeClosed(){document.getElementById('closedOverlay').classList.remove('open');}
+let _closedDismissed=false;
+function closeClosed(){_closedDismissed=true;document.getElementById('closedOverlay').classList.remove('open');}
 function checkOpenStatus(){
-  if(isOpenNow())return;
+  /* ما نحكمش بمفتوح/مغلق قبل ما نعرف المواعيد فعلاً — ده كان سبب اختلاف الحالة من زيارة للتانية */
+  if(!CONFIG._loaded)return;
+  const _ov=document.getElementById('closedOverlay');
+  if(isOpenNow()){if(_ov)_ov.classList.remove('open');return;}
+  if(_closedDismissed)return;
   if(CONFIG.logo){const cl=document.getElementById('closedLogo');if(cl)cl.innerHTML='<img src="'+CONFIG.logo+'">';}
   const el=document.getElementById('closedMsg');
   const tr=todaysRows().filter(h=>h.open&&h.close);
@@ -1751,13 +1758,18 @@ function checkOpenStatus(){
   document.getElementById('closedOverlay').classList.add('open');
 }
 /* ===== الفاتورة ===== */
-let _invHTML="";
+/* الفاتورة تُبنى وقت العرض/الطباعة، مش وقت وصول بيانات الطلب.
+   قبل كده كانت تتبني أول ما بيانات الطلب توصل — ولو ده حصل قبل ما إعدادات
+   المطعم توصل، يكون CONFIG.logo لسه فاضي فتتخزّن الفاتورة من غير شعار.
+   ده سبب إن الشعار كان يظهر مرة ويختفي مرة: سباق بين طلبين شبكة. */
+let _invOrder=null,_invPid="";
+function invHTML(){try{return _invOrder?buildInvoiceHTML(_invOrder,_invPid):"";}catch(_){return "";}}
 function escH(s){return (''+(s==null?'':s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function buildInvoiceHTML(o,pid){
   const cur=CONFIG.currency;
   const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
-  const logo=CONFIG.logo?`<img src="${CONFIG.logo}" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:0 auto 6px;display:block">`:`<div class="inv-logo" style="margin:0 auto 6px">🍽️</div>`;
+  const logo=CONFIG.logo?`<img src="${CONFIG.logo}" loading="eager" decoding="sync" style="width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:0 auto 6px;display:block">`:`<div class="inv-logo" style="margin:0 auto 6px">🍽️</div>`;
   const hasLines=o.lines&&o.lines.length;
   const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
   let sub=Number(o.itemsSubtotal)||0, itemsBlock;
@@ -1794,23 +1806,52 @@ async function loadInvoice(ref,pid){
   if(!ref){fbTrack('Purchase',{value:0,currency:'KWD'});return;}
   try{
     const r=await fetch('/api/orders?id='+encodeURIComponent(ref));const j=await r.json();
-    if(j&&j.order){_invHTML=buildInvoiceHTML(j.order,pid||'');fbTrack('Purchase',{value:Number(j.order.total)||0,currency:'KWD'});}
+    if(j&&j.order){_invOrder=j.order;_invPid=pid||'';try{schedBanner();}catch(_){}fbTrack('Purchase',{value:Number(j.order.total)||0,currency:'KWD'});}
     else{fbTrack('Purchase',{value:0,currency:'KWD'});}
   }catch(_){fbTrack('Purchase',{value:0,currency:'KWD'});}
 }
-function showInvoice(){ if(!_invHTML){showToast(T('t.invWait'));return;} document.getElementById('invView').innerHTML=_invHTML; document.getElementById('invOverlay').classList.add('open'); ahdPush(); }
+function showInvoice(){ const h=invHTML(); if(!h){showToast(T('t.invWait'));return;} document.getElementById('invView').innerHTML=h; document.getElementById('invOverlay').classList.add('open'); ahdPush(); }
 function closeInvoice(){document.getElementById('invOverlay').classList.remove('open');}
 function printInvoice(){
-  if(!_invHTML)return;
+  const h=invHTML(); if(!h)return;
   const pr=document.getElementById('invPrint');
-  pr.innerHTML=_invHTML;
+  pr.innerHTML=h;
   let fired=false;
   const go=()=>{if(fired)return;fired=true;window.print();};
-  const imgs=Array.prototype.slice.call(pr.querySelectorAll('img')).filter(i=>!i.complete);
+  /* ننتظر فكّ الصورة فعلاً مش مجرد تحميلها */
+  const imgs=Array.prototype.slice.call(pr.querySelectorAll('img'));
   if(!imgs.length){go();return;}
-  let left=imgs.length;
-  imgs.forEach(i=>{i.onload=i.onerror=()=>{if(--left<=0)go();};});
-  setTimeout(go,2500);
+  const waits=imgs.map(function(i){
+    if(i.decode)return i.decode().catch(function(){});
+    if(i.complete)return Promise.resolve();
+    return new Promise(function(r){i.onload=i.onerror=r;});
+  });
+  Promise.all(waits).then(go);
+  setTimeout(function(){
+    if(fired)return;
+    /* لو صورة ما جهزتش، نحطّ الأيقونة بدل ما تتطبع مساحة فاضية */
+    imgs.forEach(function(i){
+      if(!i.complete||!i.naturalWidth){
+        const d=document.createElement('div');d.className='inv-logo';
+        d.style.margin='0 auto 6px';d.textContent='\ud83c\udf7d\ufe0f';
+        if(i.parentNode)i.parentNode.replaceChild(d,i);
+      }
+    });
+    go();
+  },4000);
+}
+/* توضيح إن الطلب لموعد لاحق — كان بيظهر في الفاتورة والتتبّع بس،
+   فالعميل يخلّص دفع وهو فاكر إن الطلب جاي دلوقتي. */
+function schedBanner(){
+  const host=document.getElementById('resSched');if(!host)return;
+  let sf="";
+  try{sf=(_invOrder&&_invOrder.scheduledFor)||sessionStorage.getItem('lastSched')||"";}catch(_){}
+  if(!sf){host.style.display='none';host.innerHTML='';return;}
+  const lbl=(LANG==='en')?'Scheduled for a later time: ':'طلبك مسجّل لموعد لاحق: ';
+  const hint=(LANG==='en')?'<div style="font-weight:700;font-size:13px;margin-top:4px">It will not be prepared before this time.</div>'
+                          :'<div style="font-weight:700;font-size:13px;margin-top:4px">لن يُحضَّر الطلب قبل هذا الموعد.</div>';
+  host.innerHTML='\u23f0 '+lbl+'<b>'+escH(schedDisp(sf))+'</b>'+hint;
+  host.style.display='block';
 }
 function showResult(kind){
   const box=document.getElementById('resBox');
@@ -1824,6 +1865,7 @@ function showResult(kind){
     document.getElementById('resMsg').textContent=(kind==='cod')?T('res.codMsg'):T('res.okMsg');
     if(no){ono.style.display='inline-block';ono.textContent=T('res.noL')+no;}else ono.style.display='none';
     document.getElementById('resSub').textContent=T('res.okSub');
+    try{schedBanner();}catch(_){}
     acts.innerHTML=`${window._trackId?`<a class="btn btn-red" href="?track=${encodeURIComponent(window._trackId)}">${T('res.track')}</a>`:''}<button class="btn btn-gold" onclick="showInvoice()">${T('res.invoice')}</button><a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">${T('res.waContact')}</a><button class="btn" style="background:#eee;color:#555" onclick="closeResult()">${T('res.close')}</button>`;
     try{cart=[];updateCart();}catch(_){}
     try{sessionStorage.removeItem('lastOrderNo');}catch(_){}
@@ -1834,6 +1876,7 @@ function showResult(kind){
     document.getElementById('resMsg').textContent=T('res.failMsg');
     ono.style.display='none';
     document.getElementById('resSub').textContent="";
+    try{const _rs=document.getElementById('resSched');if(_rs)_rs.style.display='none';}catch(_){}
     acts.innerHTML=`<button class="btn btn-gold" onclick="closeResult();openCart()">${T('res.retry')}</button><a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsapp}" target="_blank">${T('res.waOrder')}</a>`;
   }
   document.getElementById('resOverlay').classList.add('open');
@@ -1861,14 +1904,39 @@ function initPaymentStatus(){
   else if(p==="failed"){try{if(!window.AHD_TEST&&typeof fbq==='function')fbq('trackCustom','PaymentFailed',{currency:'KWD'});}catch(_){}showResult('failed');}
   history.replaceState({},"",location.pathname);
 }
-async function loadMenu(){
-  try{
-    const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
+/* ===== تحميل القائمة: إعادة محاولة + نسخة محفوظة + رسالة خطأ واضحة =====
+   قبل كده أي تعثّر بسيط في الشبكة كان بيخلّي الصفحة تفتح فاضية، والمواعيد تفضل
+   مجهولة فيظهر المطعم "مفتوح" غلط — فالحالة كانت تختلف من زيارة للتانية. */
+const MENU_CACHE_KEY='ahd_menu_v1';
+function applyMenuData(d){
     if(d.menu&&d.menu.length)MENU=d.menu;
     if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
-  }catch(e){}
-  renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }
+function cacheMenuData(d){try{localStorage.setItem(MENU_CACHE_KEY,JSON.stringify(d));}catch(_){}}
+function readMenuCache(){try{return JSON.parse(localStorage.getItem(MENU_CACHE_KEY)||'null');}catch(_){return null;}}
+function showMenuError(){
+  const cg=document.getElementById('catGrid');if(!cg||MENU.length)return;
+  cg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px 18px;background:#fff;border:1px solid var(--line);border-radius:14px">'
+    +'<div style="font-size:34px">\ud83d\udcf6</div>'
+    +'<p style="font-weight:900;color:var(--maroon);margin:8px 0 4px">تعذّر تحميل القائمة</p>'
+    +'<p style="color:var(--muted);font-size:14px;margin-bottom:12px">تعذّر الاتصال، يرجى المحاولة مرة أخرى.</p>'
+    +'<button class="btn btn-gold" onclick="loadMenu()" style="min-height:44px">إعادة المحاولة</button></div>';
+}
+async function loadMenu(){
+  let d=null;
+  for(let i=0;i<3&&!d;i++){
+    try{const r=await fetch('/api/menu',{cache:'no-store'});if(!r.ok)throw 0;d=await r.json();}
+    catch(_){if(i<2)await new Promise(function(rs){setTimeout(rs,500*(i+1));});}
+  }
+  const good=d&&d.menu&&d.menu.length;
+  if(good){applyMenuData(d);cacheMenuData(d);}
+  else{const c=readMenuCache();if(c&&c.menu&&c.menu.length)applyMenuData(c);else if(d)applyMenuData(d);}
+  renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
+  if(!MENU.length)showMenuError();
+}
+/* الحالة تتحدّث لو الصفحة فضلت مفتوحة لحد ما المطعم يقفل، أو رجع لها بعد ما سابها */
+setInterval(function(){try{checkOpenStatus();}catch(_){}},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden){try{checkOpenStatus();}catch(_){}}},{passive:true});
 applyLang();applySettings();initScroll();initHeroVideo();initPaymentStatus();loadMenu();initTrack();
 </script>
 </body>

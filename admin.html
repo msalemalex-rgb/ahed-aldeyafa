@@ -178,6 +178,28 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .stbox{background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:10px;text-align:center}
 .stbox b{display:block;font-size:20px;color:#6e1423;font-family:'Cairo',sans-serif}
 .stbox span{font-size:12px;color:#666}
+
+/* ===== صفحة العملاء ===== */
+.cst-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:12px}
+.cst-sum .b{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-align:center}
+.cst-sum .b .n{font-size:20px;font-weight:900;color:var(--maroon);line-height:1.3}
+.cst-sum .b .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.cst-bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cst-bar input{flex:1;min-width:170px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo';font-size:14px}
+.cst-bar select{padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:'Cairo';font-weight:700;font-size:13px}
+.cst-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.cst-card:hover{border-color:var(--gold)}
+.cst-card .av{width:40px;height:40px;border-radius:50%;background:#f7ecd8;color:var(--maroon);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex:none}
+.cst-card .mid{flex:1;min-width:0}
+.cst-card .nm{font-weight:900;color:var(--maroon-dark);font-size:15px}
+.cst-card .sb{font-size:12px;color:var(--muted);margin-top:2px}
+.cst-card .amt{text-align:left;font-weight:900;color:var(--maroon);font-size:15px;white-space:nowrap}
+.cst-card .amt span{display:block;font-size:11px;color:var(--muted);font-weight:700}
+.cst-tag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:50px;margin-inline-start:5px;vertical-align:middle}
+.cst-tag.rep{background:#e6f5ec;color:#12783a}
+.cst-tag.new{background:#f7ecd8;color:#8a6300}
+.cst-tag.gone{background:#fdecea;color:#b32d1f}
+.cst-ord{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:13px}
 </style>
 </head>
 <body>
@@ -205,6 +227,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
     <div class="tabs">
       <div class="tab active" onclick="showView('orders',this)">📋 الطلبات <span class="badge" id="cntNew">0</span></div>
       <div class="tab" onclick="showView('res',this)">📅 الحجوزات <span class="badge" id="cntRes">0</span></div>
+      <div class="tab" onclick="showView('cust',this)">👥 العملاء <span class="badge" id="cntCust">0</span></div>
       <div class="tab" onclick="showView('menu',this)">🍲 المنيو</div>
       <div class="tab" onclick="showView('stats',this)">📊 الإحصائيات</div>
       <div class="tab" onclick="showView('settings',this)">⚙️ الإعدادات</div>
@@ -230,6 +253,22 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <div class="tab" onclick="loadReservations()">🔄 تحديث</div>
       </div>
       <div id="reservations"></div>
+    </div>
+
+    <div class="view" id="view-cust">
+      <div id="custSummary" class="cst-sum"></div>
+      <div class="cst-bar">
+        <input id="custSearch" placeholder="🔎 ابحث باسم العميل أو رقمه" oninput="renderCustomers()">
+        <select id="custSort" onchange="renderCustomers()">
+          <option value="spent">الأكثر إنفاقاً</option>
+          <option value="count">الأكثر طلباً</option>
+          <option value="recent">آخر طلب</option>
+          <option value="gone">المنقطعون</option>
+        </select>
+        <button class="sbtn print" onclick="loadCustomers(1)">🔄 تحديث</button>
+      </div>
+      <div id="custList"></div>
+      <div id="custDetail" style="display:none"></div>
     </div>
 
     <div class="view" id="view-menu">
@@ -262,11 +301,14 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
         <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
+        <label class="fld">تنبيه الطلبات المؤجَّلة — كم دقيقة قبل موعد التسليم يصل التنبيه؟</label>
+        <input id="setSchedLead" type="number" step="15" min="5" max="1440" placeholder="120">
+        <div style="font-size:12px;color:var(--muted);margin-top:-4px;line-height:1.7">مثال: ١٢٠ تعني وصول التنبيه قبل الموعد بساعتين، ويتكرر التنبيه حتى تفتح لوحة التحكم.</div>
         <label class="fld">مواعيد العمل — نطاق أو أكثر (هي اللي تظهر للعميل وتحدّد «مغلق حالياً»)</label>
         <div id="hoursBox"></div>
         <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
         <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">
-          نفس النطاقات دي هي اللي بتظهر للعميل <b>و</b> اللي بيتحدد بيها تنبيه «المطعم مغلق حالياً» — مفيش مكان تاني للمواعيد.<br>
+          هذه النطاقات نفسها هي التي تظهر للعميل <b>و</b> التي يُحدَّد بها تنبيه «المطعم مغلق حاليًا» — ولا يوجد مكان آخر للمواعيد.<br>
           تقدر تحط نطاق واحد لكل الأسبوع، أو نطاق للسبت - الخميس ونطاق تاني للجمعة. لو الإغلاق بعد منتصف الليل اكتبه عادي (مثلاً من ١٢:٠٠ إلى ٠٢:٠٠).<br>
           لو مسحت كل النطاقات: قسم أوقات العمل مش هيظهر للعميل، والتنبيه مش هيشتغل.
         </div>
@@ -343,12 +385,125 @@ function doLogin(e){
 }
 function logout(){try{sessionStorage.removeItem('ak');}catch(_){}; location.reload();}
 
+
+/* ===== صفحة العملاء: تُبنى من الطلبات نفسها — من غير جدول جديد =====
+   المفتاح هو رقم التليفون (آخر ٨ أرقام) عشان صيغ الكتابة تختلف: 965.. / 00965.. / بدون. */
+let CUST=[], custLoaded=false, custRaw=[];
+function normPhone(p){const d=String(p||'').replace(/\D/g,'');return d.length>8?d.slice(-8):d;}
+function waNum(p){const d=String(p||'').replace(/\D/g,'');return d.length===8?('965'+d):d;}
+function dayDiff(ms){return Math.floor((Date.now()-ms)/86400000);}
+function fmtD(ms){try{return toEn(new Date(ms).toLocaleDateString('ar-KW',{day:'2-digit',month:'2-digit',year:'2-digit'}));}catch(_){return '';}}
+const CST_DEAD={cancelled:1,failed:1,pending:1};
+function buildCustomers(list){
+  const map=new Map();
+  (list||[]).forEach(function(o){
+    const k=normPhone(o.phone); if(!k)return;
+    let c=map.get(k);
+    if(!c){c={key:k,phone:o.phone||'',name:'',area:'',address:'',orders:[],spent:0,paid:0,first:0,last:0};map.set(k,c);}
+    c.orders.push(o);
+    const t=Number(o.createdAt)||0;
+    if(t&&(!c.last||t>c.last)){c.last=t;c.name=o.name||c.name;c.area=o.area||c.area;c.address=o.address||c.address;c.phone=o.phone||c.phone;}
+    if(t&&(!c.first||t<c.first))c.first=t;
+    if(!CST_DEAD[o.status]){c.spent+=Number(o.total)||0;c.paid++;}
+  });
+  const arr=[...map.values()];
+  arr.forEach(function(c){c.orders.sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});c.avg=c.paid?c.spent/c.paid:0;c.gap=c.last?dayDiff(c.last):999;});
+  return arr;
+}
+/* الانتقال من الطلب إلى ملف صاحبه مباشرة */
+function openCustFromOrder(phone){
+  const k=normPhone(phone); if(!k)return;
+  document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(function(t){
+    t.classList.remove('active');
+    if((t.textContent||'').indexOf('العملاء')>=0)t.classList.add('active');
+  });
+  document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('view-cust').classList.add('active');
+  if(custLoaded)openCustomer(k); else loadCustomers(0,function(){openCustomer(k);});
+}
+function loadCustomers(force,cb){
+  if(custLoaded&&!force){renderCustomers();if(cb)cb();return;}
+  document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">جاري التحميل…</div>';
+  fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}).then(function(d){
+    custRaw=(d&&d.orders)||[]; CUST=buildCustomers(custRaw); custLoaded=true; renderCustomers(); if(cb)cb();
+  }).catch(function(){document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:#b32d1f">تعذّر تحميل العملاء، يرجى الضغط على تحديث</div>';});
+}
+function renderCustomers(){
+  document.getElementById('custDetail').style.display='none';
+  document.getElementById('custList').style.display='';
+  const q=(document.getElementById('custSearch').value||'').trim().toLowerCase();
+  const sort=document.getElementById('custSort').value;
+  const rep=CUST.filter(function(c){return c.paid>=2;}).length;
+  const totalSpent=CUST.reduce(function(a,c){return a+c.spent;},0);
+  const totalPaid=CUST.reduce(function(a,c){return a+c.paid;},0);
+  document.getElementById('cntCust').textContent=CUST.length;
+  document.getElementById('custSummary').innerHTML=
+     bx(CUST.length,'عميل')
+    +bx(CUST.length?Math.round(100*rep/CUST.length)+'%':'—','عملاء متكررين')
+    +bx(CUST.length?(totalPaid/CUST.length).toFixed(1):'—','متوسط الطلبات للعميل')
+    +bx(totalPaid?(totalSpent/totalPaid).toFixed(3):'—','متوسط قيمة الطلب');
+  let arr=CUST.slice();
+  if(q)arr=arr.filter(function(c){return (c.name||'').toLowerCase().indexOf(q)>=0||String(c.phone||'').indexOf(q)>=0||c.key.indexOf(q)>=0;});
+  if(sort==='spent')arr.sort(function(a,b){return b.spent-a.spent;});
+  else if(sort==='count')arr.sort(function(a,b){return b.paid-a.paid||b.spent-a.spent;});
+  else if(sort==='recent')arr.sort(function(a,b){return b.last-a.last;});
+  else arr.sort(function(a,b){return (b.paid>=2?1:0)-(a.paid>=2?1:0)||b.gap-a.gap;});
+  document.getElementById('custList').innerHTML=arr.length?arr.map(function(c){
+    const tag=c.paid>=2?(c.gap>30?'<span class="cst-tag gone">منقطع منذ '+c.gap+' يومًا</span>':'<span class="cst-tag rep">متكرر ×'+c.paid+'</span>')
+                       :'<span class="cst-tag new">أول طلب</span>';
+    return '<div class="cst-card" onclick="openCustomer(\''+c.key+'\')">'
+      +'<div class="av">'+esc((c.name||'؟').trim().charAt(0)||'؟')+'</div>'
+      +'<div class="mid"><div class="nm">'+esc(c.name||'بدون اسم')+tag+'</div>'
+      +'<div class="sb">'+esc(c.phone||'')+' • '+esc(c.area||'—')+' • آخر طلب '+(c.last?fmtD(c.last):'—')+'</div></div>'
+      +'<div class="amt">'+c.spent.toFixed(3)+'<span>'+c.paid+' طلب</span></div></div>';
+  }).join(''):'<div style="padding:18px;text-align:center;color:var(--muted)">لا يوجد عملاء مطابقون</div>';
+}
+function bx(n,l){return '<div class="b"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';}
+function openCustomer(k,retried){
+  const c=CUST.find(function(x){return x.key===k;});
+  if(!c){ if(!retried){loadCustomers(1,function(){openCustomer(k,1);});} return; }
+  const rows=c.orders.map(function(o){
+    const dead=CST_DEAD[o.status];
+    const items=(o.lines&&o.lines.length)?o.lines.map(function(l){return esc(l.name)+' ×'+l.qty+(l.note?(' <span style="color:#a2333f">📝 '+esc(l.note)+'</span>'):'');}).join('، ')
+                :esc(String(o.items||'—'));
+    return '<div class="cst-ord"><div style="display:flex;justify-content:space-between;gap:8px">'
+      +'<b>'+fmtD(o.createdAt)+' — طلب '+esc(String(o.no||o.id))+'</b>'
+      +'<b style="color:'+(dead?'#b32d1f':'#6e1423')+'">'+(Number(o.total)||0).toFixed(3)+' د.ك'+(dead?' (ملغي)':'')+'</b></div>'
+      +'<div style="color:var(--muted);margin-top:3px;line-height:1.8">'+items+'</div>'
+      +(o.scheduledFor?'<div style="color:#7a5c00;font-weight:800;margin-top:3px">⏰ كان مؤجَّلًا — '+esc(fmtSched(o.scheduledFor))+'</div>':'')
+      +(o.note?'<div style="color:#a2333f;font-weight:800;margin-top:3px">📝 '+esc(o.note)+'</div>':'')
+      +'<div style="margin-top:5px"><button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ طباعة</button></div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('custList').style.display='none';
+  const d=document.getElementById('custDetail');
+  d.style.display='';
+  d.innerHTML='<button class="sbtn done" onclick="renderCustomers()" style="margin-bottom:10px">← العودة إلى قائمة العملاء</button>'
+    +'<div style="background:#fff;border:1px solid var(--line);border-right:5px solid var(--gold);border-radius:12px;padding:13px 15px;margin-bottom:12px">'
+    +'<div style="font-size:19px;font-weight:900;color:var(--maroon)">'+esc(c.name||'بدون اسم')+'</div>'
+    +'<div style="color:var(--muted);margin-top:4px;line-height:1.9">📞 '+esc(c.phone||'—')+'<br>📍 '+esc(c.area||'—')+(c.address?(' — '+esc(c.address)):'')+'</div>'
+    +'<div style="margin-top:9px">'+bx(c.paid,'طلب مدفوع')+'</div>'
+    +'<div class="cst-sum" style="margin-top:9px">'
+      +bx(c.spent.toFixed(3),'إجمالي إنفاقه')
+      +bx(c.avg.toFixed(3),'متوسط الطلب')
+      +bx(c.first?fmtD(c.first):'—','أول طلب')
+      +bx(c.last?(c.gap+' يومًا'):'—','منذ آخر طلب')
+    +'</div>'
+    +'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
+      +'<a class="sbtn deliver" style="text-decoration:none" target="_blank" href="https://wa.me/'+waNum(c.phone)+'">📲 واتساب</a>'
+      +'<a class="sbtn print" style="text-decoration:none" href="tel:'+esc(c.phone||'')+'">📞 اتصال</a>'
+    +'</div></div>'
+    +'<div style="font-weight:900;color:var(--maroon);margin-bottom:7px">طلباته السابقة ('+c.orders.length+')</div>'
+    +rows;
+}
+
 function showView(v,el){
   document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   if(v==='stats')initStats();
+  if(v==='cust')loadCustomers();
 }
 
 /* ===== الصوت (متين) ===== */
@@ -533,6 +688,7 @@ function renderOrders(){
       ${dinfo}
       <div class="actions">
         <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ طباعة</button>
+        ${o.phone?`<button class="sbtn" style="background:#efe7f7;color:#5b3a86" onclick="openCustFromOrder('${String(o.phone).replace(/[^0-9+]/g,'')}')">👤 ملف العميل</button>`:''}
         ${o.status==='awaiting'?`<button class="sbtn done" onclick="updOrder('${o.id}','new')">✅ أكّد الطلب</button>`:''}
         ${o.status==='new'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
         ${o.status==='preparing'?`<button class="sbtn deliver" onclick="updOrder('${o.id}','delivering')">${o.deliveryType==='pickup'?'🛍️ جاهز للاستلام':'🛵 في الطريق'}</button>`:''}
@@ -658,7 +814,7 @@ function printOrder(id){
   let sub=Number(o.itemsSubtotal)||0, itemsBlock;
   const findP=nm=>{const t=(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
   const TH='<thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead>';
-  if(hasLines){const rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');
+  if(hasLines){const rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}${l.note?`<div style="font-size:12px;color:#a2333f;font-weight:800">\ud83d\udcdd ${esc(l.note)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');
     itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;}
   else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);let computed=0,anyP=false;
     const rows=parts.map(p=>{const qm=p.match(/×\s*(\d+)/);const qty=qm?parseInt(qm[1]):1;const nm=p.split('×')[0].trim();const u=findP(nm);if(u!=null){anyP=true;computed+=u*qty;}return `<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?u.toFixed(3):'—'}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?(u*qty).toFixed(3):'—'}</td></tr>`;}).join('');
@@ -674,22 +830,32 @@ function printOrder(id){
   const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
     <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
     <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:6px;margin:10px 0">🧾 فاتورة طلب</div>
+    ${o.scheduledFor?`<div style="text-align:center;background:#fff3cd;border:2px solid #e0a800;border-radius:8px;padding:9px;margin:8px 0;font-weight:900;color:#7a5c00;font-size:15.5px">\u23f0 طلب مؤجل — يُسلَّم ${esc(fmtSched(o.scheduledFor))}</div>`:''}
     <div style="border:1px solid #e8d9bf;border-radius:8px;padding:8px 12px;margin-bottom:10px;background:#fdf6ea;font-size:13px">
       ${info('رقم الفاتورة', esc(o.no||o.id))}
       ${info('التاريخ', dt)}
-      ${info('العميل', o.name?esc(o.name):'')}
-      ${info('الهاتف', o.phone?esc(o.phone):'')}
+      ${info('العميل', o.name||'')}
+      ${info('الهاتف', o.phone||'')}
       ${info('طريقة الاستلام', dtype)}
-      ${info('المنطقة', o.area?esc(o.area):'')}
-      ${info('العنوان', o.address?esc(o.address):'')}
-      ${info('وقت التوصيل المتوقع', o.deliveryTime?esc(o.deliveryTime):'')}
+      ${info('المنطقة', o.area||'')}
+      ${info('العنوان', o.address||'')}
+      ${info('وقت التوصيل المتوقع', o.deliveryTime||'')}
+      ${info('\u23f0 موعد التسليم المطلوب', o.scheduledFor?fmtSched(o.scheduledFor):'')}
     </div>
+    ${o.note?`<div style="padding:9px 11px;margin-bottom:10px;background:#fdecea;border:1.5px solid #e2a49c;border-radius:8px;color:#a2333f;font-weight:800;font-size:13.5px;line-height:1.7">\ud83d\udcdd ملاحظات العميل: ${esc(o.note)}</div>`:''}
     ${itemsBlock}
     <div style="margin-top:8px;font-size:14px">${totals}</div>
     <div style="text-align:center;font-size:12px;color:#888;margin-top:12px;line-height:1.8">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية</div>
   </div>`;
-  document.getElementById('printArea').innerHTML=html;
-  window.print();
+  const pa=document.getElementById('printArea');
+  pa.innerHTML=html;
+  let fired=false;const go=function(){if(fired)return;fired=true;window.print();};
+  const imgs=Array.prototype.slice.call(pa.querySelectorAll('img'));
+  if(!imgs.length){go();}
+  else{
+    Promise.all(imgs.map(function(i){return i.decode?i.decode().catch(function(){}):Promise.resolve();})).then(go);
+    setTimeout(go,3000);
+  }
 }
 
 /* ===== الحجوزات ===== */
@@ -881,7 +1047,7 @@ function renderHours(){
   if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
   DATA.settings.hours=DATA.settings.hours.map(hrNorm);
   const hrs=DATA.settings.hours;
-  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ مفيش مواعيد — قسم أوقات العمل مش هيظهر للعميل خالص</div>';
+  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:\'Cairo\';font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ لا توجد مواعيد — لن يظهر قسم أوقات العمل للعميل</div>';
   box.innerHTML=warn+hrs.map((h,i)=>`<div class="hr-card">
     <div class="hr-top"><span class="hr-ttl">نطاق ${i+1}</span><button class="delx" onclick="delHour(${i})">🗑</button></div>
     <div class="hr-days">${HR_DAYS.map(d=>`<button type="button" class="hr-day ${(h.days||[]).indexOf(d.i)>=0?'on':''}" onclick="hrToggleDay(${i},${d.i})">${d.n}</button>`).join('')}</div>
@@ -926,6 +1092,7 @@ function fillSettings(){
   document.getElementById('setWa').value=s.whatsapp||"";
   document.getElementById('setDisc').value=(s.directDiscount==null?10:(s.directDiscount<=1?Math.round(s.directDiscount*100):s.directDiscount));
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
+  document.getElementById('setSchedLead').value=(s.schedLeadMin!=null?s.schedLeadMin:120);
   renderHours();
   const lp=document.getElementById('logoPrev');
   if(s.logo){lp.src=s.logo;lp.style.display='block';}else{lp.style.display='none';}
@@ -935,6 +1102,7 @@ function saveSettings(){
   DATA.settings.whatsapp=document.getElementById('setWa').value.trim();
   {let p=parseFloat(document.getElementById('setDisc').value)||0;if(p>1)p=p/100;DATA.settings.directDiscount=Math.max(0,Math.min(p,0.95));}
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
+  {let v=parseInt(document.getElementById('setSchedLead').value,10);if(!isFinite(v))v=120;DATA.settings.schedLeadMin=Math.max(5,Math.min(v,1440));}
   /* المواعيد كلها من نطاقات hours — نشيل الإعداد القديم عشان ما يفضلش مصدر تاني */
   delete DATA.settings.openTime; delete DATA.settings.closeTime;
   (DATA.settings.hours||[]).forEach(r=>{ if(r&&r.open&&r.close){ delete r.time; delete r.timeEn; } });
@@ -1002,7 +1170,7 @@ function importMenu(inp){
         });
       }
       const total=newMenu.reduce((a,c)=>a+c.items.length,0);
-      if(!total){toast("❌ مفيش أصناف في الملف");return;}
+      if(!total){toast("❌ لا توجد أصناف في الملف");return;}
       if(!confirm("سيتم استبدال المنيو بالكامل بالملف ("+total+" صنف في "+newMenu.length+" قسم). متأكد؟"))return;
       DATA.menu=newMenu;renderMenuEditor();saveMenu();
       toast("✅ تم استيراد المنيو وحفظه");

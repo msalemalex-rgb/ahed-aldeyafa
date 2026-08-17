@@ -45,6 +45,16 @@
   ],
   "redirects": [
     {
+      "source": "/menu3",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/menu3.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/ig",
       "destination": "/?utm_source=instagram",
       "permanent": true
