@@ -123,7 +123,9 @@ module.exports = async (req, res) => {
       }
       // حجز مناسبة/ديوانية (مدموج من /api/reservations)
       if (b.kind === "reservation") {
-        if (!b.name || !b.date) return res.status(400).json({ error: "missing name/date" });
+        // التاريخ اختياري في نموذج العميل، وكان رفضه هنا يُسقِط طلب الحجز بالكامل
+        // فيصل على واتساب ولا يظهر في اللوحة. نقبله بدون تاريخ ونعرضه للمتابعة.
+        if (!b.name) return res.status(400).json({ error: "missing name" });
         const hitR = await tooMany(req, [["rsv", LIMITS.rsvPerIp, clientIp(req)]]);
         if (hitR) { res.setHeader("Retry-After", String(hitR.retryAfter)); return res.status(429).json({ error: "too_many_requests" }); }
         const r = await addReservation({ name: cut(b.name, 80), phone: cut(b.phone, 25), type: cut(b.type, 60),
