@@ -221,7 +221,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
   <div class="soundbar" id="soundbar" onclick="enableSound(true)">🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة</div>
   <header>
     <h1>🍽️ عهد الضيافة</h1>
-    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
+    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
   </header>
   <div class="wrap">
     <div class="tabs">
@@ -638,6 +638,20 @@ async function subscribePush(){
     }
     await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'subscribe',subscription:sub})});
   }catch(_){}
+}
+/* إشعار تجريبي — للتأكد أن التنبيهات تصل فعلاً إلى الجهاز، وليس أن السيرفر أرسلها فقط */
+function testPush(){
+  if(!KEY){toast('سجّل الدخول أولًا');return;}
+  fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'test'})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      const s=d&&d.sent;
+      if(!s){toast('تعذّر إرسال الإشعار التجريبي');return;}
+      if(!s.total){toast('لا يوجد جهاز مشترك — اضغط «اختبار الصوت» واسمح بالإشعارات، ثم أعد المحاولة');return;}
+      if(s.ok)toast('أُرسل إشعار تجريبي إلى '+s.ok+' من '+s.total+' جهاز — يفترض أن يصلك الآن');
+      else toast('فشل الإرسال إلى كل الأجهزة المسجّلة ('+s.total+') — أعد السماح بالإشعارات');
+    })
+    .catch(function(){toast('تعذّر إرسال الإشعار التجريبي');});
 }
 function beep(){
   try{
