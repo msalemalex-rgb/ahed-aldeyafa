@@ -378,8 +378,15 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    loadMenuData(); loadOrders(); loadReservations();
+    loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     setInterval(loadOrders,6000); setInterval(loadReservations,12000);
+    /* عدّاد العملاء كان يبقى صفرًا حتى يُفتح التبويب، لأنه لا يُحسب إلا عند عرضه.
+       نحمّله مع الدخول ونحدّثه دوريًا، مع تجنّب المقاطعة أثناء تصفّح ملف عميل. */
+    setInterval(function(){
+      const v=document.getElementById('view-cust');
+      if(v&&v.classList.contains('active'))return;
+      loadCustomers(1);
+    },120000);
   }).catch(()=>{document.getElementById('loginErr').textContent="خطأ في الاتصال";});
   return false;
 }
@@ -990,7 +997,6 @@ function renderReservations(){
   const isActive=r=>(!r.status||r.status==='new'||r.status==='confirmed');
   // العدّادات
   const pending=reservations.filter(r=>!r.status||r.status==='new').length;
-  document.getElementById('cntRes').textContent=pending;
   const todayList=reservations.filter(r=>r.date&&sameDay(resDate(r),now)&&isActive(r));
   /* الحجوزات بدون تاريخ محدد تظهر هنا أيضًا — هي طلبات مفتوحة تحتاج متابعة،
      وإخفاؤها كان يجعل القسم يبدو فارغًا مع وجود طلبات حجز فعلية. */
@@ -1000,6 +1006,9 @@ function renderReservations(){
   const schedUp=sched.filter(function(s){return s.ms>now.getTime()&&!sameDay(new Date(s.ms),now);});
   document.getElementById('cntRToday').textContent=todayList.length+schedToday.length;
   document.getElementById('cntRUp').textContent=upcoming.length+schedUp.length;
+  /* رقم التبويب الرئيسي يشمل الطلبات المؤجَّلة أيضًا بعد أن صارت تُعرض هنا،
+     وإلا ظهر صفرًا بينما القسم بداخله ارتباطات فعلية. */
+  document.getElementById('cntRes').textContent=pending+schedToday.length+schedUp.length;
   // بانر اليوم — الحجوزات والطلبات المؤجَّلة معًا
   const tConf=todayList.filter(r=>r.status==='confirmed').length, tNew=todayList.length-tConf;
   const tAll=todayList.length+schedToday.length;
