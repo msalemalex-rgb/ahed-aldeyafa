@@ -224,7 +224,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
   <div class="soundbar" id="soundbar" onclick="enableSound(true)">🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة</div>
   <header>
     <h1>🍽️ عهد الضيافة</h1>
-    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" id="voiceBtn" onclick="toggleVoice()">🗣️ النطق</button> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
+    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" id="voiceBtn" onclick="toggleVoice()">🗣️ النطق</button> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="snd" id="langBtn" onclick="toggleLang()">🌐 EN</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
   </header>
   <div class="wrap">
     <div class="tabs">
@@ -395,7 +395,7 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    fillSounds(); updVoiceBtn();
+    fillSounds(); updVoiceBtn(); applyLangShell();
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
        في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
@@ -471,7 +471,7 @@ function loadCustomers(force,cb){
   ]).then(function(a){
     const d=a[0]||{};
     CUSTX=(a[1]&&a[1].customers)||{};
-    custRaw=(d&&d.orders)||[]; CUST=buildCustomers(custRaw); custLoaded=true; renderCustomers(); if(cb)cb();
+    custRaw=(d&&d.orders)||[]; CUST=buildCustomers(custRaw); custLoaded=true; renderCustomers(); retranslate(); if(cb)cb();
   }).catch(function(){document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:#b32d1f">تعذّر تحميل العملاء، يرجى الضغط على تحديث</div>';});
 }
 function renderCustomers(){
@@ -601,6 +601,7 @@ function goOrders(){
   showView('orders',el);
 }
 function showView(v,el){
+  retranslate();
   document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -671,6 +672,120 @@ function testPush(){
     })
     .catch(function(){toast('تعذّر إرسال الإشعار التجريبي');});
 }
+
+/* ===== الإنجليزية في اللوحة =====
+   اللوحة مكتوبة بالعربية في مئات المواضع، فبدل تعديل كل موضع نترجم النص المعروض
+   نفسه بعد كل رسم: نمرّ على نصوص الصفحة ونستبدل ما يطابق قاموس الواجهة تطابقًا
+   كاملاً فقط — فأسماء العملاء والأصناف والملاحظات تبقى كما كتبها أصحابها. */
+const EN={
+"الأكثر إنفاقاً":"Top spenders","آخر طلب":"Last order","• آخر طلب":"• Last order",
+"📥 تصدير المنيو (Excel)":"📥 Export menu (Excel)","📤 استيراد المنيو (Excel)":"📤 Import menu (Excel)",
+"✅ إتاحة الكل للزبائن":"✅ Make everything available","👁 عرض أسماءها":"👁 Show names","📋 نسخ القائمة":"📋 Copy list",
+"💾 حفظ المنيو":"💾 Save menu","سيظهر:":"Will show:","الكل:":"All:","اليوم:":"Today:","الزبون:":"Customer:",
+"نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪":"Direct-order discount (%) — number only, e.g. 10 = 10%",
+"تنبيه الطلبات المؤجَّلة — كم دقيقة قبل موعد التسليم يصل التنبيه؟":"Scheduled-order reminder — how many minutes before delivery?",
+"مثال: ١٢٠ تعني وصول التنبيه قبل الموعد بساعتين، ويتكرر التنبيه حتى تفتح لوحة التحكم.":"Example: 120 means the reminder arrives two hours ahead, and repeats until you open the panel.",
+"مواعيد العمل — نطاق أو أكثر (هي اللي تظهر للعميل وتحدّد «مغلق حالياً»)":"Opening hours — one or more ranges (shown to customers and used for the closed-now notice)",
+"هذه النطاقات نفسها هي التي تظهر للعميل":"These same ranges are what customers see",
+"التي يُحدَّد بها تنبيه «المطعم مغلق حاليًا» — ولا يوجد مكان آخر للمواعيد.":"and what drives the closed-now notice — there is no other place for hours.",
+"تقدر تحط نطاق واحد لكل الأسبوع، أو نطاق للسبت - الخميس ونطاق تاني للجمعة. لو الإغلاق بعد منتصف الليل اكتبه عادي (مثلاً من ١٢:٠٠ إلى ٠٢:٠٠).":"You can set one range for the whole week, or one for Sat-Thu and another for Friday. If closing runs past midnight, enter it normally (e.g. 12:00 to 02:00).",
+"لو مسحت كل النطاقات: قسم أوقات العمل مش هيظهر للعميل، والتنبيه مش هيشتغل.":"If you clear every range, the hours section is hidden from customers and the closed-now notice stops working.",
+"اكتب رقم الهاتف المستخدم في الطلبات التجريبية، ثم اعرض المطابق قبل الإلغاء. الإلغاء يغيّر حالة الطلب إلى «ملغي» فيخرج من القوائم والإحصائيات، ويبقى محفوظًا في السجل ويمكن التراجع عنه.":"Enter the phone used for the test orders, then review the matches before cancelling. Cancelling sets the status to Cancelled so it leaves the lists and analytics, while the record stays and can be reversed.",
+"رقم الهاتف":"Phone number","الحالة":"Status","الإجمالي":"Total","المجموع":"Subtotal","الأصناف":"Items",
+"ملاحظات العميل":"Customer notes","ملاحظة":"Note","طلباته السابقة":"Previous orders",
+"مباشر":"Live","🔔 اختبار الصوت":"🔔 Test sound","⏹️ إيقاف":"⏹️ Stop","🗣️ النطق":"🗣️ Voice",
+"🗣️ النطق: مُفعَّل":"🗣️ Voice: on","🔇 النطق: موقوف":"🔇 Voice: off","📲 اختبار الإشعار":"📲 Test notification",
+"خروج":"Log out","دخول":"Log in","كلمة السر":"Password","لوحة تحكم عهد الضيافة":"Ahd Al-Diyafa Admin",
+"أدخل كلمة السر للدخول":"Enter your password to continue","خطأ في الاتصال":"Connection error",
+"🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة":"🔇 Tap here to enable the new-order alert sound",
+"🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه":"🔔 New order! Tap here to stop the sound",
+"💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت":"💳 A payment failed — tap here to stop the sound",
+"📋 الطلبات":"📋 Orders","📅 الحجوزات والمؤجَّل":"📅 Bookings & scheduled","👥 العملاء":"👥 Customers",
+"🍲 المنيو":"🍲 Menu","📊 الإحصائيات":"📊 Analytics","⚙️ الإعدادات":"⚙️ Settings",
+"الجديدة":"New","قيد التحضير":"Preparing","الكل":"All","🔄 تحديث":"🔄 Refresh",
+"اليوم":"Today","القادمة":"Upcoming","منتهية/ملغاة":"Past / cancelled",
+"طلب جديد":"New order","في الطريق 🛵":"On the way 🛵","مكتمل":"Completed","بانتظار الدفع":"Awaiting payment",
+"واتساب — بانتظار التأكيد":"WhatsApp — awaiting confirmation","فشل الدفع":"Payment failed","ملغي":"Cancelled",
+"جاهز للاستلام 🛍️":"Ready for pickup 🛍️","دفع لم يكتمل — محاولة متروكة":"Payment not completed — abandoned attempt",
+"طلب مؤجَّل":"Scheduled order","جديد":"New","مؤكد":"Confirmed","تم":"Done",
+"✅ أكّد الطلب":"✅ Confirm order","👨‍🍳 قيد التحضير":"👨‍🍳 Preparing","🛵 في الطريق":"🛵 On the way",
+"✅ مكتمل":"✅ Completed","✖️ إلغاء":"✖️ Cancel","إلغاء":"Cancel","✅ تأكيد":"✅ Confirm","✔️ تم":"✔️ Done",
+"🖨️ فاتورة":"🖨️ Invoice","👨‍🍳 تذكرة المطبخ":"👨‍🍳 Kitchen ticket","🖨️ طباعة":"🖨️ Print",
+"📲 رسالة تتبع":"📲 Tracking message","🚗 تجهيزة السائق":"🚗 Driver handover","👤 ملف العميل":"👤 Customer profile",
+"📋 فتحه في الطلبات":"📋 Open in orders","✏️ تعديل البيانات":"✏️ Edit details","💾 حفظ":"💾 Save",
+"📲 واتساب":"📲 WhatsApp","📞 اتصال":"📞 Call","← العودة إلى قائمة العملاء":"← Back to customers",
+"🔎 ابحث باسم العميل أو رقمه":"🔎 Search by customer name or number","لا يوجد عملاء مطابقون":"No matching customers",
+"عميل":"Customers","عملاء متكررين":"Repeat customers","متوسط الطلبات للعميل":"Orders per customer",
+"متوسط قيمة الطلب":"Average order value","طلب مدفوع":"Paid orders","إجمالي إنفاقه":"Total spent",
+"متوسط الطلب":"Average order","أول طلب":"First order","منذ آخر طلب":"Since last order","بدون اسم":"No name",
+"الاسم":"Name","المنطقة":"Area","العنوان":"Address","الهاتف":"Phone","العميل":"Customer","التاريخ":"Date",
+"ملاحظة خاصة (تظهر لك في اللوحة فقط)":"Private note (visible to you only)",
+"تم حفظ بيانات العميل":"Customer details saved","تعذّر حفظ بيانات العميل":"Could not save customer details",
+"لا توجد طلبات":"No orders","لا توجد حجوزات ولا طلبات مؤجَّلة في هذا القسم":"No bookings or scheduled orders here",
+"لا توجد حجوزات لهذا اليوم":"No bookings today","لا توجد حجوزات ولا طلبات مؤجَّلة لهذا اليوم":"Nothing scheduled for today",
+"ارتباطات اليوم":"Today's commitments","جارٍ التحميل…":"Loading…","جاري التحميل…":"Loading…",
+"التاريخ غير محدد — يُرجى الاتصال بالعميل":"No date set — please call the customer",
+"زيارات":"Visits","مشاهدات":"Page views","طلبات مدفوعة":"Paid orders","الأكثر طلباً":"Most ordered",
+"آخر 7 أيام":"Last 7 days","آخر 30 يوم":"Last 30 days","آخر 3 شهور":"Last 3 months","الشهر الحالي":"This month",
+"من":"From","إلى":"To","تطبيق":"Apply","٢٤ ساعة":"24 hours","يومياً":"Daily","أسبوعياً":"Weekly",
+"إنذار قوي":"Loud alarm","جرس كلاسيكي":"Classic bell","ثلاثي متلاحق":"Rapid triple","صفارة متدرجة":"Rising siren",
+"نغمة مزدوجة":"Double chime","رنين هادئ":"Soft ring","نغمة التنبيه":"Alert tone",
+"شعار المطعم (لوجو)":"Restaurant logo","رقم واتساب (دولي بدون +)":"WhatsApp number (international, no +)",
+"💾 حفظ الإعدادات":"💾 Save settings","+ إضافة منطقة":"+ Add area","+ إضافة موعد":"+ Add time range",
+"+ إضافة قسم جديد":"+ Add section","+ إضافة مجموعة خيارات":"+ Add option group","قسم جديد":"New section",
+"منطقة جديدة":"New area","اسم الصنف":"Item name","اسم الطبق":"Dish name","الوصف":"Description",
+"السعر (د.ك)":"Price (KWD)","سعر إضافي":"Extra price","رفع صورة":"Upload image","حذف الصنف":"Delete item",
+"إلغاء الطلبات التجريبية":"Cancel test orders","🔎 عرض المطابق":"🔎 Show matches","✖️ إلغاء الكل":"✖️ Cancel all",
+"تفعيل خيار الاستلام من المطعم":"Enable pickup from the restaurant","الحد الأدنى":"Minimum","حد أدنى":"Minimum",
+"رسوم التوصيل":"Delivery fee","وقت التوصيل":"Delivery time","رقم الفاتورة":"Invoice no.","الخصم":"Discount",
+"الاستلام":"Fulfilment","توصيل":"Delivery","🛵 توصيل":"🛵 Delivery","🏠 استلام من المطعم":"🏠 Pickup",
+"استلام من المطعم":"Pickup","واتساب":"WhatsApp","💬 واتساب":"💬 WhatsApp","📷 إنستجرام":"📷 Instagram",
+"👻 سناب شات":"👻 Snapchat","🎵 تيك توك":"🎵 TikTok","👍 فيسبوك":"👍 Facebook","🔍 جوجل":"🔍 Google",
+"🌐 أخرى":"🌐 Other","🔗 مباشر":"🔗 Direct","الأحد":"Sunday","الاثنين":"Monday","الثلاثاء":"Tuesday",
+"الأربعاء":"Wednesday","الخميس":"Thursday","الجمعة":"Friday","السبت":"Saturday","منتصف الليل":"Midnight",
+"(يمتد بعد منتصف الليل)":"(runs past midnight)","صنف":"item","طلبات":"orders","يومًا":"days","دقيقة":"minutes",
+"د.ك":"KWD","المنقطعون":"Lapsed","الخيارات":"Options","الاختيارات":"Choices","اسم الاختيار":"Choice name",
+"الإضافات":"Add-ons","سلال (أشخاص)":"Platters (people)","وجبات كومبو":"Combo meals","الجانب":"Side",
+"طلبات جديدة":"new orders","طلبات حجز":"booking requests","طلب حجز جديد":"New booking request",
+"… جارٍ الحفظ":"… Saving","❌ فشل الحفظ":"❌ Save failed","❌ الملف فاضي":"❌ Empty file",
+"تعذّر إرسال الإشعار التجريبي":"Could not send the test notification","سجّل الدخول أولًا":"Log in first"
+};
+let LANG=(function(){try{return localStorage.getItem('ahd_lang')==='en'?'en':'ar';}catch(_){return 'ar';}})();
+function updLangBtn(){const b=document.getElementById('langBtn');if(b)b.textContent=LANG==='en'?'🌐 عربي':'🌐 EN';}
+function toggleLang(){
+  LANG=(LANG==='en')?'ar':'en';
+  try{localStorage.setItem('ahd_lang',LANG);}catch(_){}
+  location.reload();                       /* أبسط وأأمن من محاولة عكس الترجمة */
+}
+function translateDOM(root){
+  if(LANG!=='en')return;
+  try{
+    const w=document.createTreeWalker(root||document.body,NodeFilter.SHOW_TEXT,null);
+    const ns=[]; while(w.nextNode())ns.push(w.currentNode);
+    ns.forEach(function(n){
+      const k=n.nodeValue.trim();
+      if(k&&EN[k])n.nodeValue=n.nodeValue.replace(k,EN[k]);
+    });
+    ['placeholder','title'].forEach(function(at){
+      document.querySelectorAll('['+at+']').forEach(function(e){
+        const k=(e.getAttribute(at)||'').trim();
+        if(k&&EN[k])e.setAttribute(at,EN[k]);
+      });
+    });
+  }catch(_){}
+}
+function applyLangShell(){
+  updLangBtn();
+  if(LANG==='en'){
+    document.documentElement.setAttribute('lang','en');
+    document.documentElement.setAttribute('dir','ltr');
+    document.title='Ahd Al-Diyafa Admin';
+  }
+  translateDOM();
+}
+/* كل رسم جديد يمرّ على المترجم — بدونه تعود البطاقات المرسومة عربية */
+function retranslate(){ if(LANG==='en')setTimeout(function(){translateDOM();},0); }
+
 /* ===== أصوات التنبيه =====
    المشكلة السابقة: كل رنّة تجدول عشر نغمات على مدى ٤٫٥ ثانية، وإيقاف المؤقّت
    لا يلغي النغمات المجدولة — فيفضل الصوت شغّالًا بعد الضغط على زر الإيقاف
@@ -848,7 +963,7 @@ function loadOrders(){
     if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); alertVoice(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات')); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     if(document.visibilityState==='visible') ackServer();
-    first=false; orders=d.orders; renderOrders();
+    first=false; orders=d.orders; renderOrders(); retranslate();
     /* كل الأرقام تتحدّث مع كل دورة طلبات (كل ٦ ثوانٍ) بدل انتظار فتح التبويب */
     try{ syncCustomers(); }catch(_){}
     try{ renderReservations(); }catch(_){}
@@ -1212,7 +1327,7 @@ function loadReservations(){
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
     if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; alertVoice(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز')); }
-    resFirst=false; reservations=d.reservations; renderReservations();
+    resFirst=false; reservations=d.reservations; renderReservations(); retranslate();
   }).catch(()=>{});
 }
 function setRFilter(f,el){rfilter=f;if(el){el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}renderReservations();}
@@ -1338,7 +1453,7 @@ function loadMenuData(){
     DATA.menu=d.menu||[]; DATA.settings=d.settings||{};
     if(!Array.isArray(DATA.settings.areas))DATA.settings.areas=[];
     if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
-    renderMenuEditor(); fillSettings(); renderAreas('');
+    renderMenuEditor(); fillSettings(); renderAreas(''); retranslate();
   }).catch(()=>{});
 }
 function renderMenuEditor(){
