@@ -332,6 +332,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
           اضغط أي حالة لتسمع تنبيهها كما سيصلك تمامًا: النطق العربي أولاً ثم الجرس.
           يتوقف وحده بعد تسع ثوانٍ، أو أوقفه من زر «إيقاف» بالأعلى.
         </div>
+        <div style="margin-bottom:9px"><span style="font-weight:800;color:var(--maroon);font-size:13px">صوت النطق: </span><select id="vStyleSel" onchange="setVoiceStyle(this.value)" style="width:auto;display:inline-block;padding:6px 9px;margin:0;font-size:13px;border-radius:8px"></select></div>
         <div id="alertTestBox"></div>
       </div>
 
@@ -405,7 +406,7 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    fillSounds(); updVoiceBtn(); renderAlertTests(); applyLangShell();
+    fillSounds(); fillVStyle(); updVoiceBtn(); renderAlertTests(); applyLangShell();
     try{ speechSynthesis.onvoiceschanged=function(){updVoiceBtn();}; }catch(_){}
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
@@ -886,13 +887,23 @@ function voiceAvailable(){ return true; }   /* دائمًا متاح: إمّا �
 function ttsAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(); }catch(_){ return false; } }
 /* الأجهزة التي لا صوت عربي عليها تشغّل تسجيلات جاهزة بدل أن تصمت. الملفات قصيرة
    ومخزّنة مع الموقع، فلا تحتاج إنترنت إضافيًا ولا إعدادات على الجهاز. */
+/* ثلاث طبقات للنطق: تسجيلان جاهزان بصوتين مختلفين، أو صوت الجهاز إن وُجد.
+   لا يمكن الحكم على الأوضح إلا بالسماع، فالاختيار متروك لصاحب اللوحة. */
+const VSTYLES={a:'صوت ١ (افتراضي)', b:'صوت ٢', device:'صوت الجهاز إن وُجد'};
+function voiceStyle(){try{const v=localStorage.getItem('ahd_vstyle');return VSTYLES[v]?v:'a';}catch(_){return 'a';}}
+function setVoiceStyle(v){try{localStorage.setItem('ahd_vstyle',v);}catch(_){} stopSound(); say('طَلَبٌ جَدِيدٌ وَصَلَ',null,'new');}
+function fillVStyle(){
+  const s=document.getElementById('vStyleSel'); if(!s)return;
+  s.innerHTML=Object.keys(VSTYLES).map(function(k){return '<option value="'+k+'">'+VSTYLES[k]+'</option>';}).join('');
+  s.value=voiceStyle();
+}
 let _voiceEl=null;
 function playVoiceFile(key,cb){
   const done=(typeof cb==='function')?cb:function(){};
   if(!key){done();return;}
   try{
     if(_voiceEl){try{_voiceEl.pause();}catch(_){}}
-    const a=new Audio('/voice/'+key+'.mp3');
+    const a=new Audio('/voice/'+key+(voiceStyle()==='b'?'-b':'')+'.mp3');
     _voiceEl=a; a.volume=1.0;
     let fired=false; const go=function(){if(fired)return;fired=true;done();};
     a.onended=go; a.onerror=go;
@@ -903,8 +914,8 @@ function playVoiceFile(key,cb){
 function say(txt,cb,key){
   const done=(typeof cb==='function')?cb:function(){};
   if(!voiceOn()||(!txt&&!key)){done();return;}
-  const ar=arVoice();
-  if(!ar){playVoiceFile(key,done);return;}    /* لا صوت على الجهاز → التسجيل الجاهز */
+  const ar=(voiceStyle()==='device')?arVoice():null;
+  if(!ar){playVoiceFile(key,done);return;}    /* التسجيل الجاهز هو الأساس */
   try{
     const u=new SpeechSynthesisUtterance(txt);
     u.lang=ar.lang||'ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0; u.voice=ar;
@@ -1016,7 +1027,7 @@ function loadOrders(){
       if(freshWa)  parts.push(freshWa===1?'طلب واتساب بانتظار التأكيد':(freshWa+' طلبات واتساب بانتظار التأكيد'));
       startAlarm(parts.join('، '), freshWa&&!freshNew?'wa':'new');
     }
-    if(!fresh && freshPend>0){ notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); voiceThen('عميل يدفع الآن، الطلب لم يُدفع بعد',function(){try{beep(2);}catch(_){}},'pending'); }
+    if(!fresh && freshPend>0){ notify("💳 لم يكتمل الدفع","عميل حاول الدفع ولم يكمله — لا تحضّره قبل تأكيد الدفع"); voiceThen('عميل حاول الدفع ولم يكتمل',function(){try{beep(2);}catch(_){}},'pending'); }
     if(freshFail>0){ notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); startFailAlarm(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات'),'failed'); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     if(document.visibilityState==='visible') ackServer();
@@ -1178,13 +1189,14 @@ function fmtSched(sf){
 }
 
 
+
 /* ===== تجربة التنبيهات =====
    كل زر يشغّل نفس المسار الحقيقي تمامًا: نفس جملة النطق ونفس الجرس وبنفس الترتيب،
    فما تسمعه هنا هو ما ستسمعه عند وصول الطلب فعلاً. يتوقف وحده بعد تسع ثوانٍ. */
 const ALERT_TESTS=[
  {t:'🔔 طلب جديد',        v:'طلب جديد وصل',                      k:'new',     f:function(v,k){startAlarm(v,k);}},
  {t:'💬 طلب واتساب',      v:'طلب واتساب بانتظار التأكيد',         k:'wa',      f:function(v,k){startAlarm(v,k);}},
- {t:'💳 عميل يدفع الآن',   v:'عميل يدفع الآن، الطلب لم يُدفع بعد', k:'pending', f:function(v,k){voiceThen(v,function(){try{beep(2);}catch(_){}},k);}},
+ {t:'💳 لم يكتمل الدفع',   v:'عميل حاول الدفع ولم يكتمل',         k:'pending', f:function(v,k){voiceThen(v,function(){try{beep(2);}catch(_){}},k);}},
  {t:'❌ فشل دفع',          v:'فشل دفع طلب، يُرجى متابعة العميل',   k:'failed',  f:function(v,k){startFailAlarm(v,k);}},
  {t:'📅 حجز جديد',        v:'طلب حجز جديد',                      k:'rsv',     f:function(v,k){startAlarm(v,k);}},
  {t:'⏰ طلب مؤجَّل حان موعده', v:'طلب مؤجَّل، حان وقت تحضيره',      k:'sched',   f:function(v,k){startAlarm(v,k);}}
