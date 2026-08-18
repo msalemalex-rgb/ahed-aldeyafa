@@ -889,7 +889,7 @@ function ttsAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(
    ومخزّنة مع الموقع، فلا تحتاج إنترنت إضافيًا ولا إعدادات على الجهاز. */
 /* ثلاث طبقات للنطق: تسجيلان جاهزان بصوتين مختلفين، أو صوت الجهاز إن وُجد.
    لا يمكن الحكم على الأوضح إلا بالسماع، فالاختيار متروك لصاحب اللوحة. */
-const VSTYLES={a:'صوت ١ (افتراضي)', b:'صوت ٢', device:'صوت الجهاز إن وُجد'};
+const VSTYLES={a:'صوت بشري (افتراضي)', b:'صوت آلي', device:'صوت الجهاز إن وُجد'};
 function voiceStyle(){try{const v=localStorage.getItem('ahd_vstyle');return VSTYLES[v]?v:'a';}catch(_){return 'a';}}
 function setVoiceStyle(v){try{localStorage.setItem('ahd_vstyle',v);}catch(_){} stopSound(); say('طَلَبٌ جَدِيدٌ وَصَلَ',null,'new');}
 function fillVStyle(){
