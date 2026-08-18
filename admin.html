@@ -224,7 +224,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
   <div class="soundbar" id="soundbar" onclick="enableSound(true)">🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة</div>
   <header>
     <h1>🍽️ عهد الضيافة</h1>
-    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
+    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" id="voiceBtn" onclick="toggleVoice()">🗣️ النطق</button> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
   </header>
   <div class="wrap">
     <div class="tabs">
@@ -395,7 +395,7 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    fillSounds();
+    fillSounds(); updVoiceBtn();
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
        في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
@@ -676,10 +676,12 @@ function testPush(){
    لا يلغي النغمات المجدولة — فيفضل الصوت شغّالًا بعد الضغط على زر الإيقاف
    ويبدو كأن الزر لا يعمل. الآن نحتفظ بكل نغمة مجدولة ونوقفها فورًا. */
 const SOUNDS={
-  classic:{n:'جرس كلاسيكي', seq:[880,1245],            type:'square',   c:10, gap:0.45, len:0.40},
-  double: {n:'نغمة مزدوجة', seq:[1046,1318,0,1046,1318],type:'sine',    c:12, gap:0.30, len:0.22},
-  siren:  {n:'صفارة متدرجة',seq:[700,900,1100,1300],    type:'sawtooth',c:12, gap:0.28, len:0.26},
-  soft:   {n:'رنين هادئ',   seq:[660,880],              type:'sine',    c:8,  gap:0.60, len:0.50}
+  siren:  {n:'إنذار قوي',    seq:[1000,1400],              type:'square',   c:16, gap:0.26, len:0.24, h:3},
+  classic:{n:'جرس كلاسيكي',  seq:[880,1245],               type:'square',   c:12, gap:0.42, len:0.38, h:3},
+  triple: {n:'ثلاثي متلاحق', seq:[1175,1568,1976,0],        type:'square',   c:20, gap:0.16, len:0.14, h:2},
+  rise:   {n:'صفارة متدرجة', seq:[700,950,1200,1500,1800],  type:'sawtooth', c:20, gap:0.18, len:0.17, h:2},
+  double: {n:'نغمة مزدوجة',  seq:[1046,1318,0,1046,1318],   type:'sine',     c:14, gap:0.28, len:0.24, h:3},
+  soft:   {n:'رنين هادئ',    seq:[660,880],                type:'sine',     c:8,  gap:0.60, len:0.50, h:1}
 };
 let liveNodes=[], masterGain=null;
 function soundKey(){try{return SOUNDS[localStorage.getItem('ahd_snd')]?localStorage.getItem('ahd_snd'):'classic';}catch(_){return 'classic';}}
@@ -691,11 +693,14 @@ function fillSounds(){
 }
 function stopSound(){
   try{ if(masterGain){masterGain.gain.cancelScheduledValues(0);masterGain.gain.value=0;} }catch(_){}
+  try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(_){}
   liveNodes.forEach(function(o){try{o.stop();}catch(_){}try{o.disconnect();}catch(_){}});
   liveNodes=[];
   try{ if(navigator.vibrate)navigator.vibrate(0); }catch(_){}
 }
-/* count: عدد النغمات — نمرّر رقمًا صغيرًا للتنبيه الخفيف (طلب بانتظار الدفع) */
+/* count: عدد النغمات — نمرّر رقمًا صغيرًا للتنبيه الخفيف (طلب بانتظار الدفع).
+   الارتفاع: ثلاث توافقيات لكل نغمة بدل واحدة، وضاغط بعتبة منخفضة ونسبة عالية —
+   يرفع الصوت المسموع إلى أقصى ما يسمح به الجهاز قبل التشويش. */
 function beep(count){
   try{
     if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
@@ -703,27 +708,55 @@ function beep(count){
     const S=SOUNDS[soundKey()]||SOUNDS.classic;
     const N=count||S.c;
     const comp=audioCtx.createDynamicsCompressor();
-    comp.threshold.value=-24; comp.knee.value=30; comp.ratio.value=12; comp.attack.value=0.003; comp.release.value=0.25;
-    const master=audioCtx.createGain();
-    master.gain.value=6.0;
-    master.connect(comp); comp.connect(audioCtx.destination);
+    comp.threshold.value=-38; comp.knee.value=6; comp.ratio.value=20; comp.attack.value=0.002; comp.release.value=0.18;
+    const master=audioCtx.createGain(); master.gain.value=14.0;   /* كان ٦ */
+    const makeup=audioCtx.createGain(); makeup.gain.value=2.2;    /* تعويض ما يبتلعه الضاغط */
+    master.connect(comp); comp.connect(makeup); makeup.connect(audioCtx.destination);
     masterGain=master;
+    const H=S.h||2;
     for(let k=0;k<N;k++){
       const f=S.seq[k%S.seq.length];
       if(!f)continue;                               /* صفر = سكتة داخل النمط */
       const t=audioCtx.currentTime + k*S.gap;
-      const o=audioCtx.createOscillator(), o2=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.connect(g); o2.connect(g); g.connect(master);
-      o.type=S.type; o2.type=S.type;
-      o.frequency.value=f; o2.frequency.value=f*2;
+      const g=audioCtx.createGain(); g.connect(master);
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(1.0,t+0.03);
+      g.gain.exponentialRampToValueAtTime(1.0,t+0.02);
       g.gain.exponentialRampToValueAtTime(0.0001,t+S.len);
-      o.start(t); o2.start(t); o.stop(t+S.len+0.02); o2.stop(t+S.len+0.02);
-      liveNodes.push(o,o2);
+      for(let x=1;x<=H;x++){
+        const o=audioCtx.createOscillator();
+        o.connect(g); o.type=S.type; o.frequency.value=f*x;
+        o.start(t); o.stop(t+S.len+0.02);
+        liveNodes.push(o);
+      }
     }
   }catch(_){}
 }
+
+/* ===== النطق العربي حسب الحالة =====
+   الصوت وحده لا يقول ماذا حدث؛ النطق يفرّق بين طلب جديد وطلب واتساب ومحاولة دفع
+   وفشل دفع، فيعرف المطبخ ما عليه فعله دون النظر إلى الشاشة. */
+function voiceOn(){try{return localStorage.getItem('ahd_voice')!=='0';}catch(_){return true;}}
+function updVoiceBtn(){const b=document.getElementById('voiceBtn');if(b)b.textContent=voiceOn()?'🗣️ النطق: مُفعَّل':'🔇 النطق: موقوف';}
+function toggleVoice(){
+  try{localStorage.setItem('ahd_voice',voiceOn()?'0':'1');}catch(_){}
+  updVoiceBtn();
+  if(voiceOn())say('تم تفعيل التنبيه الصوتي');else{try{speechSynthesis.cancel();}catch(_){}}
+}
+function say(txt){
+  if(!voiceOn()||!txt)return;
+  try{
+    if(!('speechSynthesis' in window))return;
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0;
+    const vs=speechSynthesis.getVoices()||[];
+    const ar=vs.filter(function(v){return /^ar/i.test(v.lang||'');})[0];
+    if(ar)u.voice=ar;
+    speechSynthesis.speak(u);
+  }catch(_){}
+}
+/* النطق يأتي بعد النغمة حتى لا يتداخلا */
+function alertVoice(txt){ if(!txt)return; setTimeout(function(){say(txt);},1200); }
+
 // تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
 function startAlarm(){
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
@@ -792,19 +825,27 @@ function loadOrders(){
   if(!KEY)return;
   fetch('/api/orders',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.orders)return;
-    let fresh=0, freshFail=0, freshPend=0;
+    let fresh=0, freshFail=0, freshPend=0, freshNew=0, freshWa=0;
     d.orders.forEach(o=>{
       /* طلب مؤكَّد — جديد أو واتساب بانتظار التأكيد — يستحق الرنّة الكاملة.
          كان الشرط على "new" وحده، فطلبات واتساب كانت تصل بلا صوت. */
-      if((o.status==="new"||o.status==="awaiting") && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); }
+      if((o.status==="new"||o.status==="awaiting") && !seen.has(o.id)){ if(!first){fresh++; if(o.status==="awaiting")freshWa++; else freshNew++;} seen.add(o.id); }
       /* بانتظار الدفع: تنبيه خفيف مرة واحدة — كثير منها يُترك قبل إتمام الدفع،
          فالرنّة المتكررة هنا تُتعب أكثر مما تفيد. */
       if(o.status==="pending" && !seenPend.has(o.id)){ seenPend.add(o.id); if(!first) freshPend++; }
       if(o.status==="failed" && !seenFail.has(o.id)){ if(!first) freshFail++; seenFail.add(o.id); }
     });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد'); }
-    if(!fresh && freshPend>0){ try{beep(2);}catch(_){} notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); }
-    if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); }
+    if(fresh>0){
+      startAlarm(); document.title="("+fresh+") طلب جديد!";
+      notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد');
+      /* النطق يفرّق بين مصدر الطلب حتى يُعرف المطلوب دون النظر إلى الشاشة */
+      const parts=[];
+      if(freshNew) parts.push(freshNew===1?'طلب جديد وصل':('وصل '+freshNew+' طلبات جديدة'));
+      if(freshWa)  parts.push(freshWa===1?'طلب واتساب بانتظار التأكيد':(freshWa+' طلبات واتساب بانتظار التأكيد'));
+      alertVoice(parts.join('، '));
+    }
+    if(!fresh && freshPend>0){ try{beep(2);}catch(_){} notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); alertVoice('عميل يدفع الآن، الطلب لم يُدفع بعد'); }
+    if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); alertVoice(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات')); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     if(document.visibilityState==='visible') ackServer();
     first=false; orders=d.orders; renderOrders();
@@ -1170,7 +1211,7 @@ function loadReservations(){
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; }
+    if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; alertVoice(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز')); }
     resFirst=false; reservations=d.reservations; renderReservations();
   }).catch(()=>{});
 }
