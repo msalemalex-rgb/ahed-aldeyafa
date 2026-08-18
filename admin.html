@@ -321,6 +321,20 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
         <button class="addbtn" onclick="addArea()" style="margin-top:8px">+ إضافة منطقة</button>
       </div>
       <div class="savebar"><button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button></div>
+
+      <div class="card" style="border:1.5px solid #e2a49c;background:#fffaf9">
+        <label class="fld" style="color:#a2333f">إلغاء الطلبات التجريبية</label>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:8px">
+          اكتب رقم الهاتف المستخدم في الطلبات التجريبية، ثم اعرض المطابق قبل الإلغاء.
+          الإلغاء يغيّر حالة الطلب إلى «ملغي» فيخرج من القوائم والإحصائيات، ويبقى محفوظًا في السجل ويمكن التراجع عنه.
+        </div>
+        <input id="tstPhone" placeholder="مثال: 51080031" inputmode="numeric">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="sbtn print" onclick="findTestOrders()">🔎 عرض المطابق</button>
+          <button class="sbtn cancel" id="tstBtn" onclick="cancelTestOrders()" style="display:none">✖️ إلغاء الكل</button>
+        </div>
+        <div id="tstBox" style="margin-top:9px"></div>
+      </div>
     </div>
 
     <div class="view" id="view-stats">
@@ -964,6 +978,55 @@ function updOrder(id,status){
   fetch('/api/orders',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({id,status})})
     .then(()=>{const o=orders.find(x=>x.id===id);if(o)o.status=status;renderOrders();});
 }
+
+/* ===== إلغاء الطلبات التجريبية =====
+   الإلغاء هنا تغيير حالة فقط — الطلب يخرج من القوائم والإحصائيات ويبقى في السجل،
+   فيمكن التراجع عنه. لا يوجد حذف نهائي من اللوحة عمدًا. */
+let TSTFOUND=[];
+const TST_DONE={cancelled:1};
+function findTestOrders(){
+  const q=normPhone(document.getElementById('tstPhone').value);
+  const box=document.getElementById('tstBox'), btn=document.getElementById('tstBtn');
+  TSTFOUND=[]; btn.style.display='none';
+  if(!q||q.length<6){box.innerHTML='<div style="color:#a2333f;font-weight:700">اكتب رقم هاتف صحيح (٦ أرقام على الأقل)</div>';return;}
+  box.innerHTML='<div style="color:var(--muted)">جارٍ البحث في كامل السجل…</div>';
+  fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}).then(function(d){
+    const all=(d&&d.orders)||[];
+    TSTFOUND=all.filter(function(o){return o&&normPhone(o.phone)===q&&!TST_DONE[o.status];});
+    if(!TSTFOUND.length){box.innerHTML='<div style="font-weight:700">لا توجد طلبات غير ملغاة بهذا الرقم</div>';return;}
+    const sum=TSTFOUND.reduce(function(a,o){return a+(Number(o.total)||0);},0);
+    box.innerHTML='<div style="font-weight:900;color:#a2333f;margin-bottom:6px">'+TSTFOUND.length+' طلب — بإجمالي '+sum.toFixed(3)+' د.ك</div>'
+      +TSTFOUND.slice(0,40).map(function(o){
+        return '<div style="font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line)">'
+          +esc(String(o.no||o.id))+' — '+esc(o.name||'بدون اسم')+' — '+(Number(o.total)||0).toFixed(3)+' د.ك — '+esc(String(o.status||''))
+          +(o.createdAt?(' — '+fmtD(tms(o.createdAt))):'')+'</div>';
+      }).join('')
+      +(TSTFOUND.length>40?'<div style="font-size:12px;color:var(--muted);margin-top:4px">…وغيرها ('+(TSTFOUND.length-40)+')</div>':'');
+    btn.style.display='';
+    btn.textContent='✖️ إلغاء '+TSTFOUND.length+' طلب';
+  }).catch(function(){box.innerHTML='<div style="color:#a2333f">تعذّر تحميل الطلبات</div>';});
+}
+function cancelTestOrders(){
+  if(!TSTFOUND.length)return;
+  if(!confirm('إلغاء '+TSTFOUND.length+' طلب؟ ستتحوّل حالتها إلى «ملغي» وتخرج من القوائم والإحصائيات، ويمكن التراجع عن أي طلب من بطاقته.'))return;
+  const btn=document.getElementById('tstBtn'), box=document.getElementById('tstBox');
+  btn.disabled=true; btn.textContent='… جارٍ الإلغاء';
+  let done=0, failed=0;
+  const one=function(o){
+    return fetch('/api/orders',{method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},akHdr()),body:JSON.stringify({id:o.id,status:'cancelled'})})
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d&&d.ok){done++;const x=orders.find(function(y){return y.id===o.id;});if(x)x.status='cancelled';} else failed++; })
+      .catch(function(){failed++;});
+  };
+  /* بالتتابع لا بالتوازي — حتى لا نصطدم بحد الطلبات على السيرفر */
+  TSTFOUND.reduce(function(p,o){return p.then(function(){return one(o);});},Promise.resolve()).then(function(){
+    box.innerHTML='<div style="font-weight:900;color:'+(failed?'#a2333f':'#178c44')+'">تم إلغاء '+done+' طلب'+(failed?(' — وتعذّر إلغاء '+failed):'')+'</div>';
+    btn.style.display='none'; btn.disabled=false; TSTFOUND=[];
+    try{renderOrders();syncCustomers();}catch(_){}
+    toast('تم إلغاء '+done+' طلب تجريبي');
+  });
+}
+
 function cancelOrder(id){
   if(!confirm("متأكد من إلغاء هذا الطلب؟"))return;
   updOrder(id,'cancelled');
