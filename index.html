@@ -1553,8 +1553,7 @@ async function submitCheckout(){
     if(!ref){err.textContent=T('e.codFail');btn.disabled=false;updPayBtn();return;}
     remember(ref,o&&o.no);
     window._trackId=ref;
-    fbTrack('Purchase',{value:grand,currency:'KWD'});
-    loadInvoice(ref,'');
+    loadInvoice(ref,'');              /* هي التي ترسل حدث الشراء مرة واحدة */
     closeCheckout();
     showResult('cod');
     try{cart=[];updateCart();}catch(_){}
@@ -1819,13 +1818,37 @@ function buildInvoiceHTML(o,pid){
     <div class="inv-foot">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية وعودة قريبة<br>للتواصل والاستفسار: +${escH(CONFIG.whatsapp)}</div>
   </div>`;
 }
+/* ===== حدث الشراء عند ميتا =====
+   كان فيه ثلاث مشاكل تجعل الرقم عند ميتا أعلى من الحقيقة:
+   ١. طلب الكاش يرسل الحدث مرتين — مرة عند التأكيد ومرة عند تحميل الفاتورة.
+   ٢. عند فشل تحميل الفاتورة أو غياب رقم الطلب كان يُرسل شراء بقيمة صفر.
+   ٣. لا يوجد معرّف حدث، فلا شيء يمنع التكرار عند إعادة تحميل الصفحة.
+   الآن: حدث واحد لكل رقم طلب، بقيمته الحقيقية فقط، ومعه معرّف تستخدمه ميتا
+   لإسقاط أي تكرار من جهتها أيضًا. */
+function _fbSentGet(){try{const a=JSON.parse(sessionStorage.getItem('ahd_fbp')||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}}
+function _fbSentAdd(ref){try{const a=_fbSentGet();if(a.indexOf(ref)<0){a.push(ref);sessionStorage.setItem('ahd_fbp',JSON.stringify(a.slice(-30)));}}catch(_){}}
+function myOrdersTotal(ref){
+  try{const e=myOrdersGet().filter(function(x){return x.id===ref;})[0];return e?(Number(e.total)||0):0;}catch(_){return 0;}
+}
+function firePurchase(ref,value){
+  const v=Number(value)||0;
+  if(!ref||v<=0)return;                      /* لا شراء بلا مرجع ولا بقيمة صفر */
+  if(_fbSentGet().indexOf(ref)>=0)return;    /* أُرسل لهذا الطلب من قبل */
+  _fbSentAdd(ref);
+  if(window.AHD_TEST)return;
+  try{
+    if(typeof fbq==='function')
+      fbq('track','Purchase',{value:v,currency:'KWD',content_type:'product'},{eventID:'ord_'+ref});
+  }catch(_){}
+}
+
 async function loadInvoice(ref,pid){
-  if(!ref){fbTrack('Purchase',{value:0,currency:'KWD'});return;}
+  if(!ref)return;                              /* بلا رقم طلب لا يوجد شراء نُبلّغ عنه */
   try{
     const r=await fetch('/api/orders?id='+encodeURIComponent(ref));const j=await r.json();
-    if(j&&j.order){_invOrder=j.order;_invPid=pid||'';try{schedBanner();}catch(_){}fbTrack('Purchase',{value:Number(j.order.total)||0,currency:'KWD'});}
-    else{fbTrack('Purchase',{value:0,currency:'KWD'});}
-  }catch(_){fbTrack('Purchase',{value:0,currency:'KWD'});}
+    if(j&&j.order){_invOrder=j.order;_invPid=pid||'';try{schedBanner();}catch(_){}firePurchase(ref,Number(j.order.total)||0);}
+    else firePurchase(ref,myOrdersTotal(ref));  /* الطلب موجود فعلاً، فقط تعذّرت قراءته */
+  }catch(_){ firePurchase(ref,myOrdersTotal(ref)); }
 }
 function showInvoice(){ const h=invHTML(); if(!h){showToast(T('t.invWait'));return;} document.getElementById('invView').innerHTML=h; document.getElementById('invOverlay').classList.add('open'); ahdPush(); }
 function closeInvoice(){document.getElementById('invOverlay').classList.remove('open');}
