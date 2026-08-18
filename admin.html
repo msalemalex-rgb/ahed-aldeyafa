@@ -819,7 +819,7 @@ function fillSounds(){
   s.value=soundKey();
 }
 function stopSound(){
-  _chainCancel=true;
+  clearAlertQueue();
   try{ if(_voiceEl){_voiceEl.pause();_voiceEl.currentTime=0;} }catch(_){}
   try{ if(masterGain){masterGain.gain.cancelScheduledValues(0);masterGain.gain.value=0;} }catch(_){}
   try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(_){}
@@ -926,14 +926,32 @@ function say(txt,cb,key){
 /* ===== الترتيب: النطق أولاً ثم الجرس =====
    تعرف ما الذي وصل قبل أن يرنّ، فالرنّة تصبح تأكيدًا لا لغزًا. لو تعذّر النطق
    أو طال، الجرس ينطلق بعد أربع ثوانٍ على أي حال حتى لا يضيع التنبيه. */
-let _chainCancel=false;
+/* ===== طابور التنبيهات =====
+   مشكلتان كانتا تظهران معًا: لو وصل طلب جديد ومحاولة دفع فاشلة في نفس الدورة،
+   كان التنبيهان ينطلقان في نفس اللحظة فيركب الصوتان على بعضهما. وكان إيقاف
+   تنبيه قديم يُصفّر مكسب الصوت بعد أن يكون تنبيه جديد قد بدأ، فيخرج صامتًا.
+   الحل: تنبيه واحد في كل مرة بالدور، ورقم جيل يُبطل أي سلسلة قديمة نهائيًا. */
+let _chainGen=0, _q=[], _qBusy=false;
+function clearAlertQueue(){ _q=[]; _qBusy=false; _chainGen++; }
 function voiceThen(txt,fn,key){
-  _chainCancel=false;
+  if(_q.length>3)_q.shift();                 /* لا نكدّس تنبيهات قديمة فات أوانها */
+  _q.push({txt:txt,fn:fn,key:key});
+  if(!_qBusy)_qNext();
+}
+function _qNext(){
+  const it=_q.shift();
+  if(!it){ _qBusy=false; return; }
+  _qBusy=true;
+  const gen=++_chainGen;
   let done=false;
-  const go=function(){ if(done||_chainCancel)return; done=true; fn(); };
-  if(!voiceOn()||(!txt&&!key)){ go(); return; }
-  say(txt,go,key);
-  setTimeout(go,6500);
+  const go=function(){
+    if(done)return; done=true;
+    if(gen===_chainGen){ try{ it.fn(); }catch(_){} }
+    setTimeout(function(){ if(gen===_chainGen)_qNext(); else _qBusy=false; },400);
+  };
+  if(!voiceOn()||(!it.txt&&!it.key)){ go(); return; }
+  say(it.txt,go,it.key);
+  setTimeout(go,7000);                        /* أمان لو لم تصل إشارة الانتهاء */
 }
 
 // تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
@@ -941,6 +959,8 @@ function startAlarm(voiceTxt,voiceKey){
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
   if(navigator.vibrate)navigator.vibrate([300,150,300]);
   voiceThen(voiceTxt,function(){
+    /* رنّة متكرّرة واحدة فقط في اللوحة — الطلب الجديد له الأولوية على تنبيه الدفع الفاشل */
+    if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
     beep();
     if(!alarmTimer)alarmTimer=setInterval(function(){beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
   },voiceKey);
@@ -991,6 +1011,8 @@ function startFailAlarm(voiceTxt,voiceKey){
   if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
   voiceThen(voiceTxt,function(){
     beepFail();
+    /* لو رنّة الطلب الجديد شغّالة نكتفي بصفّارة واحدة حتى لا يركب الصوتان */
+    if(alarmTimer)return;
     if(!failAlarmTimer)failAlarmTimer=setInterval(function(){beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
   },voiceKey);
 }
