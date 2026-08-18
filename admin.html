@@ -406,6 +406,7 @@ function doLogin(e){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     fillSounds(); updVoiceBtn(); renderAlertTests(); applyLangShell();
+    try{ speechSynthesis.onvoiceschanged=function(){updVoiceBtn();}; }catch(_){}
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
        في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
@@ -862,22 +863,38 @@ function beep(count){
    الصوت وحده لا يقول ماذا حدث؛ النطق يفرّق بين طلب جديد وطلب واتساب ومحاولة دفع
    وفشل دفع، فيعرف المطبخ ما عليه فعله دون النظر إلى الشاشة. */
 function voiceOn(){try{return localStorage.getItem('ahd_voice')!=='0';}catch(_){return true;}}
-function updVoiceBtn(){const b=document.getElementById('voiceBtn');if(b)b.textContent=voiceOn()?'🗣️ النطق: مُفعَّل':'🔇 النطق: موقوف';}
+function updVoiceBtn(){
+  const b=document.getElementById('voiceBtn'); if(!b)return;
+  if(!voiceOn()){b.textContent='🔇 النطق: موقوف';b.style.opacity='';return;}
+  if(!voiceAvailable()){b.textContent='⚠️ النطق: لا يوجد صوت عربي';b.style.opacity='.85';return;}
+  b.textContent='🗣️ النطق: مُفعَّل'; b.style.opacity='';
+}
+function voiceHelp(){
+  toast('لا يوجد صوت عربي على هذا الجهاز — ثبّته من إعدادات الويندوز: الوقت واللغة ← الكلام ← إضافة أصوات ← العربية، ثم أعد فتح المتصفح');
+}
 function toggleVoice(){
   try{localStorage.setItem('ahd_voice',voiceOn()?'0':'1');}catch(_){}
   updVoiceBtn();
-  if(voiceOn())say('تم تفعيل التنبيه الصوتي');else{try{speechSynthesis.cancel();}catch(_){}}
+  if(!voiceOn()){try{speechSynthesis.cancel();}catch(_){}return;}
+  if(!voiceAvailable()){voiceHelp();return;}
+  say('تم تفعيل التنبيه الصوتي');
 }
+/* بعض الأجهزة لا يوجد بها صوت عربي مثبّت أصلاً. في هذه الحالة القراءة تخرج
+   بصوت إنجليزي يلفظ العربية لفظًا مشوّهًا أو لا تخرج إطلاقًا — فالأنظف أن نتخطّى
+   النطق ونكتفي بالجرس، ونخبر صاحب اللوحة كيف يثبّت الصوت العربي. */
+function arVoice(){
+  try{ return (speechSynthesis.getVoices()||[]).filter(function(v){return /^ar/i.test(v.lang||'');})[0]||null; }
+  catch(_){ return null; }
+}
+function voiceAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(); }catch(_){ return false; } }
 function say(txt,cb){
   const done=(typeof cb==='function')?cb:function(){};
   if(!voiceOn()||!txt){done();return;}
+  const ar=arVoice();
+  if(!ar){done();return;}                    /* لا صوت عربي — ننتقل للجرس فورًا */
   try{
-    if(!('speechSynthesis' in window)){done();return;}
     const u=new SpeechSynthesisUtterance(txt);
-    u.lang='ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0;
-    const vs=speechSynthesis.getVoices()||[];
-    const ar=vs.filter(function(v){return /^ar/i.test(v.lang||'');})[0];
-    if(ar)u.voice=ar;
+    u.lang=ar.lang||'ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0; u.voice=ar;
     u.onend=done; u.onerror=done;
     speechSynthesis.speak(u);
   }catch(_){done();}
@@ -1179,7 +1196,8 @@ function tryAlert(i){
   try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(_){}
   setTimeout(function(){ a.f(a.v); },150);
   setTimeout(hushAlerts,9000);
-  toast(voiceOn()?'النطق أولاً ثم الجرس — اضغط «إيقاف» لإسكاته':'النطق موقوف — الجرس فقط');
+  toast(!voiceOn()?'النطق موقوف — الجرس فقط':(voiceAvailable()?'النطق أولاً ثم الجرس — اضغط «إيقاف» لإسكاته':'لا يوجد صوت عربي على الجهاز — الجرس فقط'));
+  if(voiceOn()&&!voiceAvailable())setTimeout(voiceHelp,3200);
 }
 
 /* ===== متابعة الطلبات التي لم يكتمل دفعها =====
