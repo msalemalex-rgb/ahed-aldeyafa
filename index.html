@@ -1567,10 +1567,27 @@ async function submitCheckout(){
     /* ?paydebug=1 يعرض تفصيل زمن الدفع بدل التحويل الفوري (للتشخيص فقط) */
     const DBG=(function(){try{return new URLSearchParams(location.search).get('paydebug')==='1';}catch(_){return false;}})();
     const _t0=Date.now();
-    const res=await fetch('/api/checkout'+(DBG?'?debug=1':''),{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({amount:grand,method:(coPayMethod==='applepay'?'applepay':(coPayMethod==='other'?'other':'knet')),order:payload})});
-    const data=await res.json();
+    const meth=(coPayMethod==='applepay'?'applepay':(coPayMethod==='other'?'other':'knet'));
+    /* إعادة محاولة الدفع لنفس السلة تُعيد استخدام الطلب القائم بدل إنشاء طلب جديد.
+       بدون هذا كان كل ضغط على "ادفع" ينشئ طلبًا مستقلاً بحالة "بانتظار الدفع"،
+       فيظهر في اللوحة طلب متروك بجوار الطلب المدفوع وكأنهما طلبان. */
+    const sig=(function(){try{return JSON.stringify([payload.lines,grand,payload.phone,payload.deliveryType,payload.area,payload.address,payload.scheduledFor||'']);}catch(_){return '';}})();
+    let reuse='';
+    try{const pv=JSON.parse(sessionStorage.getItem('ahd_payPending')||'null');
+        if(pv&&pv.sig===sig&&pv.ref&&(Date.now()-(pv.at||0))<3600000)reuse=pv.ref;}catch(_){}
+    const send=function(useRef){
+      const bd=useRef?{amount:grand,method:meth,orderRef:useRef}:{amount:grand,method:meth,order:payload};
+      return fetch('/api/checkout'+(DBG?'?debug=1':''),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(bd)}).then(function(r){return r.json();});
+    };
+    let data=await send(reuse);
+    /* الطلب القديم لم يعد قابلاً للدفع (دُفع أو حُذف) → ننشئ طلبًا جديدًا فورًا
+       حتى لا يتعطّل الزبون بسبب مرجع قديم محفوظ في الجلسة. */
+    if(reuse&&data&&data.error&&(data.error==='order_not_payable'||data.error==='order_not_found'||data.error==='order_total_invalid'||data.error==='order_unreadable')){
+      try{sessionStorage.removeItem('ahd_payPending');}catch(_){}
+      data=await send('');
+    }
     if(data.paymentUrl){
+      try{sessionStorage.setItem('ahd_payPending',JSON.stringify({ref:data.orderRef,sig:sig,at:Date.now()}));}catch(_){}
       remember(data.orderRef,data.orderNo);
       if(DBG){
         const t=data.timings||{};
@@ -1900,7 +1917,7 @@ function initPaymentStatus(){
   const c=readPayCookie()||{};
   const ref=c.ref||q.get("ref")||lastPendingRef()||'';     /* q.get للتوافق مع دفعات جارية */
   const pid=c.pid||q.get("pid")||'';
-  if(p==="success"){window._trackId=ref;try{myOrdersConfirm(ref);}catch(_){}loadInvoice(ref,pid);showResult('success');}
+  if(p==="success"){try{sessionStorage.removeItem('ahd_payPending');}catch(_){}window._trackId=ref;try{myOrdersConfirm(ref);}catch(_){}loadInvoice(ref,pid);showResult('success');}
   else if(p==="failed"){try{if(!window.AHD_TEST&&typeof fbq==='function')fbq('trackCustom','PaymentFailed',{currency:'KWD'});}catch(_){}showResult('failed');}
   history.replaceState({},"",location.pathname);
 }
