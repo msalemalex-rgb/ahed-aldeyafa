@@ -819,6 +819,7 @@ function fillSounds(){
 }
 function stopSound(){
   _chainCancel=true;
+  try{ if(_voiceEl){_voiceEl.pause();_voiceEl.currentTime=0;} }catch(_){}
   try{ if(masterGain){masterGain.gain.cancelScheduledValues(0);masterGain.gain.value=0;} }catch(_){}
   try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(_){}
   liveNodes.forEach(function(o){try{o.stop();}catch(_){}try{o.disconnect();}catch(_){}});
@@ -865,19 +866,14 @@ function beep(count){
 function voiceOn(){try{return localStorage.getItem('ahd_voice')!=='0';}catch(_){return true;}}
 function updVoiceBtn(){
   const b=document.getElementById('voiceBtn'); if(!b)return;
-  if(!voiceOn()){b.textContent='🔇 النطق: موقوف';b.style.opacity='';return;}
-  if(!voiceAvailable()){b.textContent='⚠️ النطق: لا يوجد صوت عربي';b.style.opacity='.85';return;}
-  b.textContent='🗣️ النطق: مُفعَّل'; b.style.opacity='';
-}
-function voiceHelp(){
-  toast('لا يوجد صوت عربي على هذا الجهاز — ثبّته من إعدادات الويندوز: الوقت واللغة ← الكلام ← إضافة أصوات ← العربية، ثم أعد فتح المتصفح');
+  b.textContent=voiceOn()?'🗣️ النطق: مُفعَّل':'🔇 النطق: موقوف';
+  b.title=voiceOn()?(ttsAvailable()?'يستخدم الصوت العربي المثبّت على الجهاز':'يستخدم تسجيلات جاهزة — لا يوجد صوت عربي على الجهاز'):'';
 }
 function toggleVoice(){
   try{localStorage.setItem('ahd_voice',voiceOn()?'0':'1');}catch(_){}
   updVoiceBtn();
-  if(!voiceOn()){try{speechSynthesis.cancel();}catch(_){}return;}
-  if(!voiceAvailable()){voiceHelp();return;}
-  say('تم تفعيل التنبيه الصوتي');
+  if(!voiceOn()){stopSound();return;}
+  say('تم تفعيل التنبيه الصوتي',null,'new');
 }
 /* بعض الأجهزة لا يوجد بها صوت عربي مثبّت أصلاً. في هذه الحالة القراءة تخرج
    بصوت إنجليزي يلفظ العربية لفظًا مشوّهًا أو لا تخرج إطلاقًا — فالأنظف أن نتخطّى
@@ -886,12 +882,29 @@ function arVoice(){
   try{ return (speechSynthesis.getVoices()||[]).filter(function(v){return /^ar/i.test(v.lang||'');})[0]||null; }
   catch(_){ return null; }
 }
-function voiceAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(); }catch(_){ return false; } }
-function say(txt,cb){
+function voiceAvailable(){ return true; }   /* دائمًا متاح: إمّا صوت الجهاز أو ملفات مسجّلة */
+function ttsAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(); }catch(_){ return false; } }
+/* الأجهزة التي لا صوت عربي عليها تشغّل تسجيلات جاهزة بدل أن تصمت. الملفات قصيرة
+   ومخزّنة مع الموقع، فلا تحتاج إنترنت إضافيًا ولا إعدادات على الجهاز. */
+let _voiceEl=null;
+function playVoiceFile(key,cb){
   const done=(typeof cb==='function')?cb:function(){};
-  if(!voiceOn()||!txt){done();return;}
+  if(!key){done();return;}
+  try{
+    if(_voiceEl){try{_voiceEl.pause();}catch(_){}}
+    const a=new Audio('/voice/'+key+'.mp3');
+    _voiceEl=a; a.volume=1.0;
+    let fired=false; const go=function(){if(fired)return;fired=true;done();};
+    a.onended=go; a.onerror=go;
+    setTimeout(go,6000);                       /* أمان لو تعذّر التشغيل بصمت */
+    const p=a.play(); if(p&&p.catch)p.catch(go);
+  }catch(_){done();}
+}
+function say(txt,cb,key){
+  const done=(typeof cb==='function')?cb:function(){};
+  if(!voiceOn()||(!txt&&!key)){done();return;}
   const ar=arVoice();
-  if(!ar){done();return;}                    /* لا صوت عربي — ننتقل للجرس فورًا */
+  if(!ar){playVoiceFile(key,done);return;}    /* لا صوت على الجهاز → التسجيل الجاهز */
   try{
     const u=new SpeechSynthesisUtterance(txt);
     u.lang=ar.lang||'ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0; u.voice=ar;
@@ -903,23 +916,23 @@ function say(txt,cb){
    تعرف ما الذي وصل قبل أن يرنّ، فالرنّة تصبح تأكيدًا لا لغزًا. لو تعذّر النطق
    أو طال، الجرس ينطلق بعد أربع ثوانٍ على أي حال حتى لا يضيع التنبيه. */
 let _chainCancel=false;
-function voiceThen(txt,fn){
+function voiceThen(txt,fn,key){
   _chainCancel=false;
   let done=false;
   const go=function(){ if(done||_chainCancel)return; done=true; fn(); };
-  if(!voiceOn()||!txt){ go(); return; }
-  say(txt,go);
-  setTimeout(go,4000);
+  if(!voiceOn()||(!txt&&!key)){ go(); return; }
+  say(txt,go,key);
+  setTimeout(go,6500);
 }
 
 // تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
-function startAlarm(voiceTxt){
+function startAlarm(voiceTxt,voiceKey){
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
   if(navigator.vibrate)navigator.vibrate([300,150,300]);
   voiceThen(voiceTxt,function(){
     beep();
     if(!alarmTimer)alarmTimer=setInterval(function(){beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
-  });
+  },voiceKey);
 }
 /* إيقاف التنبيه المتكرر على السيرفر. كان يُرسَل مع كل دورة طلبات (كل ٦ ثوانٍ)
    بلا داعٍ، وهو نداء كامل للسيرفر — مرة كل دقيقة تؤدّي الغرض نفسه. */
@@ -962,13 +975,13 @@ function beepFail(){
     }
   }catch(_){}
 }
-function startFailAlarm(voiceTxt){
+function startFailAlarm(voiceTxt,voiceKey){
   const bar=document.getElementById('failBar');if(bar)bar.style.display='block';
   if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
   voiceThen(voiceTxt,function(){
     beepFail();
     if(!failAlarmTimer)failAlarmTimer=setInterval(function(){beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
-  });
+  },voiceKey);
 }
 function stopFailAlarm(){
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
@@ -1001,10 +1014,10 @@ function loadOrders(){
       const parts=[];
       if(freshNew) parts.push(freshNew===1?'طلب جديد وصل':('وصل '+freshNew+' طلبات جديدة'));
       if(freshWa)  parts.push(freshWa===1?'طلب واتساب بانتظار التأكيد':(freshWa+' طلبات واتساب بانتظار التأكيد'));
-      startAlarm(parts.join('، '));
+      startAlarm(parts.join('، '), freshWa&&!freshNew?'wa':'new');
     }
-    if(!fresh && freshPend>0){ notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); voiceThen('عميل يدفع الآن، الطلب لم يُدفع بعد',function(){try{beep(2);}catch(_){}}); }
-    if(freshFail>0){ notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); startFailAlarm(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات')); }
+    if(!fresh && freshPend>0){ notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); voiceThen('عميل يدفع الآن، الطلب لم يُدفع بعد',function(){try{beep(2);}catch(_){}},'pending'); }
+    if(freshFail>0){ notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); startFailAlarm(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات'),'failed'); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     if(document.visibilityState==='visible') ackServer();
     first=false; orders=d.orders; renderOrders(); retranslate();
@@ -1169,12 +1182,12 @@ function fmtSched(sf){
    كل زر يشغّل نفس المسار الحقيقي تمامًا: نفس جملة النطق ونفس الجرس وبنفس الترتيب،
    فما تسمعه هنا هو ما ستسمعه عند وصول الطلب فعلاً. يتوقف وحده بعد تسع ثوانٍ. */
 const ALERT_TESTS=[
- {t:'🔔 طلب جديد',        v:'طلب جديد وصل',                        f:function(v){startAlarm(v);}},
- {t:'💬 طلب واتساب',      v:'طلب واتساب بانتظار التأكيد',           f:function(v){startAlarm(v);}},
- {t:'💳 عميل يدفع الآن',   v:'عميل يدفع الآن، الطلب لم يُدفع بعد',   f:function(v){voiceThen(v,function(){try{beep(2);}catch(_){}});}},
- {t:'❌ فشل دفع',          v:'فشل دفع طلب، يُرجى متابعة العميل',     f:function(v){startFailAlarm(v);}},
- {t:'📅 حجز جديد',        v:'طلب حجز جديد',                        f:function(v){startAlarm(v);}},
- {t:'⏰ طلب مؤجَّل حان موعده', v:'طلب مؤجَّل، حان وقت تحضيره',        f:function(v){startAlarm(v);}}
+ {t:'🔔 طلب جديد',        v:'طلب جديد وصل',                      k:'new',     f:function(v,k){startAlarm(v,k);}},
+ {t:'💬 طلب واتساب',      v:'طلب واتساب بانتظار التأكيد',         k:'wa',      f:function(v,k){startAlarm(v,k);}},
+ {t:'💳 عميل يدفع الآن',   v:'عميل يدفع الآن، الطلب لم يُدفع بعد', k:'pending', f:function(v,k){voiceThen(v,function(){try{beep(2);}catch(_){}},k);}},
+ {t:'❌ فشل دفع',          v:'فشل دفع طلب، يُرجى متابعة العميل',   k:'failed',  f:function(v,k){startFailAlarm(v,k);}},
+ {t:'📅 حجز جديد',        v:'طلب حجز جديد',                      k:'rsv',     f:function(v,k){startAlarm(v,k);}},
+ {t:'⏰ طلب مؤجَّل حان موعده', v:'طلب مؤجَّل، حان وقت تحضيره',      k:'sched',   f:function(v,k){startAlarm(v,k);}}
 ];
 function renderAlertTests(){
   const b=document.getElementById('alertTestBox'); if(!b)return;
@@ -1194,10 +1207,9 @@ function tryAlert(i){
   const a=ALERT_TESTS[i]; if(!a)return;
   hushAlerts();
   try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(_){}
-  setTimeout(function(){ a.f(a.v); },150);
+  setTimeout(function(){ a.f(a.v,a.k); },150);
   setTimeout(hushAlerts,9000);
-  toast(!voiceOn()?'النطق موقوف — الجرس فقط':(voiceAvailable()?'النطق أولاً ثم الجرس — اضغط «إيقاف» لإسكاته':'لا يوجد صوت عربي على الجهاز — الجرس فقط'));
-  if(voiceOn()&&!voiceAvailable())setTimeout(voiceHelp,3200);
+  toast(!voiceOn()?'النطق موقوف — الجرس فقط':(ttsAvailable()?'النطق بصوت الجهاز ثم الجرس':'النطق بالتسجيل الجاهز ثم الجرس'));
 }
 
 /* ===== متابعة الطلبات التي لم يكتمل دفعها =====
@@ -1441,7 +1453,7 @@ function loadReservations(){
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ document.title="("+fresh+") حجز جديد!"; startAlarm(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز')); }
+    if(fresh>0){ document.title="("+fresh+") حجز جديد!"; startAlarm(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز'),'rsv'); }
     resFirst=false; reservations=d.reservations; renderReservations(); retranslate();
   }).catch(()=>{});
 }
