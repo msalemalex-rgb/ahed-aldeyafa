@@ -326,6 +326,15 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
       </div>
       <div class="savebar"><button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button></div>
 
+      <div class="card">
+        <label class="fld">تجربة التنبيهات</label>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:8px">
+          اضغط أي حالة لتسمع تنبيهها كما سيصلك تمامًا: النطق العربي أولاً ثم الجرس.
+          يتوقف وحده بعد تسع ثوانٍ، أو أوقفه من زر «إيقاف» بالأعلى.
+        </div>
+        <div id="alertTestBox"></div>
+      </div>
+
       <div class="card" style="border:1.5px solid #e2a49c;background:#fffaf9">
         <label class="fld" style="color:#a2333f">إلغاء الطلبات التجريبية</label>
         <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:8px">
@@ -396,7 +405,7 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    fillSounds(); updVoiceBtn(); applyLangShell();
+    fillSounds(); updVoiceBtn(); renderAlertTests(); applyLangShell();
     loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
     /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
        في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
@@ -808,6 +817,7 @@ function fillSounds(){
   s.value=soundKey();
 }
 function stopSound(){
+  _chainCancel=true;
   try{ if(masterGain){masterGain.gain.cancelScheduledValues(0);masterGain.gain.value=0;} }catch(_){}
   try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(_){}
   liveNodes.forEach(function(o){try{o.stop();}catch(_){}try{o.disconnect();}catch(_){}});
@@ -858,27 +868,41 @@ function toggleVoice(){
   updVoiceBtn();
   if(voiceOn())say('تم تفعيل التنبيه الصوتي');else{try{speechSynthesis.cancel();}catch(_){}}
 }
-function say(txt){
-  if(!voiceOn()||!txt)return;
+function say(txt,cb){
+  const done=(typeof cb==='function')?cb:function(){};
+  if(!voiceOn()||!txt){done();return;}
   try{
-    if(!('speechSynthesis' in window))return;
+    if(!('speechSynthesis' in window)){done();return;}
     const u=new SpeechSynthesisUtterance(txt);
     u.lang='ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0;
     const vs=speechSynthesis.getVoices()||[];
     const ar=vs.filter(function(v){return /^ar/i.test(v.lang||'');})[0];
     if(ar)u.voice=ar;
+    u.onend=done; u.onerror=done;
     speechSynthesis.speak(u);
-  }catch(_){}
+  }catch(_){done();}
 }
-/* النطق يأتي بعد النغمة حتى لا يتداخلا */
-function alertVoice(txt){ if(!txt)return; setTimeout(function(){say(txt);},1200); }
+/* ===== الترتيب: النطق أولاً ثم الجرس =====
+   تعرف ما الذي وصل قبل أن يرنّ، فالرنّة تصبح تأكيدًا لا لغزًا. لو تعذّر النطق
+   أو طال، الجرس ينطلق بعد أربع ثوانٍ على أي حال حتى لا يضيع التنبيه. */
+let _chainCancel=false;
+function voiceThen(txt,fn){
+  _chainCancel=false;
+  let done=false;
+  const go=function(){ if(done||_chainCancel)return; done=true; fn(); };
+  if(!voiceOn()||!txt){ go(); return; }
+  say(txt,go);
+  setTimeout(go,4000);
+}
 
 // تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
-function startAlarm(){
+function startAlarm(voiceTxt){
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
-  beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);
-  if(alarmTimer)return;
-  alarmTimer=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
+  if(navigator.vibrate)navigator.vibrate([300,150,300]);
+  voiceThen(voiceTxt,function(){
+    beep();
+    if(!alarmTimer)alarmTimer=setInterval(function(){beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
+  });
 }
 /* إيقاف التنبيه المتكرر على السيرفر. كان يُرسَل مع كل دورة طلبات (كل ٦ ثوانٍ)
    بلا داعٍ، وهو نداء كامل للسيرفر — مرة كل دقيقة تؤدّي الغرض نفسه. */
@@ -921,11 +945,13 @@ function beepFail(){
     }
   }catch(_){}
 }
-function startFailAlarm(){
+function startFailAlarm(voiceTxt){
   const bar=document.getElementById('failBar');if(bar)bar.style.display='block';
-  beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
-  if(failAlarmTimer)return;
-  failAlarmTimer=setInterval(()=>{beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
+  if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
+  voiceThen(voiceTxt,function(){
+    beepFail();
+    if(!failAlarmTimer)failAlarmTimer=setInterval(function(){beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
+  });
 }
 function stopFailAlarm(){
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
@@ -952,16 +978,16 @@ function loadOrders(){
       if(o.status==="failed" && !seenFail.has(o.id)){ if(!first) freshFail++; seenFail.add(o.id); }
     });
     if(fresh>0){
-      startAlarm(); document.title="("+fresh+") طلب جديد!";
+      document.title="("+fresh+") طلب جديد!";
       notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد');
       /* النطق يفرّق بين مصدر الطلب حتى يُعرف المطلوب دون النظر إلى الشاشة */
       const parts=[];
       if(freshNew) parts.push(freshNew===1?'طلب جديد وصل':('وصل '+freshNew+' طلبات جديدة'));
       if(freshWa)  parts.push(freshWa===1?'طلب واتساب بانتظار التأكيد':(freshWa+' طلبات واتساب بانتظار التأكيد'));
-      alertVoice(parts.join('، '));
+      startAlarm(parts.join('، '));
     }
-    if(!fresh && freshPend>0){ try{beep(2);}catch(_){} notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); alertVoice('عميل يدفع الآن، الطلب لم يُدفع بعد'); }
-    if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); alertVoice(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات')); }
+    if(!fresh && freshPend>0){ notify("💳 عميل يدفع الآن","طلب بانتظار إتمام الدفع — لا يلزم تحضيره قبل تأكيد الدفع"); voiceThen('عميل يدفع الآن، الطلب لم يُدفع بعد',function(){try{beep(2);}catch(_){}}); }
+    if(freshFail>0){ notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); startFailAlarm(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات')); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
     if(document.visibilityState==='visible') ackServer();
     first=false; orders=d.orders; renderOrders(); retranslate();
@@ -1119,6 +1145,41 @@ function fmtSched(sf){
   if(!m)return sf||'';
   let h=parseInt(m[4],10);const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;
   return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
+}
+
+
+/* ===== تجربة التنبيهات =====
+   كل زر يشغّل نفس المسار الحقيقي تمامًا: نفس جملة النطق ونفس الجرس وبنفس الترتيب،
+   فما تسمعه هنا هو ما ستسمعه عند وصول الطلب فعلاً. يتوقف وحده بعد تسع ثوانٍ. */
+const ALERT_TESTS=[
+ {t:'🔔 طلب جديد',        v:'طلب جديد وصل',                        f:function(v){startAlarm(v);}},
+ {t:'💬 طلب واتساب',      v:'طلب واتساب بانتظار التأكيد',           f:function(v){startAlarm(v);}},
+ {t:'💳 عميل يدفع الآن',   v:'عميل يدفع الآن، الطلب لم يُدفع بعد',   f:function(v){voiceThen(v,function(){try{beep(2);}catch(_){}});}},
+ {t:'❌ فشل دفع',          v:'فشل دفع طلب، يُرجى متابعة العميل',     f:function(v){startFailAlarm(v);}},
+ {t:'📅 حجز جديد',        v:'طلب حجز جديد',                        f:function(v){startAlarm(v);}},
+ {t:'⏰ طلب مؤجَّل حان موعده', v:'طلب مؤجَّل، حان وقت تحضيره',        f:function(v){startAlarm(v);}}
+];
+function renderAlertTests(){
+  const b=document.getElementById('alertTestBox'); if(!b)return;
+  b.innerHTML=ALERT_TESTS.map(function(a,i){
+    return '<button class="sbtn prep" style="margin:0 6px 6px 0" onclick="tryAlert('+i+')">'+a.t+'</button>';
+  }).join('');
+}
+function hushAlerts(){
+  if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+  if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
+  const b1=document.getElementById('alarmBar'),b2=document.getElementById('failBar');
+  if(b1)b1.style.display='none'; if(b2)b2.style.display='none';
+  document.title='لوحة التحكم — عهد الضيافة';
+  stopSound();
+}
+function tryAlert(i){
+  const a=ALERT_TESTS[i]; if(!a)return;
+  hushAlerts();
+  try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(_){}
+  setTimeout(function(){ a.f(a.v); },150);
+  setTimeout(hushAlerts,9000);
+  toast(voiceOn()?'النطق أولاً ثم الجرس — اضغط «إيقاف» لإسكاته':'النطق موقوف — الجرس فقط');
 }
 
 /* ===== متابعة الطلبات التي لم يكتمل دفعها =====
@@ -1362,7 +1423,7 @@ function loadReservations(){
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; alertVoice(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز')); }
+    if(fresh>0){ document.title="("+fresh+") حجز جديد!"; startAlarm(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز')); }
     resFirst=false; reservations=d.reservations; renderReservations(); retranslate();
   }).catch(()=>{});
 }
