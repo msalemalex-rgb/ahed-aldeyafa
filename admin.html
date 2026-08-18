@@ -240,6 +240,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
       <div class="tabs">
         <div class="tab active" onclick="setOFilter('new',this)">الجديدة</div>
         <div class="tab" onclick="setOFilter('preparing',this)">قيد التحضير</div>
+        <div class="tab" onclick="setOFilter('unpaid',this)">لم يكتمل الدفع <span class="badge" id="cntUnpaid">0</span></div>
         <div class="tab" onclick="setOFilter('all',this)">الكل</div>
         <div class="tab" onclick="loadOrders()">🔄 تحديث</div>
       </div>
@@ -987,8 +988,13 @@ function renderOrders(){
   const box=document.getElementById('orders');
   document.getElementById('cntNew').textContent=orders.filter(o=>o.status==="new"||o.status==="awaiting").length;
   let list=orders;
+  /* الطلبات المتوقفة عند الدفع: بياناتها كاملة وقابلة للاسترجاع برسالة واحدة */
+  const unpaidList=orders.filter(o=>o.status==="pending"||o.status==="failed");
+  const cu=document.getElementById('cntUnpaid');
+  if(cu)cu.textContent=unpaidList.filter(o=>!recovered(o.id)).length;
   if(ofilter==="new")list=orders.filter(o=>o.status==="new"||o.status==="awaiting");
   else if(ofilter==="preparing")list=orders.filter(o=>o.status==="preparing");
+  else if(ofilter==="unpaid")list=unpaidList.slice().sort((a,b)=>(Number(b.total)||0)-(Number(a.total)||0));
   if(!list.length){box.innerHTML='<div class="empty"><div class="big">📭</div><p>لا توجد طلبات</p></div>';return;}
   box.innerHTML=list.map(o=>{
     const t=toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}));
@@ -1024,6 +1030,9 @@ function renderOrders(){
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
       <div class="actions">
+        ${(o.status==='pending'||o.status==='failed')&&o.phone?(recovered(o.id)
+            ?`<button class="sbtn" style="background:#e6f4ea;color:#1b6b3a" onclick="unmarkRecovered('${o.id}')">✅ تمت المتابعة — تراجع</button>`
+            :`<button class="sbtn deliver" onclick="waRecover('${o.id}')">💬 تابع العميل على واتساب</button>`):''}
         <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ فاتورة</button>
         <button class="sbtn prep" onclick="printKitchen('${o.id}')">👨‍🍳 تذكرة المطبخ</button>
         ${o.phone?`<button class="sbtn" style="background:#efe7f7;color:#5b3a86" onclick="openCustFromOrder('${String(o.phone).replace(/[^0-9+]/g,'')}')">👤 ملف العميل</button>`:''}
@@ -1111,6 +1120,33 @@ function fmtSched(sf){
   let h=parseInt(m[4],10);const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;
   return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
 }
+
+/* ===== متابعة الطلبات التي لم يكتمل دفعها =====
+   العميل هنا اختار أصنافه وكتب اسمه وعنوانه ورقمه ثم توقّف عند الدفع — فبياناته
+   كاملة عندنا. رسالة واحدة على واتساب تسترجع طلبًا جاهزًا بدل البحث عن عميل جديد. */
+function recoverKey(id){return 'ahd_rec_'+id;}
+function recovered(id){try{return localStorage.getItem(recoverKey(id))==='1';}catch(_){return false;}}
+function markRecovered(id){try{localStorage.setItem(recoverKey(id),'1');}catch(_){} renderOrders(); retranslate();}
+function unmarkRecovered(id){try{localStorage.removeItem(recoverKey(id));}catch(_){} renderOrders(); retranslate();}
+function waRecover(id){
+  const o=orders.find(function(x){return x.id===id;});
+  if(!o||!o.phone){toast('لا يوجد رقم هاتف لهذا الطلب');return;}
+  let ph=String(o.phone).replace(/\D/g,''); if(ph.length===8)ph='965'+ph;
+  const items=(o.lines&&o.lines.length)
+    ? o.lines.map(function(l){return '• '+l.name+' ×'+l.qty;}).join('%0A')
+    : String(o.items||'').split('،').map(function(s){return '• '+s.trim();}).filter(function(s){return s.length>2;}).join('%0A');
+  const nm=(o.name||'').trim();
+  const msg='مطعم عهد الضيافة 🌟%0A%0A'
+    +encodeURIComponent(nm?('أهلاً '+nm+'،'):'أهلاً بك،')+'%0A'
+    +encodeURIComponent('لاحظنا أن طلبك لم يكتمل دفعه، وهو ما زال محفوظًا لدينا:')+'%0A%0A'
+    +encodeURIComponent(decodeURIComponent(items))+'%0A%0A'
+    +encodeURIComponent('الإجمالي: '+(Number(o.total)||0).toFixed(3)+' د.ك')+'%0A%0A'
+    +encodeURIComponent('تحب نكمّله لك الآن؟ يمكنك الدفع من هنا أو نجهّزه لك بالدفع عند الاستلام.')+'%0A'
+    +'https://ahed-aldeyafa.vercel.app/';
+  markRecovered(id);
+  window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
+}
+
 function waTrack(id){
   const o=orders.find(x=>x.id===id);if(!o||!o.phone)return;
   let ph=String(o.phone).replace(/\D/g,'');
