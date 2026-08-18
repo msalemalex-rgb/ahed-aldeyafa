@@ -973,7 +973,7 @@ function printOrder(id){
   const rule='<div style="border-top:1px dashed #000;margin:7px 0"></div>';
   const strong='<div style="border-top:2px solid #000;margin:7px 0"></div>';
   const row=function(a,b){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px"><span>'+a+'</span><span style="white-space:nowrap;font-weight:700">'+b+'</span></div>';};
-  const info=function(ar,en,v){return v?'<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:12.5px"><span style="white-space:nowrap">'+ar+' <span style="font-size:10.5px;opacity:.6">'+en+'</span></span><b style="text-align:left">'+esc(v)+'</b></div>':'';};
+  const info=function(ar,en,v){return v?'<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:12.5px"><span style="white-space:nowrap">'+ar+' <span style="font-size:11.5px;font-weight:600">'+en+'</span></span><b style="text-align:left">'+esc(v)+'</b></div>':'';};
 
   const items=L.map(function(l){
     return '<div style="padding:6px 0;border-bottom:1px dotted #999">'
@@ -981,9 +981,9 @@ function printOrder(id){
         +'<span style="font-size:14.5px;font-weight:700;line-height:1.45">'+esc(l.name)+'</span>'
         +'<span style="font-size:14px;font-weight:700;white-space:nowrap">'+(l.total==null?'—':l.total.toFixed(3))+'</span>'
       +'</div>'
-      +(l.en?'<div style="font-size:11.5px;opacity:.7;line-height:1.35" dir="ltr">'+esc(l.en)+'</div>':'')
-      +'<div style="font-size:11.5px;opacity:.75;margin-top:1px">'+l.qty+' × '+(l.unit==null?'—':l.unit.toFixed(3))+'</div>'
-      +(l.opts?'<div style="font-size:11.5px;opacity:.75">'+esc(l.opts)+'</div>':'')
+      +(l.en?'<div style="font-size:13.5px;font-weight:600;line-height:1.4;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
+      +'<div style="font-size:11.5px;margin-top:1px">'+l.qty+' × '+(l.unit==null?'—':l.unit.toFixed(3))+'</div>'
+      +(l.opts?'<div style="font-size:11.5px">'+esc(l.opts)+'</div>':'')
       +(l.note?'<div style="font-size:12.5px;font-weight:700;margin-top:2px">ملاحظة: '+esc(l.note)+'</div>':'')
       +'</div>';
   }).join('');
@@ -991,18 +991,18 @@ function printOrder(id){
   let disc=o.discountPct?sub*(o.discountPct/100):0;
   if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
   let totals='';
-  if(sub>0)totals+=row('المجموع <span style="font-size:10.5px;opacity:.6">Subtotal</span>',sub.toFixed(3));
-  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:10.5px;opacity:.6">Discount</span>','- '+disc.toFixed(3));
-  if(fee>0)totals+=row('التوصيل <span style="font-size:10.5px;opacity:.6">Delivery</span>',fee.toFixed(3));
+  if(sub>0)totals+=row('المجموع <span style="font-size:11.5px;font-weight:600">Subtotal</span>',sub.toFixed(3));
+  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:11.5px;font-weight:600">Discount</span>','- '+disc.toFixed(3));
+  if(fee>0)totals+=row('التوصيل <span style="font-size:11.5px;font-weight:600">Delivery</span>',fee.toFixed(3));
 
   const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
     +'<div style="text-align:center">'+lg
       +'<div style="font-size:21px;font-weight:900;letter-spacing:.5px">عهد الضيافة</div>'
-      +'<div style="font-size:11px;letter-spacing:2px" dir="ltr">AHD AL-DIYAFA</div>'
-      +'<div style="font-size:11px;opacity:.75;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
+      +'<div style="font-size:12.5px;font-weight:700;letter-spacing:2px" dir="ltr">AHD AL-DIYAFA</div>'
+      +'<div style="font-size:12.5px;font-weight:7005;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
     +'</div>'
     +strong
-    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:11px;opacity:.7" dir="ltr">INVOICE</span></div>'
+    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:12.5px;font-weight:700" dir="ltr">INVOICE</span></div>'
     +rule
     +info('رقم الفاتورة','No.',o.no||o.id)
     +info('التاريخ','Date',dt)
@@ -1015,13 +1015,13 @@ function printOrder(id){
     +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'</div>':'')
     +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
     +strong
-    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:10.5px;opacity:.6" dir="ltr">ITEMS</span></div>'
+    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:11.5px;font-weight:600" dir="ltr">ITEMS</span></div>'
     +items
     +'<div style="margin-top:7px">'+totals+'</div>'
     +strong
-    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:11px;opacity:.7" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:12.5px;font-weight:700" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
     +strong
-    +'<div style="text-align:center;font-size:11.5px;opacity:.8;line-height:1.8;margin-top:6px">شكرًا لاختياركم عهد الضيافة<br><span dir="ltr">Thank you for your order</span></div>'
+    +'<div style="text-align:center;font-size:12.5px;line-height:1.8;margin-top:6px">شكرًا لاختياركم عهد الضيافة<br><span dir="ltr">Thank you for your order</span></div>'
     +'</div>';
   doPrint(html);
 }
@@ -1038,7 +1038,7 @@ function printKitchen(id){
         +'<span style="font-size:26px;font-weight:900;white-space:nowrap">'+l.qty+'×</span>'
         +'<span style="font-size:19px;font-weight:900;line-height:1.4">'+esc(l.name)+'</span>'
       +'</div>'
-      +(l.en?'<div style="font-size:12px;opacity:.7;padding-right:44px" dir="ltr">'+esc(l.en)+'</div>':'')
+      +(l.en?'<div style="font-size:14.5px;font-weight:600;padding-right:44px;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
       +(l.opts?'<div style="font-size:13px;padding-right:44px">'+esc(l.opts)+'</div>':'')
       +(l.note?'<div style="font-size:16px;font-weight:900;border:2px solid #000;border-radius:4px;padding:4px 7px;margin-top:5px">ملاحظة: '+esc(l.note)+'</div>':'')
       +'</div>';
