@@ -132,6 +132,9 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
 .chk{display:flex;align-items:center;gap:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin-bottom:14px}
 .chk input{width:auto;margin:0;transform:scale(1.4)}
 .snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+/* قائمة النغمة كانت تأخذ تنسيق حقول الإدخال العام (عرض ١٠٠٪ وحشو كبير) فتقفز
+   لسطر كامل بمفردها — نضبطها لتقف بجوار الأزرار بحجمها هي فقط. */
+#sndSel{width:auto;min-width:0;display:inline-block;padding:6px 8px;margin:0;font-size:12px;line-height:1.2;border-radius:8px;border:none;vertical-align:middle;height:auto}
 .sbtn.print{background:#e7f0ff;color:#2563c9}
 #printArea{display:none}
 @media print{ body>*:not(#printArea){display:none!important} #printArea{display:block!important;padding:6px} }
@@ -221,7 +224,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
   <div class="soundbar" id="soundbar" onclick="enableSound(true)">🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة</div>
   <header>
     <h1>🍽️ عهد الضيافة</h1>
-    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <button class="snd" onclick="stopSound()">⏹️ إيقاف الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
+    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
   </header>
   <div class="wrap">
     <div class="tabs">
