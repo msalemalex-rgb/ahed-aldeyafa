@@ -1194,12 +1194,12 @@ function fmtSched(sf){
    كل زر يشغّل نفس المسار الحقيقي تمامًا: نفس جملة النطق ونفس الجرس وبنفس الترتيب،
    فما تسمعه هنا هو ما ستسمعه عند وصول الطلب فعلاً. يتوقف وحده بعد تسع ثوانٍ. */
 const ALERT_TESTS=[
- {t:'🔔 طلب جديد',        v:'طلب جديد وصل',                      k:'new',     f:function(v,k){startAlarm(v,k);}},
- {t:'💬 طلب واتساب',      v:'طلب واتساب بانتظار التأكيد',         k:'wa',      f:function(v,k){startAlarm(v,k);}},
- {t:'💳 لم يكتمل الدفع',   v:'عميل حاول الدفع ولم يكتمل',         k:'pending', f:function(v,k){voiceThen(v,function(){try{beep(2);}catch(_){}},k);}},
- {t:'❌ فشل دفع',          v:'فشل دفع طلب، يُرجى متابعة العميل',   k:'failed',  f:function(v,k){startFailAlarm(v,k);}},
- {t:'📅 حجز جديد',        v:'طلب حجز جديد',                      k:'rsv',     f:function(v,k){startAlarm(v,k);}},
- {t:'⏰ طلب مؤجَّل حان موعده', v:'طلب مؤجَّل، حان وقت تحضيره',      k:'sched',   f:function(v,k){startAlarm(v,k);}}
+ {t:'🔔 طلب جديد',            v:'طلب جديد وصل',                k:'new'},
+ {t:'💬 طلب واتساب',          v:'طلب واتساب بانتظار التأكيد',   k:'wa'},
+ {t:'💳 لم يكتمل الدفع',       v:'عميل حاول الدفع ولم يكتمل',    k:'pending', short:true},
+ {t:'❌ فشل دفع',              v:'فشل دفع طلب، تابع العميل',     k:'failed',  fail:true},
+ {t:'📅 حجز جديد',            v:'طلب حجز جديد',                k:'rsv'},
+ {t:'⏰ طلب مؤجَّل حان موعده',  v:'طلب مؤجَّل، حان وقت التحضير',  k:'sched'}
 ];
 function renderAlertTests(){
   const b=document.getElementById('alertTestBox'); if(!b)return;
@@ -1207,7 +1207,15 @@ function renderAlertTests(){
     return '<button class="sbtn prep" style="margin:0 6px 6px 0" onclick="tryAlert('+i+')">'+a.t+'</button>';
   }).join('');
 }
+/* طول الرنّة الواحدة بالمللي ثانية — نحسبه من النمط المختار حتى لا نقطعها في نصّها */
+function beepDuration(count){
+  const S=SOUNDS[soundKey()]||SOUNDS.classic;
+  const N=count||S.c;
+  return (N*S.gap + S.len)*1000;
+}
+let _testTimer=null;
 function hushAlerts(){
+  if(_testTimer){clearTimeout(_testTimer);_testTimer=null;}
   if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
   const b1=document.getElementById('alarmBar'),b2=document.getElementById('failBar');
@@ -1215,13 +1223,24 @@ function hushAlerts(){
   document.title='لوحة التحكم — عهد الضيافة';
   stopSound();
 }
+/* التجربة تُسمعك الجملة كاملة ثم رنّة واحدة كاملة، ثم تسكت.
+   قبل ذلك كان مؤقّت ثابت بتسع ثوانٍ لا يُلغى: فمؤقّت تجربة سابقة يقطع التجربة
+   التالية في منتصف الكلام، والرنّة المتكرّرة تنقطع في نصّها عند انتهاء التسع ثوانٍ. */
 function tryAlert(i){
   const a=ALERT_TESTS[i]; if(!a)return;
   hushAlerts();
   try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(_){}
-  setTimeout(function(){ a.f(a.v,a.k); },150);
-  setTimeout(hushAlerts,9000);
-  toast(!voiceOn()?'النطق موقوف — الجرس فقط':(ttsAvailable()?'النطق بصوت الجهاز ثم الجرس':'النطق بالتسجيل الجاهز ثم الجرس'));
+  const bar=document.getElementById(a.fail?'failBar':'alarmBar'); if(bar)bar.style.display='block';
+  _testTimer=setTimeout(hushAlerts,20000);                 /* أمان لو تعثّر النطق */
+  setTimeout(function(){
+    voiceThen(a.v,function(){
+      const ms=a.fail?3900:beepDuration(a.short?2:0);       /* صفّارة الفشل ٥ دورات × ٠٫٧ ث */
+      if(a.fail)beepFail(); else beep(a.short?2:0);
+      if(_testTimer)clearTimeout(_testTimer);
+      _testTimer=setTimeout(hushAlerts,ms+700);
+    },a.k);
+  },150);
+  toast(!voiceOn()?'النطق موقوف — الجرس فقط':'الجملة كاملة ثم رنّة واحدة');
 }
 
 /* ===== متابعة الطلبات التي لم يكتمل دفعها =====
