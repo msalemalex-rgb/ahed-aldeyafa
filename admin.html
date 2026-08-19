@@ -1093,6 +1093,7 @@ function renderOrders(){
     /* طلب ظلّ بانتظار الدفع أكثر من ساعة = محاولة دفع مهجورة، وليس طلبًا فعليًا.
        تمييزه يمنع الالتباس مع الطلب المدفوع الذي يليه. */
     if(o.status==='pending'&&(Date.now()-tms(o.createdAt))>3600000)st=['دفع لم يكتمل — محاولة متروكة','st-cancelled'];
+    if(o.revivedAfterCancel)st=['⚠️ أُلغي ثم وصل دفعه — راجعه','st-new'];
     const meta=[o.name?esc(o.name):'', o.phone?`<a href="tel:${esc(o.phone)}" style="color:inherit;text-decoration:underline">${esc(o.phone)}</a>`:''].filter(Boolean).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
     const dparts=[];
@@ -1367,7 +1368,12 @@ function cancelTestOrders(){
 }
 
 function cancelOrder(id){
-  if(!confirm("متأكد من إلغاء هذا الطلب؟"))return;
+  const o=orders.find(function(x){return x.id===id;});
+  /* العميل قد يكون ما زال داخل بوابة الدفع؛ إلغاؤه الآن يجعل دفعته تصل إلى طلب ملغي */
+  const msg=(o&&o.status==='pending')
+    ? 'هذا الطلب ما زال بانتظار الدفع، وقد يكون العميل داخل صفحة الدفع الآن.\nإن أتمّ الدفع بعد الإلغاء سيعود الطلب تلقائيًا وعليه علامة «عاد بعد الإلغاء».\n\nإلغاؤه على أي حال؟'
+    : 'متأكد من إلغاء هذا الطلب؟';
+  if(!confirm(msg))return;
   updOrder(id,'cancelled');
 }
 /* ===== الطباعة =====
