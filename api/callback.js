@@ -133,6 +133,16 @@ module.exports = async (req, res) => {
         let st = null; try { st = cur ? (JSON.parse(cur).status || null) : null; } catch (_) {}
         if (["pending", "failed", "awaiting"].indexOf(st) >= 0 || st === null) {
           await kv.setOrderStatus(orderId, ok ? "new" : "failed");
+        } else if (ok && st === "cancelled") {
+          // دفعة ناجحة على طلب أُلغي قبل أن يعود العميل من بوابة الدفع.
+          // تجاهلها معناه ضياع طلب مدفوع من اللوحة والمال محصَّل فعلاً، فنُحييه
+          // ونعلّمه ليعرف صاحب المطعم أنه يحتاج انتباهًا.
+          await kv.setOrderStatus(orderId, "new");
+          try {
+            const raw = await kv.cmd(["GET", "order:" + orderId]);
+            if (raw) { const o = JSON.parse(raw); o.revivedAfterCancel = true; await kv.cmd(["SET", "order:" + orderId, JSON.stringify(o)]); }
+          } catch (_) {}
+          dbg.revived = "cancelled_but_paid";
         } else { dbg.skipped = "status:" + st; }
       } catch (_) {}
     }
