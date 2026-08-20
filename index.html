@@ -1560,6 +1560,40 @@ function addrText(a){
 }
 /* ===== قراءة العناوين القديمة المكتوبة كنص حر وتحويلها لخانات =====
    العملاء القدام كتبوا العنوان سطر واحد؛ ده بيفكّه لقطعة/شارع/جادة/منزل/دور/شقة. */
+/* اسم المنطقة محفوظ في خانة مستقلة، فلو ظهر داخل نص العنوان القديم لا يُعتبر
+   علامة مميزة — وإلا تكرّرت «الجابرية» مرتين على التذكرة بلا فائدة. */
+function _normAr(s){
+  return String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+    .replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي')
+    .replace(/\s+/g,' ').trim();
+}
+function _areaNames(){
+  try{ return ((typeof CONFIG!=='undefined'&&CONFIG.areas)||[]||[]).map(function(a){return _normAr(a&&a.name?a.name:a);}).filter(Boolean); }
+  catch(_){ return []; }
+}
+function _flexAr(nm){
+  /* الاسم الواحد يُكتب بأكثر من شكل: الجابرية/الجابريه، سلوى/سلوي، إشبيلية/اشبيلية.
+     نبني نمطًا يقبل كل الأشكال بدل مقارنة نصّية تفشل على حرف واحد. */
+  const map={'ا':'[اأإآ]','ه':'[هة]','ة':'[هة]','ي':'[يى]','ى':'[يى]'};
+  return String(nm||'').split('').map(function(c){
+    if(map[c])return map[c];
+    if(/[.*+?^${}()|[\]\\]/.test(c))return '\\'+c;
+    return c;
+  }).join('');
+}
+function stripAreaName(s){
+  let out=String(s||'');
+  _areaNames().forEach(function(nm){
+    if(!nm||nm.length<3)return;
+    const bare=nm.replace(/^ال/,'');
+    [nm, 'ال'+bare, bare].forEach(function(v){
+      const re=new RegExp('(^|[\\s,،\\-])'+_flexAr(v)+'($|[\\s,،\\-])','g');
+      out=out.replace(re,'$1$2');
+    });
+  });
+  return out.replace(/[،,\-]+/g,' ').replace(/\s+/g,' ').trim();
+}
+
 function parseAddrText(t){
   let s=String(t||'');
   if(!s.trim())return null;
@@ -1583,7 +1617,7 @@ function parseAddrText(t){
     const re=new RegExp('(?:^|[\\s,،\\-])('+k[1]+')\\s*\\.?\\s*(?=\\d)','g');
     let m; while((m=re.exec(s))!==null){ hits.push({key:k[0],start:m.index+m[0].length,kstart:m.index+m[0].indexOf(k[1])}); }
   });
-  if(!hits.length) return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:s.trim().slice(0,80)};
+  if(!hits.length) return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:stripAreaName(s).slice(0,80)};
   hits.sort(function(a,b){return a.kstart-b.kstart;});
   const out={block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:''};
   const used=[];
@@ -1607,7 +1641,8 @@ function parseAddrText(t){
   rest=rest.replace(/[،,\-]+/g,' ').replace(/\s+/g,' ').trim();
   /* لو مفيش ولا قيمة رقمية، يبقى النص وصف مكان مش عنوان مرقّم (زي "بيت العايلة جنب الكوفي") */
   const numeric=['block','street','ave','house','floor','apt'].filter(function(k){return /\d/.test(out[k]||'');}).length;
-  if(!numeric)return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:s.trim().slice(0,80)};
+  if(!numeric)return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:stripAreaName(s).slice(0,80)};
+  rest=stripAreaName(rest);
   if(rest)out.landmark=rest.slice(0,80);
   return out;
 }
