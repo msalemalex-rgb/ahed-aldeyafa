@@ -11,6 +11,13 @@ const LIMITS = {
   rsvPerIp:     { limit: 4,  win: 600 },
 };
 const cut = (v, n) => String(v == null ? "" : v).slice(0, n);
+// خانات العنوان المنفصلة (قطعة/شارع/جادة/منزل/دور/شقة) — نقصّها ونخزّنها بجانب النص
+const cutAddr = (a) => {
+  if (!a || typeof a !== "object") return null;
+  const o = { block: cut(a.block, 40), street: cut(a.street, 40), ave: cut(a.ave, 40),
+              house: cut(a.house, 40), floor: cut(a.floor, 40), apt: cut(a.apt, 40), landmark: cut(a.landmark, 80) };
+  return (o.block || o.street || o.house) ? o : null;
+};
 function numIn(v, min, max) { const x = Number(v); return isFinite(x) && x >= min && x <= max ? x : null; }
 async function tooMany(req, buckets) {
   for (const [name, cfg, id] of buckets) {
@@ -170,7 +177,7 @@ module.exports = async (req, res) => {
         name: cut(b.name, 80), phone: cut(b.phone, 25), note: cut(b.note, 300),
         deliveryType: b.deliveryType === "pickup" ? "pickup" : (b.deliveryType ? "delivery" : ""),
         area: cut(b.area, 60),
-        address: cut(b.address, 300), deliveryFee: fee,
+        address: cut(b.address, 300), addr: cutAddr(b.addr), deliveryFee: fee,
         deliveryTime: cut(b.deliveryTime, 60), mapUrl: cut(b.mapUrl, 300),
         scheduledFor: cut(b.scheduledFor, 40),
         lines,
@@ -216,7 +223,7 @@ module.exports = async (req, res) => {
         const all = await listOrders(1000);
         const mine = all.filter(o => o && String(o.phone || "").replace(/\D/g, "").slice(-8) === phone.slice(-8))
           .slice(0, 20)
-          .map(o => ({ id: o.id, no: o.no, total: Number(o.total) || 0, at: o.createdAt, status: o.status, itemsTxt: o.items || "", lines: Array.isArray(o.lines) ? o.lines.map(l => ({ name: l.name, qty: l.qty })) : [] }));
+          .map(o => ({ id: o.id, no: o.no, total: Number(o.total) || 0, at: o.createdAt, status: o.status, itemsTxt: o.items || "", address: o.address || "", addr: o.addr || null, lines: Array.isArray(o.lines) ? o.lines.map(l => ({ name: l.name, qty: l.qty })) : [] }));
         res.setHeader("Cache-Control", "no-store");
         return res.status(200).json({ orders: mine });
       }
@@ -235,7 +242,7 @@ module.exports = async (req, res) => {
         return res.status(200).json({ driverLoc, order: {
           no: o.no || o.id, createdAt: o.createdAt, channel: o.channel, status: o.status,
           name: o.name || "", phone: o.phone || "", deliveryType: o.deliveryType || "",
-          area: o.area || "", address: o.address || "", deliveryTime: o.deliveryTime || "", mapUrl: o.mapUrl || "",
+          area: o.area || "", address: o.address || "", addr: o.addr || null, deliveryTime: o.deliveryTime || "", mapUrl: o.mapUrl || "",
           deliveryFee: Number(o.deliveryFee) || 0, total: Number(o.total) || 0,
           note: o.note || "", scheduledFor: o.scheduledFor || "",
           lines: Array.isArray(o.lines) ? o.lines : [],

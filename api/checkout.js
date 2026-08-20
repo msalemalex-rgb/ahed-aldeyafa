@@ -158,12 +158,19 @@ module.exports = async (req, res) => {
       ? (async () => {
           const b = body.order;
           const cut = (v, n) => String(v == null ? "" : v).slice(0, n);
+// خانات العنوان المنفصلة (قطعة/شارع/جادة/منزل/دور/شقة) — نقصّها ونخزّنها بجانب النص
+const cutAddr = (a) => {
+  if (!a || typeof a !== "object") return null;
+  const o = { block: cut(a.block, 40), street: cut(a.street, 40), ave: cut(a.ave, 40),
+              house: cut(a.house, 40), floor: cut(a.floor, 40), apt: cut(a.apt, 40), landmark: cut(a.landmark, 80) };
+  return (o.block || o.street || o.house) ? o : null;
+};
           // كل الأرقام المالية من حساب السيرفر — النصوص فقط هي اللي من المتصفح (بحد أقصى للطول)
           return kvOrders.addOrder({
             items: cut(b.items, 2000), total: amountNum, channel: "knet",
             name: cut(b.name, 80), phone: cut(b.phone, 25), note: cut(b.note, 300),
             deliveryType: b.deliveryType === "pickup" ? "pickup" : "delivery",
-            area: cut(b.area, 60), address: cut(b.address, 300),
+            area: cut(b.area, 60), address: cut(b.address, 300), addr: cutAddr(b.addr),
             deliveryFee: serverPrice ? serverPrice.fee : 0,
             deliveryTime: cut(b.deliveryTime, 60),
             mapUrl: cut(b.mapUrl, 300), scheduledFor: cut(b.scheduledFor, 40),
