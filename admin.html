@@ -1474,9 +1474,27 @@ function invEn(nm){
   for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return String(it.nameEn||'').trim();
   return '';
 }
+/* الاسم الإنجليزي للاختيارات يُجلب من المنيو وقت الطباعة، لا من اللحظة التي
+   حُفظ فيها الطلب — فيظهر على الطلبات القديمة أيضًا، ويتحدّث لو صحّحت الترجمة لاحقًا. */
+function optEnMap(){
+  const map={}; const ms=(DATA&&DATA.menu)||[];
+  ms.forEach(function(c){(c.items||[]).forEach(function(it){(it.options||[]).forEach(function(g){(g.choices||[]).forEach(function(ch){
+    const n=(typeof ch==='string')?ch:((ch&&ch.name)||'');
+    const e=(typeof ch==='string')?'':((ch&&ch.nameEn)||'');
+    if(n&&e)map[String(n).trim()]=String(e).trim();
+  });});});});
+  return map;
+}
+function optEn(optsAr,map){
+  const t=String(optsAr||'').trim(); if(!t)return '';
+  const parts=t.split(/[،,]/).map(function(s){return s.trim();}).filter(Boolean);
+  const en=parts.map(function(p){return map[p]||'';});
+  return en.some(Boolean)?en.map(function(e,i){return e||parts[i];}).join(', '):'';
+}
 function prLines(o){
+  const _oem=optEnMap();
   if(o.lines&&o.lines.length)return o.lines.map(function(l){
-    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',optsEn:l.optsEn||'',note:l.note||''};
+    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',optsEn:l.optsEn||optEn(l.opts,_oem),note:l.note||''};
   });
   const findP=function(nm){const t=String(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return Number(it.price)||0;return null;};
   return String(o.items||'').split('،').map(function(s){return s.trim();}).filter(Boolean).map(function(p){
@@ -1510,7 +1528,18 @@ function printOrder(id){
   const rule='<div style="border-top:1px dashed #000;margin:7px 0"></div>';
   const strong='<div style="border-top:2px solid #000;margin:7px 0"></div>';
   const row=function(a,b){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px"><span>'+a+'</span><span style="white-space:nowrap;font-weight:700">'+b+'</span></div>';};
-  const info=function(ar,en,v){return v?'<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:12.5px"><span style="white-space:nowrap">'+ar+' <span style="font-size:11.5px;font-weight:600">'+en+'</span></span><b style="text-align:left">'+esc(v)+'</b></div>':'';};
+  /* سطر البيان: العنوان في عمود ثابت والقيمة ملاصقة له مباشرة.
+     التوزيع المتباعد كان يرمي القيمة في آخر السطر ويحشر الكلمة الإنجليزية في
+     المنتصف، فتقطع العين عرض الورقة كله للوصول إلى المعلومة. والإنجليزية الآن
+     تحت العربية داخل نفس العمود وباتجاه صريح حتى لا تقفز نقطة مثل «.No». */
+  const info=function(ar,en,v){return v?
+    '<div style="display:flex;gap:9px;align-items:baseline;padding:3px 0">'
+      +'<div style="flex:0 0 88px;line-height:1.2">'
+        +'<div style="font-size:12.5px;font-weight:700">'+ar+'</div>'
+        +(en?'<div style="font-size:9.5px;letter-spacing:.3px" dir="ltr">'+en+'</div>':'')
+      +'</div>'
+      +'<b style="flex:1;font-size:13px;word-break:break-word">'+esc(v)+'</b>'
+    +'</div>':'';};
 
   const items=L.map(function(l){
     return '<div style="padding:6px 0;border-bottom:1px dotted #999">'
@@ -1529,18 +1558,18 @@ function printOrder(id){
   let disc=o.discountPct?sub*(o.discountPct/100):0;
   if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
   let totals='';
-  if(sub>0)totals+=row('المجموع <span style="font-size:11.5px;font-weight:600">Subtotal</span>',sub.toFixed(3));
-  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:11.5px;font-weight:600">Discount</span>','- '+disc.toFixed(3));
-  if(fee>0)totals+=row('التوصيل <span style="font-size:11.5px;font-weight:600">Delivery</span>',fee.toFixed(3));
+  if(sub>0)totals+=row('المجموع <span style="font-size:10px" dir="ltr">Subtotal</span>',sub.toFixed(3));
+  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:10px" dir="ltr">Discount</span>','- '+disc.toFixed(3));
+  if(fee>0)totals+=row('التوصيل <span style="font-size:10px" dir="ltr">Delivery</span>',fee.toFixed(3));
 
   const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
     +'<div style="text-align:center">'+lg
       +'<div style="font-size:21px;font-weight:900;letter-spacing:.5px">عهد الضيافة</div>'
       +'<div style="font-size:12.5px;font-weight:700;letter-spacing:2px" dir="ltr">AHD AL-DIYAFA</div>'
-      +'<div style="font-size:12.5px;font-weight:7005;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
+      +'<div style="font-size:12.5px;font-weight:700;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
     +'</div>'
     +strong
-    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:12.5px;font-weight:700" dir="ltr">INVOICE</span></div>'
+    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:11px" dir="ltr">INVOICE</span></div>'
     +rule
     +info('رقم الفاتورة','No.',o.no||o.id)
     +info('التاريخ','Date',dt)
@@ -1555,11 +1584,11 @@ function printOrder(id){
     +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'</div>':'')
     +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
     +strong
-    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:11.5px;font-weight:600" dir="ltr">ITEMS</span></div>'
+    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:10px" dir="ltr">ITEMS</span></div>'
     +items
     +'<div style="margin-top:7px">'+totals+'</div>'
     +strong
-    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:12.5px;font-weight:700" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:11px" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
     +strong
     +'<div style="text-align:center;font-size:12.5px;line-height:1.8;margin-top:6px">شكرًا لاختياركم عهد الضيافة<br><span dir="ltr">Thank you for your order</span></div>'
     +'</div>';
@@ -1594,6 +1623,7 @@ function printKitchen(id){
     +'<div style="border-top:2px solid #000;margin:8px 0"></div>'
     +'<div style="font-size:14px;font-weight:700">'+esc([dtype,o.area||''].filter(Boolean).join(' — '))+'</div>'
     +(o.address?'<div style="font-size:13px;margin-top:2px">'+esc(o.address)+'</div>':'')
+    +((o.addr&&(o.addr.floor||o.addr.apt))?'<div style="font-size:13px;margin-top:2px;font-weight:700">'+esc([o.addr.floor?('دور '+o.addr.floor):'',o.addr.apt?('شقة '+o.addr.apt):''].filter(Boolean).join(' — '))+'</div>':'')
     +((o.addr&&o.addr.landmark)?'<div style="font-size:13px;margin-top:2px">علامة: '+esc(o.addr.landmark)+'</div>':'')
     +(o.name?'<div style="font-size:13px;margin-top:2px">'+esc(o.name)+(o.phone?(' — '+esc(o.phone)):'')+'</div>':'')
     +'</div>';
