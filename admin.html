@@ -1376,6 +1376,60 @@ function cancelOrder(id){
   if(!confirm(msg))return;
   updOrder(id,'cancelled');
 }
+/* ===== قراءة العناوين القديمة المكتوبة كنص حر وتحويلها لخانات =====
+   العملاء القدام كتبوا العنوان سطر واحد؛ ده بيفكّه لقطعة/شارع/جادة/منزل/دور/شقة. */
+function parseAddrText(t){
+  let s=String(t||'');
+  if(!s.trim())return null;
+  s=s.replace(/[٠-٩]/g,function(d){return String(d.charCodeAt(0)-0x0660);})
+     .replace(/[۰-۹]/g,function(d){return String(d.charCodeAt(0)-0x06F0);});
+  const KEYS=[
+    ['block','قطعة|قطعه|القطعة|القطعه'],
+    ['street','شارع|الشارع'],
+    ['ave','جادة|جاده|الجادة|الجاده'],
+    ['house','منزل|المنزل|بيت|البيت|مبنى|مبني|المبنى|فيلا|الفيلا'],
+    ['floor','دور|الدور|طابق|الطابق'],
+    ['apt','شقة|شقه|الشقة|الشقه|مكتب|المكتب']
+  ];
+  const hits=[];
+  KEYS.forEach(function(k){
+    const re=new RegExp('(?:^|[\\s,،\\-\\u060C])(?:'+k[1]+')\\s*[:\\-]?\\s*','g');
+    let m; while((m=re.exec(s))!==null){ hits.push({key:k[0],start:m.index+m[0].length,kstart:m.index+(m[0].length-m[0].replace(/^[\s,،\-،]+/,'').length)}); }
+  });
+  // الأشكال المختصرة: ق4 ش43 م12 — تُقبل فقط لو بعدها رقم مباشرة
+  [['block','ق'],['street','ش'],['ave','ج'],['house','م']].forEach(function(k){
+    const re=new RegExp('(?:^|[\\s,،\\-])('+k[1]+')\\s*\\.?\\s*(?=\\d)','g');
+    let m; while((m=re.exec(s))!==null){ hits.push({key:k[0],start:m.index+m[0].length,kstart:m.index+m[0].indexOf(k[1])}); }
+  });
+  if(!hits.length) return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:s.trim().slice(0,80)};
+  hits.sort(function(a,b){return a.kstart-b.kstart;});
+  const out={block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:''};
+  const used=[];
+  hits.forEach(function(hit,i){
+    const nextK=hits[i+1]?hits[i+1].kstart:s.length;
+    let val=s.slice(hit.start,nextK).trim().replace(/^[:\-،,]+/,'').replace(/[،,\-\s]+$/,'').trim();
+    if(!val)return;
+    // لو القيمة طويلة، خد أول كلمتين بس والباقي علامة مميزة
+    const words=val.split(/\s+/);
+    let take=words.slice(0,2).join(' ');
+    if(/^\d+$/.test(words[0]))take=words[0];
+    if(!out[hit.key])out[hit.key]=take.slice(0,40);
+    used.push([hit.kstart,hit.start+take.length]);
+  });
+  // اللي فضل بره الخانات = علامة مميزة
+  let rest=s, off=0;
+  used.sort(function(a,b){return a[0]-b[0];}).forEach(function(r){
+    const a=r[0]-off,b=r[1]-off;
+    if(a>=0&&b>=a){rest=rest.slice(0,a)+' '+rest.slice(b);off+=(b-a)-1;}
+  });
+  rest=rest.replace(/[،,\-]+/g,' ').replace(/\s+/g,' ').trim();
+  /* لو مفيش ولا قيمة رقمية، يبقى النص وصف مكان مش عنوان مرقّم (زي "بيت العايلة جنب الكوفي") */
+  const numeric=['block','street','ave','house','floor','apt'].filter(function(k){return /\d/.test(out[k]||'');}).length;
+  if(!numeric)return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:s.trim().slice(0,80)};
+  if(rest)out.landmark=rest.slice(0,80);
+  return out;
+}
+
 /* ===== الطباعة =====
    الورق حراري ضيّق وأحادي اللون: الخلفيات الملوّنة تخرج رماديّة متّسخة، والجدول
    ذو الأعمدة الأربعة كان يضغط اسم الصنف في عمود ضيّق فيتقطّع على أسطر كثيرة.
@@ -1387,13 +1441,13 @@ function invEn(nm){
 }
 function prLines(o){
   if(o.lines&&o.lines.length)return o.lines.map(function(l){
-    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',note:l.note||''};
+    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',optsEn:l.optsEn||'',note:l.note||''};
   });
   const findP=function(nm){const t=String(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return Number(it.price)||0;return null;};
   return String(o.items||'').split('،').map(function(s){return s.trim();}).filter(Boolean).map(function(p){
     const qm=p.match(/×\s*(\d+)/); const qty=qm?parseInt(qm[1],10):1;
     const nm=p.split('×')[0].trim(); const u=findP(nm);
-    return {name:nm,en:invEn(nm),qty:qty,unit:u==null?null:u,total:u==null?null:u*qty,opts:'',note:''};
+    return {name:nm,en:invEn(nm),qty:qty,unit:u==null?null:u,total:u==null?null:u*qty,opts:'',optsEn:'',note:''};
   });
 }
 function doPrint(html){
@@ -1432,6 +1486,7 @@ function printOrder(id){
       +(l.en?'<div style="font-size:13.5px;font-weight:600;line-height:1.4;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
       +'<div style="font-size:11.5px;margin-top:1px">'+l.qty+' × '+(l.unit==null?'—':l.unit.toFixed(3))+'</div>'
       +(l.opts?'<div style="font-size:11.5px">'+esc(l.opts)+'</div>':'')
+      +(l.optsEn?'<div style="font-size:11px;text-align:right" dir="ltr">'+esc(l.optsEn)+'</div>':'')
       +(l.note?'<div style="font-size:12.5px;font-weight:700;margin-top:2px">ملاحظة: '+esc(l.note)+'</div>':'')
       +'</div>';
   }).join('');
@@ -1459,6 +1514,8 @@ function printOrder(id){
     +info('الاستلام','Type',dtype)
     +info('المنطقة','Area',o.area||'')
     +info('العنوان','Address',o.address||'')
+    +((o.addr&&(o.addr.floor||o.addr.apt))?info('الدور / الشقة','Floor / Apt',[o.addr.floor?('دور '+o.addr.floor):'',o.addr.apt?('شقة '+o.addr.apt):''].filter(Boolean).join(' — ')):'')
+    +((o.addr&&o.addr.landmark)?info('علامة مميزة','Landmark',o.addr.landmark):'')
     +info('وقت التوصيل','ETA',o.deliveryTime||'')
     +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'</div>':'')
     +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
@@ -1488,6 +1545,7 @@ function printKitchen(id){
       +'</div>'
       +(l.en?'<div style="font-size:14.5px;font-weight:600;padding-right:44px;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
       +(l.opts?'<div style="font-size:13px;padding-right:44px">'+esc(l.opts)+'</div>':'')
+      +(l.optsEn?'<div style="font-size:11.5px;padding-right:44px;text-align:right" dir="ltr">'+esc(l.optsEn)+'</div>':'')
       +(l.note?'<div style="font-size:16px;font-weight:900;border:2px solid #000;border-radius:4px;padding:4px 7px;margin-top:5px">ملاحظة: '+esc(l.note)+'</div>':'')
       +'</div>';
   }).join('');
@@ -1500,10 +1558,11 @@ function printKitchen(id){
     +(o.note?'<div style="border:3px solid #000;border-radius:4px;padding:7px 9px;margin-top:9px;font-size:16px;font-weight:900;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
     +'<div style="border-top:2px solid #000;margin:8px 0"></div>'
     +'<div style="font-size:14px;font-weight:700">'+esc([dtype,o.area||''].filter(Boolean).join(' — '))+'</div>'
+    +(o.address?'<div style="font-size:13px;margin-top:2px">'+esc(o.address)+'</div>':'')
+    +((o.addr&&o.addr.landmark)?'<div style="font-size:13px;margin-top:2px">علامة: '+esc(o.addr.landmark)+'</div>':'')
     +(o.name?'<div style="font-size:13px;margin-top:2px">'+esc(o.name)+(o.phone?(' — '+esc(o.phone)):'')+'</div>':'')
     +'</div>';
-  doPrint(html);
-}
+  doPrint(html);}
 
 /* ===== الحجوزات ===== */
 function loadReservations(){
@@ -1809,14 +1868,24 @@ function saveSettings(){
 /* ===== تصدير / استيراد المنيو (Excel) ===== */
 function _cN(c){return typeof c==='string'?c:(c&&c.name||'');}
 function _cP(c){return typeof c==='string'?0:(c&&Number(c.price)||0);}
-function encOpts(opts){return (opts||[]).map(g=>{const lbl=(g.label||'')+(g.required?'*':'');const ch=(g.choices||[]).map(c=>{const n=_cN(c),p=_cP(c);return p>0?(n+'('+p.toFixed(3)+')'):n;}).join(' ، ');return lbl+' = '+ch;}).join(' ؛ ');}
+function _cE(c){return (typeof c==='string')?'':((c&&c.nameEn)||'');}
+function encOpts(opts){return (opts||[]).map(g=>{
+  const lbl=(g.label||'')+(g.labelEn?('|'+g.labelEn):'')+(g.required?'*':'');
+  const ch=(g.choices||[]).map(c=>{const n=_cN(c)+(_cE(c)?('|'+_cE(c)):''),p=_cP(c);return p>0?(n+'('+p.toFixed(3)+')'):n;}).join(' ، ');
+  return lbl+' = '+ch;}).join(' ؛ ');}
 function parseOpts(text){
   if(!text||!(''+text).trim())return [];
   return (''+text).split(/[؛;]/).map(s=>s.trim()).filter(Boolean).map(part=>{
     const eq=part.split('=');const lblRaw=(eq[0]||'').trim();const rest=eq.slice(1).join('=').trim();
-    const required=/\*\s*$/.test(lblRaw);const label=lblRaw.replace(/\*\s*$/,'').trim();
-    const choices=rest.split(/[،,]/).map(c=>c.trim()).filter(Boolean).map(c=>{const m=c.match(/^(.*?)\(\s*([\d.]+)\s*\)\s*$/);return m?{name:m[1].trim(),price:parseFloat(m[2])||0}:{name:c,price:0};});
-    return {label:label,required:required,choices:choices};
+    const required=/\*\s*$/.test(lblRaw);let label=lblRaw.replace(/\*\s*$/,'').trim();
+    /* "عربي|English" يفصل الاسم العربي عن الإنجليزي */
+    let labelEn='';{const b=label.split('|');if(b.length>1){label=b[0].trim();labelEn=b.slice(1).join('|').trim();}}
+    const choices=rest.split(/[،,]/).map(c=>c.trim()).filter(Boolean).map(c=>{
+      const m=c.match(/^(.*?)\(\s*([\d.]+)\s*\)\s*$/);
+      let nm=m?m[1].trim():c, pr=m?(parseFloat(m[2])||0):0, en='';
+      const b=nm.split('|');if(b.length>1){nm=b[0].trim();en=b.slice(1).join('|').trim();}
+      return {name:nm,nameEn:en,price:pr};});
+    return {label:label,labelEn:labelEn,required:required,choices:choices};
   });
 }
 function exportMenu(){
