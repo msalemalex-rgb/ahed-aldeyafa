@@ -1210,6 +1210,13 @@ function fmtSched(sf){
   let h=parseInt(m[4],10);const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;
   return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
 }
+/* نفس الموعد بالإنجليزية — الفاتورة ثنائية اللغة، والسائق قد لا يقرأ «ص/م». */
+function fmtSchedEn(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return '';
+  let h=parseInt(m[4],10);const ap=h<12?'AM':'PM';let h12=h%12;if(h12===0)h12=12;
+  return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
+}
 
 
 
@@ -1519,6 +1526,34 @@ function printOrder(id){
   const cur='د.ك';
   const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const dtypeEn=o.deliveryType==='pickup'?'Pickup':(o.deliveryType==='delivery'?'Delivery':'');
+  /* التاريخ بالإنجليزية بصيغة يوم/شهر/سنة المعتادة في الكويت */
+  const dtEn=o.createdAt?new Date(o.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}):'';
+  /* اسم المنطقة بالإنجليزية محفوظ مع المنطقة نفسها في الإعدادات */
+  const areaEnOf=function(nm){
+    const t=String(nm||'').trim(); if(!t)return '';
+    const as=(DATA&&DATA.settings&&DATA.settings.areas)||[];
+    for(const a of as){ if(String((a&&a.name)||'').trim()===t) return String((a&&a.nameEn)||'').trim(); }
+    return '';
+  };
+  /* العنوان الإنجليزي يُبنى من الخانات المرقّمة؛ العنوان المكتوب نصًّا حرًّا لا يُترجم */
+  const addrEnOf=function(a){
+    if(!a)return '';
+    const p=[];
+    if(a.block)p.push('Block '+a.block);
+    if(a.street)p.push('Street '+a.street);
+    if(a.ave)p.push('Avenue '+a.ave);
+    if(a.house)p.push('House '+a.house);
+    return p.join(', ');
+  };
+  /* مدة التوصيل مكتوبة يدويًّا («٤٥ - ٦٠ دقيقة»)، فنحوّل الأرقام ووحدة الوقت
+     ونتخلّى عن الترجمة لو بقي فيها عربي لم نفهمه بدل طبع نصف جملة. */
+  const etaEnOf=function(t){
+    let x=toEn(String(t||'')).trim(); if(!x)return '';
+    if(!/[\u0600-\u06FF]/.test(x))return x;
+    x=x.replace(/دقائق|دقيقة|دقيقه/g,'min').replace(/ساعات|ساعة|ساعه/g,'hr').replace(/\s+/g,' ').trim();
+    return /[\u0600-\u06FF]/.test(x)?'':x;
+  };
   const lg=(DATA&&DATA.settings&&DATA.settings.logo)?'<img src="'+DATA.settings.logo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px">':'';
   const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
   const L=prLines(o);
@@ -1528,18 +1563,20 @@ function printOrder(id){
   const rule='<div style="border-top:1px dashed #000;margin:7px 0"></div>';
   const strong='<div style="border-top:2px solid #000;margin:7px 0"></div>';
   const row=function(a,b){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px"><span>'+a+'</span><span style="white-space:nowrap;font-weight:700">'+b+'</span></div>';};
-  /* سطر البيان: العنوان في عمود ثابت والقيمة ملاصقة له مباشرة.
-     التوزيع المتباعد كان يرمي القيمة في آخر السطر ويحشر الكلمة الإنجليزية في
-     المنتصف، فتقطع العين عرض الورقة كله للوصول إلى المعلومة. والإنجليزية الآن
-     تحت العربية داخل نفس العمود وباتجاه صريح حتى لا تقفز نقطة مثل «.No». */
-  const info=function(ar,en,v){return v?
-    '<div style="display:flex;gap:9px;align-items:baseline;padding:3px 0">'
-      +'<div style="flex:0 0 88px;line-height:1.2">'
-        +'<div style="font-size:12.5px;font-weight:700">'+ar+'</div>'
-        +(en?'<div style="font-size:9.5px;letter-spacing:.3px" dir="ltr">'+en+'</div>':'')
+  /* سطر البيان ثنائي اللغة: العربية على اليمين والإنجليزية على اليسار في السطر
+     نفسه، فالقارئ العربي يتابع العمود الأيمن والسائق الذي لا يقرأ العربية يتابع
+     الأيسر دون أن يتقاطعا. القيمة الإنجليزية اختيارية — اسم العميل ورقم هاتفه
+     لا يُترجمان، فيُكتفى في اليسار بعنوان الحقل وحده. */
+  const info=function(ar,en,vAr,vEn){
+    if(!vAr&&!vEn)return '';
+    return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:3px 0;line-height:1.35">'
+      +'<div style="flex:1 1 0;min-width:0;text-align:right;font-size:12.5px;word-break:break-word">'
+        +ar+': <b>'+esc(vAr||'—')+'</b>'
       +'</div>'
-      +'<b style="flex:1;font-size:13px;word-break:break-word">'+esc(v)+'</b>'
-    +'</div>':'';};
+      +'<div dir="ltr" style="flex:1 1 0;min-width:0;text-align:left;font-size:11px;word-break:break-word">'
+        +en+(vEn?(': <b>'+esc(vEn)+'</b>'):'')
+      +'</div>'
+    +'</div>';};
 
   const items=L.map(function(l){
     return '<div style="padding:6px 0;border-bottom:1px dotted #999">'
@@ -1571,17 +1608,19 @@ function printOrder(id){
     +strong
     +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:11px" dir="ltr">INVOICE</span></div>'
     +rule
-    +info('رقم الفاتورة','No.',o.no||o.id)
-    +info('التاريخ','Date',dt)
-    +info('العميل','Customer',o.name||'')
-    +info('الهاتف','Phone',o.phone||'')
-    +info('الاستلام','Type',dtype)
-    +info('المنطقة','Area',o.area||'')
-    +info('العنوان','Address',o.address||'')
-    +((o.addr&&(o.addr.floor||o.addr.apt))?info('الدور / الشقة','Floor / Apt',[o.addr.floor?('دور '+o.addr.floor):'',o.addr.apt?('شقة '+o.addr.apt):''].filter(Boolean).join(' — ')):'')
-    +((o.addr&&o.addr.landmark)?info('علامة مميزة','Landmark',o.addr.landmark):'')
-    +info('وقت التوصيل','ETA',o.deliveryTime||'')
-    +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'</div>':'')
+    +info('رقم الفاتورة','No.',o.no||o.id,'')
+    +info('التاريخ','Date',dt,dtEn)
+    +info('العميل','Customer',o.name||'','')
+    +info('الهاتف','Phone',o.phone||'','')
+    +info('الاستلام','Type',dtype,dtypeEn)
+    +info('المنطقة','Area',o.area||'',areaEnOf(o.area))
+    +info('العنوان','Address',o.address||'',addrEnOf(o.addr))
+    +((o.addr&&(o.addr.floor||o.addr.apt))?info('الدور / الشقة','Floor / Apt',
+        [o.addr.floor?('دور '+o.addr.floor):'',o.addr.apt?('شقة '+o.addr.apt):''].filter(Boolean).join(' — '),
+        [o.addr.floor?('Floor '+o.addr.floor):'',o.addr.apt?('Apt '+o.addr.apt):''].filter(Boolean).join(' — ')):'')
+    +((o.addr&&o.addr.landmark)?info('علامة مميزة','Landmark',o.addr.landmark,''):'')
+    +info('وقت التوصيل','ETA',o.deliveryTime||'',etaEnOf(o.deliveryTime))
+    +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'<div style="font-size:11px;font-weight:700;margin-top:2px" dir="ltr">Scheduled order — deliver '+esc(fmtSchedEn(o.scheduledFor))+'</div></div>':'')
     +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
     +strong
     +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:10px" dir="ltr">ITEMS</span></div>'
