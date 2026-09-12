@@ -751,7 +751,7 @@ footer .eyebrow,footer .ornament{color:var(--gold-light)}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,logo:"",areas:[],pickupEnabled:true,hours:[],openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,discThreshold:8,discLow:0.10,discHigh:0.20,logo:"",areas:[],pickupEnabled:true,hours:[],openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
 ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل","nav.orders":"📋 طلباتي","mo.title":"طلباتي السابقة","mo.empty":"لا توجد طلبات سابقة على هذا الجهاز — سيظهر طلبك الأول هنا تلقائياً","mo.note":"بدون تسجيل دخول — تُستعاد طلباتك السابقة المرتبطة برقمك تلقائياً","mo.track":"🛵 تتبع","mo.again":"🔁 إعادة الطلب","mo.readded":"✓ تمت إضافة طلبك إلى السلة","mo.partial":"تمت إضافة الأصناف المتاحة — بعض الأصناف لم تعد متوفرة","mo.noLines":"تفاصيل هذا الطلب غير متاحة لإعادة الطلب",
@@ -1018,7 +1018,8 @@ function lineUnit(l){return l.base+l.opts.reduce((s,o)=>s+(Number(o.price)||0),0
 function lineOptsText(l){return l.opts.length?l.opts.map(o=>o.choice).join('، '):'';}
 function cartArray(){return cart;}
 function subtotal(){return cart.reduce((s,l)=>s+lineUnit(l)*l.qty,0);}
-function total(){return subtotal()*(1-CONFIG.directDiscount)}
+function discFrac(){const sub=subtotal();const th=Number(CONFIG.discThreshold);if(th>0&&CONFIG.discLow!=null&&CONFIG.discHigh!=null){return sub>=th?Number(CONFIG.discHigh):Number(CONFIG.discLow);}return Number(CONFIG.directDiscount)||0;}
+function total(){return subtotal()*(1-discFrac())}
 function count(){return cart.reduce((a,l)=>a+l.qty,0);}
 function changeQty(key,d){const l=cart.find(x=>x.key===key);if(!l)return;l.qty+=d;if(l.qty<=0)cart=cart.filter(x=>x.key!==key);updateCart();}
 /* ===== نافذة اختيارات الصنف ===== */
@@ -1436,7 +1437,7 @@ function curMinOrder(){
 }
 function updateCoTotals(){
   const sub=subtotal();                       /* المجموع قبل الخصم */
-  const disc=sub*(CONFIG.directDiscount||0);  /* قيمة الخصم */
+  const disc=sub*discFrac();  /* قيمة الخصم */
   const net=total();                          /* الإجمالي بعد الخصم */
   const fee=curDeliveryFee();
   const grand=net+fee;                        /* المطلوب دفعه */
@@ -1529,7 +1530,7 @@ async function submitCheckout(){
     sel:(l.opts||[]).map(o=>({l:o.label,c:o.choice})),
     note:l.note||'',qty:l.qty,unit:Number(lineUnit(l).toFixed(3)),total:Number((lineUnit(l)*l.qty).toFixed(3))}));
   const itemsSub=Number(subtotal().toFixed(3));
-  const discPct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);
+  const discPct=Math.round(discFrac()*100);
   const btn=document.getElementById('coPayBtn');btn.disabled=true;btn.textContent=(coPayMethod==='cod')?T('pay.sending'):T('pay.redirect');
   const payload={
     items:orderItemsText(arr),total:grand,
@@ -1630,7 +1631,10 @@ function applySettings(){
   document.getElementById('year').textContent=new Date().getFullYear();
   renderHours();syncSchemaHours();
   const dt=document.getElementById('discTag');
-  if(dt){const pct=Math.round(CONFIG.directDiscount<=1?CONFIG.directDiscount*100:CONFIG.directDiscount);if(pct>0){dt.style.display='block';dt.textContent='✅ خصم '+pct+'% مطبّق تلقائياً على الطلب الأونلاين';}else{dt.style.display='none';}}
+  if(dt){const th=Number(CONFIG.discThreshold),lo=Math.round(Number(CONFIG.discLow)*100),hi=Math.round(Number(CONFIG.discHigh)*100),cur=Math.round(discFrac()*100);
+    if(th>0&&lo!==hi){dt.style.display='block';dt.textContent='✅ خصم '+lo+'% تحت '+th+' د.ك و'+hi+'% من '+th+' د.ك فأكثر'+(cart.length?(' — المطبّق: '+cur+'%'):'');}
+    else if(cur>0){dt.style.display='block';dt.textContent='✅ خصم '+cur+'% مطبّق تلقائياً على الطلب الأونلاين';}
+    else{dt.style.display='none';}}
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){
@@ -1855,7 +1859,7 @@ async function loadMenu(){
   try{
     const r=await fetch('/api/menu',{cache:'no-store'});const d=await r.json();
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.discThreshold!=null)CONFIG.discThreshold=s.discThreshold;if(s.discLow!=null)CONFIG.discLow=s.discLow;if(s.discHigh!=null)CONFIG.discHigh=s.discHigh;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
   }catch(e){}
   renderMenu();applySettings();try{initCoInline();}catch(_){}updateCart();checkOpenStatus();
 }
