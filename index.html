@@ -653,9 +653,11 @@ function curMinOrder(){
   return a?(Number(a.minOrder)||0):0;
 }
 function updateCoTotals(){
-  const food=total();const fee=curDeliveryFee();const grand=food+fee;
+  const sub=subtotal();const dfr=discFrac();const discAmt=sub*dfr;const food=sub-discAmt;
+  const fee=curDeliveryFee();const grand=food+fee;const dpct=Math.round(dfr*100);
   const min=curMinOrder();
-  let rows=`<div class="r"><span>إجمالي الأصناف (بعد الخصم)</span><span>${food.toFixed(3)} ${CONFIG.currency}</span></div>`;
+  let rows=`<div class="r"><span>المجموع</span><span>${sub.toFixed(3)} ${CONFIG.currency}</span></div>`;
+  if(discAmt>0.0001)rows+=`<div class="r" style="color:#178c44"><span>الخصم (${dpct}%)</span><span>- ${discAmt.toFixed(3)} ${CONFIG.currency}</span></div>`;
   if(coDType==='delivery')rows+=`<div class="r"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${CONFIG.currency}</span></div>`;
   if(coDType==='delivery'){const a=areaByIndex(coAreaIdx);if(a&&a.time)rows+=`<div class="r" style="color:var(--maroon)"><span>⏱️ وقت التوصيل المتوقع</span><span>${a.time}</span></div>`;}
   rows+=`<div class="r grand"><span>الإجمالي للدفع</span><span>${grand.toFixed(3)} ${CONFIG.currency}</span></div>`;
