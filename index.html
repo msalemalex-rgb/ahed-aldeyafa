@@ -1057,8 +1057,17 @@ function confirmOptions(){
   try{const nv=(document.getElementById('optNote').value||'').trim().slice(0,120);if(nv){const key=lineKey(it.id,opts);const l=cart.find(x=>x.key===key);if(l){l.note=nv;updateCart();}}}catch(_){}
   showToast(T('t.added')+itName(it));closeOpt();
 }
+function updateDiscTag(){
+  const dt=document.getElementById('discTag');if(!dt)return;
+  const th=Number(CONFIG.discThreshold),lo=Math.round(Number(CONFIG.discLow)*100),hi=Math.round(Number(CONFIG.discHigh)*100),cur=Math.round(discFrac()*100);
+  const EN=(typeof LANG!=='undefined'&&LANG==='en');
+  if(th>0&&lo!==hi){dt.style.display='block';dt.textContent=EN?('✅ '+lo+'% off under '+th+' KWD, '+hi+'% off from '+th+' KWD'+(cart.length?(' — applied: '+cur+'%'):'')):('✅ خصم '+lo+'% تحت '+th+' د.ك و'+hi+'% من '+th+' د.ك فأكثر'+(cart.length?(' — المطبّق: '+cur+'%'):''));}
+  else if(cur>0){dt.style.display='block';dt.textContent=EN?('✅ '+cur+'% discount applied automatically on online orders'):('✅ خصم '+cur+'% مطبّق تلقائياً على الطلب الأونلاين');}
+  else{dt.style.display='none';}
+}
 function updateCart(){
   try{localStorage.setItem('ahd_cart_v1',JSON.stringify(cart));}catch(_){}
+  try{updateDiscTag();}catch(_){}
   const c=count();
   document.getElementById('cartCount').textContent=c;
   document.getElementById('cfCount').textContent=c;
@@ -1630,12 +1639,7 @@ function applySettings(){
   document.getElementById('phoneText').innerHTML='<a href="tel:+'+CONFIG.whatsapp+'" style="color:inherit">+'+CONFIG.whatsapp+'</a>';
   document.getElementById('year').textContent=new Date().getFullYear();
   renderHours();syncSchemaHours();
-  const dt=document.getElementById('discTag');
-  if(dt){const th=Number(CONFIG.discThreshold),lo=Math.round(Number(CONFIG.discLow)*100),hi=Math.round(Number(CONFIG.discHigh)*100),cur=Math.round(discFrac()*100);
-    const EN=(typeof LANG!=='undefined'&&LANG==='en');
-    if(th>0&&lo!==hi){dt.style.display='block';dt.textContent=EN?('✅ '+lo+'% off under '+th+' KWD, '+hi+'% off from '+th+' KWD'+(cart.length?(' — applied: '+cur+'%'):'')):('✅ خصم '+lo+'% تحت '+th+' د.ك و'+hi+'% من '+th+' د.ك فأكثر'+(cart.length?(' — المطبّق: '+cur+'%'):''));}
-    else if(cur>0){dt.style.display='block';dt.textContent=EN?('✅ '+cur+'% discount applied automatically on online orders'):('✅ خصم '+cur+'% مطبّق تلقائياً على الطلب الأونلاين');}
-    else{dt.style.display='none';}}
+  updateDiscTag();
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
 function initScroll(){
