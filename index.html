@@ -596,7 +596,7 @@ footer .eyebrow,footer .ornament{color:var(--gold-light)}
     <div id="clearWrap"><button type="button" class="cart-clear" id="clearBtn" onclick="clearCartAsk()">🗑 <span data-i18n="cart.clear">تفريغ السلة</span></button></div>
     <div id="noteWrap"><div class="field"><label data-i18n="co.note">ملاحظات (اختياري)</label><textarea id="coNote" rows="2" data-i18n-ph="co.notePh" placeholder="مثال: يُرجى الاتصال قبل الوصول"></textarea></div></div>
     <button class="btn" style="background:var(--cream-2);color:var(--maroon);border:1px dashed var(--gold);width:100%;justify-content:center" onclick="closeCart();try{document.getElementById('menu').scrollIntoView({behavior:'smooth'});}catch(_){}" data-i18n="cart.addMore">＋ إضافة أصناف أخرى</button>
-    <div class="discount-tag" id="discTag" data-i18n="cart.disc" style="margin-top:12px">✅ خصم 10% مطبّق تلقائياً على الطلب الأونلاين</div>
+    <div class="discount-tag" id="discTag" style="margin-top:12px">✅ خصم 10% تحت 8 د.ك و20% من 8 د.ك فأكثر</div>
     <div id="coInline" style="margin-top:14px">
 <div class="field"><label data-i18n="co.name">الاسم *</label><input id="coName" data-i18n-ph="co.namePh" placeholder="اسمك الكريم"></div>
       <div class="field"><label data-i18n="co.phone">رقم التواصل *</label><input id="coPhone" type="tel" inputmode="numeric" placeholder="9XXXXXXX"></div>
@@ -829,7 +829,7 @@ function applyLang(){
     try{renderHours();}catch(_){}
   }catch(_){}
 }
-function setLang(l){LANG=(l==='en')?'en':'ar';try{localStorage.setItem('ahd_lang',LANG);}catch(_){}applyLang();closeNav();}
+function setLang(l){LANG=(l==='en')?'en':'ar';try{localStorage.setItem('ahd_lang',LANG);}catch(_){}applyLang();try{updateCart();}catch(_){}closeNav();}
 function toggleLang(){setLang(LANG==='ar'?'en':'ar');}
 /* أسماء المناطق بالإنجليزي (للعرض فقط — القيمة المرسلة للمطعم تفضل عربي) */
 const AREA_TR={"الشرق":"Sharq","المرقاب":"Mirqab","القبله":"Qibla","الدسمه":"Dasma","الدعيه":"Daiya","المنصوريه":"Mansouriya","الفيحاء":"Faiha","الشاميه":"Shamiya","الروضه":"Rawda","العديليه":"Adailiya","الخالديه":"Khaldiya","قرطبه":"Qortuba","السره":"Surra","اليرموك":"Yarmouk","الشويخ":"Shuwaikh","كيفان":"Kaifan","النزهه":"Nuzha","عبدالله السالم":"Abdullah Al-Salem","الدوحه":"Doha","النهضه":"Nahda","غرناطه":"Granada","الصليبخات":"Sulaibikhat","جابر الاحمد":"Jaber Al-Ahmad","الصوابر":"Sawaber","ضاحيه عبدالله السالم":"Abdullah Al-Salem Suburb","حولي":"Hawally","السالميه":"Salmiya","الرميثيه":"Rumaithiya","الجابريه":"Jabriya","مشرف":"Mishref","بيان":"Bayan","سلوي":"Salwa","البدع":"Bidaa","النقره":"Nugra","حطين":"Hitteen","الشعب":"Shaab","السلام":"Salam","الزهراء":"Zahra","الصديق":"Siddiq","الشهداء":"Shuhada","الصالحيه":"Salhiya","الفروانيه":"Farwaniya","خيطان":"Khaitan","العمريه":"Omariya","الرابيه":"Rabiya","الاندلس":"Andalous","جليب الشيوخ":"Jleeb Al-Shuyoukh","الرقعي":"Riggae","الفردوس":"Firdous","العارضيه":"Ardiya","صباح الناصر":"Sabah Al-Nasser","اشبيليه":"Ishbiliya","الرحاب":"Rehab","الضجيج":"Dajeej","عبدالله المبارك":"Abdullah Al-Mubarak","الري":"Rai","جنوب عبدالله المبارك":"South Abdullah Al-Mubarak","الاحمدي":"Ahmadi","الفحيحيل":"Fahaheel","المنقف":"Mangaf","ابو حليفه":"Abu Halifa","المهبوله":"Mahboula","الفنطاس":"Fintas","العقيله":"Egaila","الصباحيه":"Sabahiya","الرقه":"Riqqa","هديه":"Hadiya","جابر العلي":"Jaber Al-Ali","فهد الاحمد":"Fahad Al-Ahmad","الظهر":"Dhaher","الوفره":"Wafra","علي صباح السالم":"Ali Sabah Al-Salem","الخيران":"Khairan","صباح الاحمد":"Sabah Al-Ahmad","الجهراء":"Jahra","القصر":"Qasr","النعيم":"Naeem","النسيم":"Naseem","الواحه":"Waha","تيماء":"Taima","العيون":"Oyoun","الصليبيه":"Sulaibiya","امغره":"Amghara","سعد العبدالله":"Saad Al-Abdullah","الجهراء الصناعيه":"Jahra Industrial","القيروان":"Qairawan","مبارك الكبير":"Mubarak Al-Kabeer","ابو فطيره":"Abu Fatira","العدان":"Adan","القصور":"Qusour","صباح السالم":"Sabah Al-Salem","المسيله":"Messila","المسايل":"Masayel","الفنيطيس":"Funaitees","صبحان":"Subhan","القرين":"Qurain","الاحمدي الصناعيه":"Ahmadi Industrial"};
@@ -1632,8 +1632,9 @@ function applySettings(){
   renderHours();syncSchemaHours();
   const dt=document.getElementById('discTag');
   if(dt){const th=Number(CONFIG.discThreshold),lo=Math.round(Number(CONFIG.discLow)*100),hi=Math.round(Number(CONFIG.discHigh)*100),cur=Math.round(discFrac()*100);
-    if(th>0&&lo!==hi){dt.style.display='block';dt.textContent='✅ خصم '+lo+'% تحت '+th+' د.ك و'+hi+'% من '+th+' د.ك فأكثر'+(cart.length?(' — المطبّق: '+cur+'%'):'');}
-    else if(cur>0){dt.style.display='block';dt.textContent='✅ خصم '+cur+'% مطبّق تلقائياً على الطلب الأونلاين';}
+    const EN=(typeof LANG!=='undefined'&&LANG==='en');
+    if(th>0&&lo!==hi){dt.style.display='block';dt.textContent=EN?('✅ '+lo+'% off under '+th+' KWD, '+hi+'% off from '+th+' KWD'+(cart.length?(' — applied: '+cur+'%'):'')):('✅ خصم '+lo+'% تحت '+th+' د.ك و'+hi+'% من '+th+' د.ك فأكثر'+(cart.length?(' — المطبّق: '+cur+'%'):''));}
+    else if(cur>0){dt.style.display='block';dt.textContent=EN?('✅ '+cur+'% discount applied automatically on online orders'):('✅ خصم '+cur+'% مطبّق تلقائياً على الطلب الأونلاين');}
     else{dt.style.display='none';}}
   if(CONFIG.logo){document.querySelectorAll('.brand .logo').forEach(el=>el.innerHTML=`<img src="${CONFIG.logo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='🍽️'">`);}
 }
