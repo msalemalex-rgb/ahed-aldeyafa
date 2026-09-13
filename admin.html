@@ -12,16 +12,16 @@
 <style>
 :root{--maroon:#6e1423;--maroon-dark:#4d0d18;--gold:#c8962f;--gold-light:#e6c061;--cream:#fdf6ea;--ink:#2a1a13;--muted:#8a7565;--line:#e8d9bf;--green:#1faa54}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Tajawal',sans-serif;background:var(--cream);color:var(--ink)}
-h1,h2,h3{font-family:'Cairo',sans-serif}
+body{font-family:Calibri,'Segoe UI','Tajawal',sans-serif;background:var(--cream);color:var(--ink)}
+h1,h2,h3{font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--maroon-dark),var(--maroon))}
 .login-box{background:#fff;padding:40px;border-radius:14px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;border-top:5px solid var(--gold)}
 .login-box .logo{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#a8242b,var(--maroon-dark));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:32px;margin:0 auto 14px;border:2px solid var(--gold)}
 .login-box h2{color:var(--maroon);margin-bottom:6px}
 .login-box p{color:var(--muted);font-size:14px;margin-bottom:20px}
-input,select,textarea{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:8px;font-family:'Tajawal';font-size:16px;margin-bottom:14px}
+input,select,textarea{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:8px;font-family:Calibri,'Segoe UI','Tajawal',sans-serif;font-size:16px;margin-bottom:14px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
-.btn{background:var(--maroon);color:var(--gold-light);border:none;padding:13px 24px;border-radius:8px;font-family:'Cairo';font-weight:700;font-size:16px;cursor:pointer;width:100%;transition:.2s}
+.btn{background:var(--maroon);color:var(--gold-light);border:none;padding:13px 24px;border-radius:8px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:16px;cursor:pointer;width:100%;transition:.2s}
 .btn:hover{background:var(--maroon-dark)}
 .err{color:#c0392b;font-size:14px;margin-bottom:10px;min-height:18px}
 header{background:var(--maroon);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
@@ -31,47 +31,49 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 @keyframes pulse{50%{opacity:.4}}
 .wrap{max-width:1000px;margin:0 auto;padding:18px}
 .tabs{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.tab{background:#fff;border:1.5px solid var(--line);padding:9px 18px;border-radius:50px;cursor:pointer;font-family:'Cairo';font-weight:700;font-size:14px}
+.tab{background:#fff;border:1.5px solid var(--line);padding:9px 18px;border-radius:50px;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:14px}
 .tab.active{background:var(--maroon);color:var(--gold-light);border-color:var(--maroon)}
 .tab .badge{background:var(--gold);color:var(--maroon-dark);border-radius:50px;padding:1px 8px;font-size:12px;margin-right:5px}
 .order{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(78,13,24,.08);border-right:5px solid var(--gold)}
 .order.new{border-right-color:var(--green);background:#f6fff9}
 .order .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.order .oid{font-family:'Cairo';font-weight:700;color:var(--maroon)}
+.order .oid{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon)}
 .order .time{font-size:12px;color:var(--muted)}
-.order .chan{font-size:12px;padding:3px 10px;border-radius:50px;font-family:'Cairo';font-weight:700}
+.order .chan{font-size:12px;padding:3px 10px;border-radius:50px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700}
 .chan.knet{background:rgba(200,150,47,.18);color:#9a6b00}
 .chan.whatsapp{background:rgba(31,170,84,.15);color:#178c44}
+.chan.cod{background:rgba(110,20,35,.12);color:#6e1423}
 .chan.web{background:#eee;color:#666}
 .order .items{font-size:14px;color:var(--ink);margin:6px 0;line-height:1.8}
-.order .total{font-family:'Cairo';font-weight:900;color:var(--maroon);font-size:18px}
+.order .total{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:900;color:var(--maroon);font-size:18px}
 .order .meta{font-size:13px;color:var(--muted);margin-top:4px}
 .order .dinfo{font-size:13px;color:var(--ink);margin-top:6px;background:rgba(200,150,47,.10);padding:8px 10px;border-radius:7px;line-height:1.8}
 .order .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.sbtn{border:none;padding:7px 14px;border-radius:7px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer}
+.sbtn{border:none;padding:7px 14px;border-radius:7px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .sbtn.prep{background:#fff3d6;color:#9a6b00}
 .sbtn.done{background:rgba(31,170,84,.15);color:#178c44}
 .sbtn.cancel{background:#fde8e8;color:#c0392b}
-.status-tag{font-size:12px;font-family:'Cairo';font-weight:700;padding:2px 10px;border-radius:50px}
-.st-new{background:#e8fff1;color:#178c44}.st-preparing{background:#fff3d6;color:#9a6b00}.st-done{background:#eee;color:#666}.st-confirmed{background:#e7f0ff;color:#2563c9}.st-cancelled{background:#fde8e8;color:#c0392b}
+.status-tag{font-size:12px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;padding:2px 10px;border-radius:50px}
+.st-new{background:#e8fff1;color:#178c44}.st-preparing{background:#fff3d6;color:#9a6b00}.st-delivering{background:#e7f0ff;color:#2563c9}.st-done{background:#eee;color:#666}.st-confirmed{background:#e7f0ff;color:#2563c9}.st-cancelled{background:#fde8e8;color:#c0392b}
+.sbtn.deliver{background:#e7f0ff;color:#2563c9}
 .empty{text-align:center;color:var(--muted);padding:60px 20px}
 .empty .big{font-size:60px}
 .today-banner{background:linear-gradient(135deg,#6e1423,#8a1c2e);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(110,20,35,.25)}
-.today-banner .tb-num{font-size:34px;font-weight:800;font-family:'Cairo';line-height:1;color:#f3c969}
-.today-banner .tb-txt{font-family:'Cairo';font-weight:700;font-size:15px}
-.today-banner .tb-sub{font-family:'Tajawal';font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
+.today-banner .tb-num{font-size:34px;font-weight:800;font-family:Calibri,'Segoe UI','Cairo',sans-serif;line-height:1;color:#f3c969}
+.today-banner .tb-txt{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:15px}
+.today-banner .tb-sub{font-family:Calibri,'Segoe UI','Tajawal',sans-serif;font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
 .order.is-today{border:2px solid #c8962f;box-shadow:0 2px 12px rgba(200,150,47,.2)}
 .order.is-soon{border-right:4px solid #c0392b}
-.pipeline{display:flex;align-items:center;gap:4px;margin:8px 0 4px;font-family:'Cairo';font-size:11px}
+.pipeline{display:flex;align-items:center;gap:4px;margin:8px 0 4px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:11px}
 .pipeline .pstep{flex:1;text-align:center;padding:4px 2px;border-radius:6px;background:#f0f0f0;color:#999;font-weight:700}
 .pipeline .pstep.on{background:#e8fff1;color:#178c44}
 .pipeline .pstep.cancel{background:#fde8e8;color:#c0392b}
 .pipeline .parrow{color:#ccc;font-size:12px}
-.soundbar{background:#fff3d6;color:#9a6b00;padding:10px;text-align:center;font-size:13px;font-family:'Cairo';font-weight:700;cursor:pointer}
+.soundbar{background:#fff3d6;color:#9a6b00;padding:10px;text-align:center;font-size:13px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer}
 .view{display:none}.view.active{display:block}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(78,13,24,.08)}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-.item-head,.item-block{display:grid;grid-template-columns:38px 200px 175px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
+.item-head,.item-block{display:grid;grid-template-columns:38px 170px 150px 150px minmax(60px,1fr) minmax(58px,1fr) minmax(50px,0.8fr) minmax(38px,0.5fr) minmax(38px,0.5fr) minmax(38px,0.5fr);gap:5px;align-items:center}
 .opt-ic{background:rgba(110,20,35,.10);color:var(--maroon)}
 .oe-group{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--cream)}
 .oe-ghead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
@@ -80,19 +82,19 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .oe-c{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .oe-c input:first-child{flex:1;margin:0;padding:8px}
 .oe-c input[type=number]{width:96px;margin:0;padding:8px;text-align:center}
-.oe-cu{font-size:12px;color:var(--muted);font-family:'Cairo'}
-.oe-req{display:flex;align-items:center;gap:5px;font-family:'Cairo';font-weight:700;font-size:13px;white-space:nowrap}
+.oe-cu{font-size:12px;color:var(--muted);font-family:Calibri,'Segoe UI','Cairo',sans-serif}
+.oe-req{display:flex;align-items:center;gap:5px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;white-space:nowrap}
 .oe-req input{width:auto;margin:0;transform:scale(1.3)}
 .optedit-overlay{position:fixed;inset:0;background:rgba(40,8,12,.6);display:none;align-items:center;justify-content:center;z-index:120;padding:18px}
 .optedit-overlay.open{display:flex}
 .optedit-box{background:#fff;border-radius:12px;padding:20px;width:560px;max-width:95vw;max-height:88vh;overflow:auto;border-top:5px solid var(--gold)}
 .optedit-box h3{color:var(--maroon);margin-bottom:14px}
-.item-head{font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin:0 4px 5px;text-align:center}
+.item-head{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;color:var(--muted);margin:0 4px 5px;text-align:center}
 .item-block{border:1px solid var(--line);border-radius:8px;padding:5px 6px;margin-bottom:6px}
 .item-block input{margin:0;padding:9px 8px;width:100%;min-width:0}
 .item-block .num{text-align:center}
 .ib-thumb,.ib-thumb.noimg{width:40px;height:40px;border-radius:7px;object-fit:cover;background:linear-gradient(135deg,var(--maroon),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px}
-.avail-btn{border:none;border-radius:8px;padding:7px 2px;font-family:'Cairo';font-weight:700;font-size:15px;cursor:pointer}
+.avail-btn{border:none;border-radius:8px;padding:7px 2px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:15px;cursor:pointer}
 .avail-on{background:rgba(31,170,84,.15);color:#178c44}
 .avail-off{background:#fde8e8;color:#c0392b}
 .iconbtn{border:none;border-radius:8px;height:34px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
@@ -101,21 +103,38 @@ header .right{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:
 .iconbtn input[type=file]{display:none}
 @media(max-width:680px){.item-head{display:none}.item-block{grid-template-columns:36px 1fr 1fr;gap:5px}.item-block .ib-thumb{grid-row:1/3}.item-block .avail-btn,.item-block .iconbtn{grid-row:auto}}
 .delx{background:#fde8e8;color:#c0392b;border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0}
-.addbtn{background:rgba(31,170,84,.12);color:#178c44;border:1.5px dashed var(--green);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Cairo';font-weight:700;font-size:13px}
-.area-head{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;font-family:'Cairo';font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
+.addbtn{background:rgba(31,170,84,.12);color:#178c44;border:1.5px dashed var(--green);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
+.area-head{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;color:var(--muted);margin-bottom:6px;padding:0 2px}
 .area-row{display:grid;grid-template-columns:1.2fr .9fr .9fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .area-row input{margin:0;padding:9px;font-size:14px}
 .hour-row{display:grid;grid-template-columns:1fr 1fr 38px;gap:8px;align-items:center;margin-bottom:6px}
 .hour-row input{margin:0;padding:9px;font-size:14px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:'Cairo';font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
+.hr-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
+.hr-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.hr-ttl{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:var(--maroon);font-size:13.5px}
+.hr-days{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.hr-day{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12.5px;padding:6px 11px;border-radius:50px;border:1.5px solid var(--line);background:#fff;color:#7a6a58;cursor:pointer}
+.hr-day.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.hr-times{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:8px;align-items:center}
+.hr-times span{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
+.hr-times input{margin:0;padding:9px;font-size:14px}
+.hr-presets{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.hr-presets button{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:12px;padding:5px 10px;border-radius:50px;border:1px dashed var(--gold);background:#fffaf0;color:#8a6300;cursor:pointer}
+.hr-prev{font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12.5px;color:#178c44;font-weight:700;margin-top:8px}
+.hr-lbl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.hr-lbl input{margin:0;padding:8px;font-size:13px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--maroon-dark);color:var(--gold-light);padding:12px 24px;border-radius:50px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.3s;font-size:14px;text-align:center;max-width:90vw}
 .toast.show{opacity:1}
 .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--cream) 40%);padding:14px 0 4px;display:flex;gap:10px}
 .savebar .btn{width:auto;flex:1}
-label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);font-size:14px;margin-bottom:6px}
+label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);font-size:14px;margin-bottom:6px}
 .logoprev{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);display:block;margin-bottom:10px}
-.chk{display:flex;align-items:center;gap:10px;font-family:'Cairo';font-weight:700;color:var(--maroon);margin-bottom:14px}
+.chk{display:flex;align-items:center;gap:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin-bottom:14px}
 .chk input{width:auto;margin:0;transform:scale(1.4)}
-.snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer}
+.snd{background:var(--gold);color:var(--maroon-dark);border:none;border-radius:8px;padding:8px 12px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+/* قائمة النغمة كانت تأخذ تنسيق حقول الإدخال العام (عرض ١٠٠٪ وحشو كبير) فتقفز
+   لسطر كامل بمفردها — نضبطها لتقف بجوار الأزرار بحجمها هي فقط. */
+#sndSel{width:auto;min-width:0;display:inline-block;padding:6px 8px;margin:0;font-size:12px;line-height:1.2;border-radius:8px;border:none;vertical-align:middle;height:auto}
 .sbtn.print{background:#e7f0ff;color:#2563c9}
 #printArea{display:none}
 @media print{ body>*:not(#printArea){display:none!important} #printArea{display:block!important;padding:6px} }
@@ -123,18 +142,18 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .scard{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(78,13,24,.06)}
 .scard .sic{font-size:22px}
-.scard .sval{font-size:24px;font-weight:900;color:#6e1423;font-family:'Cairo',sans-serif;margin:4px 0}
+.scard .sval{font-size:24px;font-weight:900;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif;margin:4px 0}
 .scard .slbl{font-size:13px;color:#666}
 .scard .ssub{font-size:12px;color:#999;margin-top:4px}
 .spanel{background:#fff;border:1px solid #ece3d5;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 4px 14px rgba(78,13,24,.06)}
-.spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:'Cairo',sans-serif}
+.spanel h3{font-size:16px;color:#6e1423;margin:0 0 14px;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .bars{display:flex;gap:5px;align-items:flex-end;height:170px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;max-width:100%}
 .barcol{flex:1 0 20px;min-width:20px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .barlbl{white-space:nowrap}
-.daterow{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:9px;padding:6px 10px;margin-bottom:14px;font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:700;color:#6e1423;width:fit-content;max-width:100%}
+.daterow{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff;border:1px solid #ece3d5;border-radius:9px;padding:6px 10px;margin-bottom:14px;font-size:12.5px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:#6e1423;width:fit-content;max-width:100%}
 .daterow label{color:#666;font-size:12px}
-.daterow input[type=date]{padding:4px 7px;border:1px solid #ddd;border-radius:7px;font-family:'Cairo',sans-serif;font-size:12px;max-width:132px}
-.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:5px 13px;border-radius:7px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12.5px}
+.daterow input[type=date]{padding:4px 7px;border:1px solid #ddd;border-radius:7px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12px;max-width:132px}
+.daterow button{background:linear-gradient(135deg,#c8962f,#e6c061);color:#4d0d18;border:none;padding:5px 13px;border-radius:7px;font-weight:700;cursor:pointer;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:12.5px}
 .barwrap{position:relative;width:100%;height:130px;display:flex;align-items:flex-end;justify-content:center;gap:3px}
 .bar{width:42%;border-radius:5px 5px 0 0;min-height:2px}
 .bar-v{background:linear-gradient(#c8962f,#e6c061)}
@@ -147,7 +166,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .funnel{display:flex;gap:8px;flex-wrap:wrap}
 .fstep{flex:1;min-width:110px;background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:12px;text-align:center}
 .fstep span{display:block;font-size:12px;color:#666}
-.fstep b{display:block;font-size:22px;color:#6e1423;font-family:'Cairo',sans-serif}
+.fstep b{display:block;font-size:22px;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .fstep small{color:#c8962f;font-weight:700}
 .stwo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:760px){.stwo{grid-template-columns:1fr}}
@@ -160,13 +179,35 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 .empty{color:#999;font-size:13px;padding:10px 0}
 .sgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
 .stbox{background:#faf5ec;border:1px solid #ece3d5;border-radius:10px;padding:10px;text-align:center}
-.stbox b{display:block;font-size:20px;color:#6e1423;font-family:'Cairo',sans-serif}
+.stbox b{display:block;font-size:20px;color:#6e1423;font-family:Calibri,'Segoe UI','Cairo',sans-serif}
 .stbox span{font-size:12px;color:#666}
+
+/* ===== صفحة العملاء ===== */
+.cst-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:12px}
+.cst-sum .b{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-align:center}
+.cst-sum .b .n{font-size:20px;font-weight:900;color:var(--maroon);line-height:1.3}
+.cst-sum .b .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.cst-bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cst-bar input{flex:1;min-width:170px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-size:14px}
+.cst-bar select{padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;font-size:13px}
+.cst-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.cst-card:hover{border-color:var(--gold)}
+.cst-card .av{width:40px;height:40px;border-radius:50%;background:#f7ecd8;color:var(--maroon);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex:none}
+.cst-card .mid{flex:1;min-width:0}
+.cst-card .nm{font-weight:900;color:var(--maroon-dark);font-size:15px}
+.cst-card .sb{font-size:12px;color:var(--muted);margin-top:2px}
+.cst-card .amt{text-align:left;font-weight:900;color:var(--maroon);font-size:15px;white-space:nowrap}
+.cst-card .amt span{display:block;font-size:11px;color:var(--muted);font-weight:700}
+.cst-tag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:50px;margin-inline-start:5px;vertical-align:middle}
+.cst-tag.rep{background:#e6f5ec;color:#12783a}
+.cst-tag.new{background:#f7ecd8;color:#8a6300}
+.cst-tag.gone{background:#fdecea;color:#b32d1f}
+.cst-ord{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:13px}
 </style>
 </head>
 <body>
-<div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
-<div id="failBar" onclick="stopFailAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:301;background:#b5460f;color:#fff;text-align:center;padding:15px;font-family:'Cairo';font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت</div>
+<div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
+<div id="failBar" onclick="stopFailAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:301;background:#b5460f;color:#fff;text-align:center;padding:15px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت</div>
 
 <div class="login" id="loginScreen">
   <form class="login-box" onsubmit="return doLogin(event)">
@@ -183,12 +224,13 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
   <div class="soundbar" id="soundbar" onclick="enableSound(true)">🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة</div>
   <header>
     <h1>🍽️ عهد الضيافة</h1>
-    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
+    <div class="right"><span class="dot"></span> مباشر <button class="snd" onclick="enableSound(true)">🔔 اختبار الصوت</button> <select class="snd" id="sndSel" title="نغمة التنبيه" onchange="setSound(this.value)"></select> <button class="snd" id="voiceBtn" onclick="toggleVoice()">🗣️ النطق</button> <button class="snd" onclick="stopSound()">⏹️ إيقاف</button> <button class="snd" onclick="testPush()">📲 اختبار الإشعار</button> <button class="snd" id="langBtn" onclick="toggleLang()">🌐 EN</button> <button class="sbtn done" onclick="logout()">خروج</button></div>
   </header>
   <div class="wrap">
     <div class="tabs">
       <div class="tab active" onclick="showView('orders',this)">📋 الطلبات <span class="badge" id="cntNew">0</span></div>
-      <div class="tab" onclick="showView('res',this)">📅 الحجوزات <span class="badge" id="cntRes">0</span></div>
+      <div class="tab" onclick="showView('res',this)">📅 الحجوزات والمؤجَّل <span class="badge" id="cntRes">0</span></div>
+      <div class="tab" onclick="showView('cust',this)">👥 العملاء <span class="badge" id="cntCust">0</span></div>
       <div class="tab" onclick="showView('menu',this)">🍲 المنيو</div>
       <div class="tab" onclick="showView('stats',this)">📊 الإحصائيات</div>
       <div class="tab" onclick="showView('settings',this)">⚙️ الإعدادات</div>
@@ -198,6 +240,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
       <div class="tabs">
         <div class="tab active" onclick="setOFilter('new',this)">الجديدة</div>
         <div class="tab" onclick="setOFilter('preparing',this)">قيد التحضير</div>
+        <div class="tab" onclick="setOFilter('unpaid',this)">لم يكتمل الدفع <span class="badge" id="cntUnpaid">0</span></div>
         <div class="tab" onclick="setOFilter('all',this)">الكل</div>
         <div class="tab" onclick="loadOrders()">🔄 تحديث</div>
       </div>
@@ -216,10 +259,36 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
       <div id="reservations"></div>
     </div>
 
+    <div class="view" id="view-cust">
+      <div id="custSummary" class="cst-sum"></div>
+      <div class="cst-bar">
+        <input id="custSearch" placeholder="🔎 ابحث باسم العميل أو رقمه" oninput="renderCustomers()">
+        <select id="custSort" onchange="renderCustomers()">
+          <option value="spent">الأكثر إنفاقاً</option>
+          <option value="count">الأكثر طلباً</option>
+          <option value="recent">آخر طلب</option>
+          <option value="gone">المنقطعون</option>
+        </select>
+        <button class="sbtn print" onclick="loadCustomers(1)">🔄 تحديث</button>
+      </div>
+      <div id="custList"></div>
+      <div id="custDetail" style="display:none"></div>
+    </div>
+
     <div class="view" id="view-menu">
       <div style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" style="background:#2563c9;width:auto;padding:11px 18px" onclick="exportMenu()">📥 تصدير المنيو (Excel)</button>
         <label class="btn" style="background:#9a6b00;width:auto;padding:11px 18px;cursor:pointer">📤 استيراد المنيو (Excel)<input type="file" accept=".xlsx,.xls" onchange="importMenu(this)" style="display:none"></label>
+      </div>
+      <div id="hiddenBar" style="display:none;background:#fdecea;border:1px solid #e2a49c;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="hiddenTxt" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:#c0392b;font-size:14px"></span>
+        <button class="btn" style="background:#1faa54;width:auto;padding:8px 16px;font-size:13px" onclick="showAllItems()">✅ إتاحة الكل للزبائن</button>
+        <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listHidden()">👁 عرض أسماءها</button>
+      </div>
+      <div id="noimgBar" style="display:none;background:#fff6e3;border:1px solid #e0c98a;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="noimgTxt" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:800;color:#8a6300;font-size:14px"></span>
+        <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listNoImg()">👁 عرض أسماءها</button>
+        <button class="btn" style="background:#2563c9;width:auto;padding:8px 16px;font-size:13px" onclick="copyNoImg()">📋 نسخ القائمة</button>
       </div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
@@ -233,26 +302,26 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <input type="file" accept="image/*" onchange="onLogoFile(this)">
         <label class="fld">رقم واتساب (دولي بدون +)</label>
         <input id="setWa" placeholder="9665xxxxxxxx">
-        <label class="fld">خصم الطلب المباشر — متدرّج حسب قيمة الطلب</label>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-family:'Cairo';font-size:13px;color:#444">
-          <span>الطلبات تحت</span>
-          <input id="setDiscTh" type="number" step="0.5" min="0" style="width:78px;margin:0" placeholder="8">
-          <span>د.ك خصمها</span>
-          <input id="setDiscLow" type="number" step="1" min="0" max="95" style="width:64px;margin:0" placeholder="10"><span>٪</span>
-          <span>— ومن الحد فأكثر</span>
-          <input id="setDiscHigh" type="number" step="1" min="0" max="95" style="width:64px;margin:0" placeholder="20"><span>٪</span>
-        </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:5px">مثال: تحت 8 د.ك = 10٪، ومن 8 د.ك فأكثر = 20٪</div>
+        <label class="fld">نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪</label>
+        <input id="setDisc" type="number" step="1" min="0" max="95" placeholder="10">
+        <label class="fld">الخصم المتدرّج — حدّ المبلغ (د.ك)، احط 0 لو مش عاوز تدرّج</label>
+        <input id="setDiscTh" type="number" step="0.001" min="0" placeholder="8">
+        <label class="fld">نسبة الخصم تحت الحدّ (٪)</label>
+        <input id="setDiscLow" type="number" step="1" min="0" max="95" placeholder="10">
+        <label class="fld">نسبة الخصم من الحدّ فأكثر (٪)</label>
+        <input id="setDiscHigh" type="number" step="1" min="0" max="95" placeholder="20">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
-        <label class="fld">مواعيد العمل (تظهر للعميل)</label>
+        <label class="fld">تنبيه الطلبات المؤجَّلة — كم دقيقة قبل موعد التسليم يصل التنبيه؟</label>
+        <input id="setSchedLead" type="number" step="15" min="5" max="1440" placeholder="120">
+        <div style="font-size:12px;color:var(--muted);margin-top:-4px;line-height:1.7">مثال: ١٢٠ تعني وصول التنبيه قبل الموعد بساعتين، ويتكرر التنبيه حتى تفتح لوحة التحكم.</div>
+        <label class="fld">مواعيد العمل — نطاق أو أكثر (هي اللي تظهر للعميل وتحدّد «مغلق حالياً»)</label>
         <div id="hoursBox"></div>
         <button class="addbtn" onclick="addHour()" style="margin-top:4px">+ إضافة موعد</button>
-        <label class="fld" style="margin-top:16px">وقت الفتح والإغلاق (لتنبيه العميل لو دخل خارج أوقات العمل)</label>
-        <div style="display:flex;gap:10px;align-items:center">
-          <span style="font-family:'Cairo';font-weight:700">من</span><input id="setOpen" type="time" style="flex:1;margin:0">
-          <span style="font-family:'Cairo';font-weight:700">إلى</span><input id="setClose" type="time" style="flex:1;margin:0">
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">
+          هذه النطاقات نفسها هي التي تظهر للعميل <b>و</b> التي يُحدَّد بها تنبيه «المطعم مغلق حاليًا» — ولا يوجد مكان آخر للمواعيد.<br>
+          تقدر تحط نطاق واحد لكل الأسبوع، أو نطاق للسبت - الخميس ونطاق تاني للجمعة. لو الإغلاق بعد منتصف الليل اكتبه عادي (مثلاً من ١٢:٠٠ إلى ٠٢:٠٠).<br>
+          لو مسحت كل النطاقات: قسم أوقات العمل مش هيظهر للعميل، والتنبيه مش هيشتغل.
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px">سيبهم فاضيين لو عايز تشيل التنبيه. العميل يقدر يطلب ويحجز في كل الأوقات.</div>
       </div>
       <div class="card">
         <label class="fld">مناطق التوصيل — الرسوم والحد الأدنى لكل منطقة (بالدينار)</label>
@@ -262,6 +331,30 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
         <button class="addbtn" onclick="addArea()" style="margin-top:8px">+ إضافة منطقة</button>
       </div>
       <div class="savebar"><button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button></div>
+
+      <div class="card">
+        <label class="fld">تجربة التنبيهات</label>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:8px">
+          اضغط أي حالة لتسمع تنبيهها كما سيصلك تمامًا: النطق العربي أولاً ثم الجرس.
+          يتوقف وحده بعد تسع ثوانٍ، أو أوقفه من زر «إيقاف» بالأعلى.
+        </div>
+        <div style="margin-bottom:9px"><span style="font-weight:800;color:var(--maroon);font-size:13px">صوت النطق: </span><select id="vStyleSel" onchange="setVoiceStyle(this.value)" style="width:auto;display:inline-block;padding:6px 9px;margin:0;font-size:13px;border-radius:8px"></select></div>
+        <div id="alertTestBox"></div>
+      </div>
+
+      <div class="card" style="border:1.5px solid #e2a49c;background:#fffaf9">
+        <label class="fld" style="color:#a2333f">إلغاء الطلبات التجريبية</label>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:8px">
+          اكتب رقم الهاتف المستخدم في الطلبات التجريبية، ثم اعرض المطابق قبل الإلغاء.
+          الإلغاء يغيّر حالة الطلب إلى «ملغي» فيخرج من القوائم والإحصائيات، ويبقى محفوظًا في السجل ويمكن التراجع عنه.
+        </div>
+        <input id="tstPhone" placeholder="مثال: 51080031" inputmode="numeric">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="sbtn print" onclick="findTestOrders()">🔎 عرض المطابق</button>
+          <button class="sbtn cancel" id="tstBtn" onclick="cancelTestOrders()" style="display:none">✖️ إلغاء الكل</button>
+        </div>
+        <div id="tstBox" style="margin-top:9px"></div>
+      </div>
     </div>
 
     <div class="view" id="view-stats">
@@ -299,7 +392,7 @@ label.fld{display:block;font-family:'Cairo';font-weight:700;color:var(--maroon);
 <div id="printArea"></div>
 
 <script>
-let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null, seenFail=new Set(), failAlarmTimer=null;
+let KEY="", ofilter="new", orders=[], reservations=[], seen=new Set(), audioCtx=null, soundOn=false, first=true, DATA={menu:[],settings:{}}, resSeen=new Set(), resFirst=true, rfilter="today", alarmTimer=null, seenFail=new Set(), failAlarmTimer=null, seenPend=new Set();
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function esc(s){return (''+(s==null?'':s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -319,19 +412,220 @@ function doLogin(e){
     enableSound(false);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
-    loadMenuData(); loadOrders(); loadReservations();
-    setInterval(loadOrders,6000); setInterval(loadReservations,12000);
+    fillSounds(); fillVStyle(); updVoiceBtn(); renderAlertTests(); applyLangShell();
+    try{ speechSynthesis.onvoiceschanged=function(){updVoiceBtn();}; }catch(_){}
+    loadMenuData(); loadOrders(); loadReservations(); loadCustomers();
+    /* اللوحة كانت تسأل السيرفر كل ٦ ثوانٍ طوال الوقت حتى والشاشة مطفأة أو التبويب
+       في الخلفية، وهذا وحده كان يستهلك حصة التشغيل بلا فائدة. الآن نسأل فقط
+       والأدمن ينظر إلى اللوحة، ونحدّث فورًا لحظة عودته إليها. */
+    setInterval(function(){if(document.visibilityState==='visible')loadOrders();},6000);
+    setInterval(function(){if(document.visibilityState==='visible')loadReservations();},30000);
+    document.addEventListener('visibilitychange',function(){
+      if(document.visibilityState==='visible'){loadOrders();loadReservations();ackServer(1);}
+    });
+    /* السجل الكامل يُحمَّل مرة عند الدخول؛ بعدها يبقى العدّاد حيًّا من دورة الطلبات. */
   }).catch(()=>{document.getElementById('loginErr').textContent="خطأ في الاتصال";});
   return false;
 }
 function logout(){try{sessionStorage.removeItem('ak');}catch(_){}; location.reload();}
 
+
+/* ===== صفحة العملاء: تُبنى من الطلبات نفسها — من غير جدول جديد =====
+   المفتاح هو رقم التليفون (آخر ٨ أرقام) عشان صيغ الكتابة تختلف: 965.. / 00965.. / بدون. */
+let CUST=[], custLoaded=false, custRaw=[], CUSTX={};
+function normPhone(p){const d=String(p||'').replace(/\D/g,'');return d.length>8?d.slice(-8):d;}
+/* تاريخ الطلب مخزَّن كنص ISO، وقراءته كرقم كانت ترجع NaN — فكان تاريخ آخر طلب
+   يظهر «—» وتظهر لكل العملاء لافتة «منقطع منذ 999 يومًا». نقرأ الصيغتين هنا. */
+function tms(v){
+  if(v==null||v==='')return 0;
+  const n=Number(v); if(isFinite(n)&&n>0)return n;
+  const t=Date.parse(v); return isFinite(t)?t:0;
+}
+function waNum(p){const d=String(p||'').replace(/\D/g,'');return d.length===8?('965'+d):d;}
+function dayDiff(ms){return Math.floor((Date.now()-ms)/86400000);}
+function fmtD(ms){try{return toEn(new Date(ms).toLocaleDateString('ar-KW',{day:'2-digit',month:'2-digit',year:'2-digit'}));}catch(_){return '';}}
+const CST_DEAD={cancelled:1,failed:1,pending:1};
+function buildCustomers(list){
+  const map=new Map();
+  (list||[]).forEach(function(o){
+    const k=normPhone(o.phone); if(!k)return;
+    let c=map.get(k);
+    if(!c){c={key:k,phone:o.phone||'',name:'',area:'',address:'',orders:[],spent:0,paid:0,first:0,last:0};map.set(k,c);}
+    c.orders.push(o);
+    const t=tms(o.createdAt);
+    if(t&&(!c.last||t>c.last)){c.last=t;c.name=o.name||c.name;c.area=o.area||c.area;c.address=o.address||c.address;c.phone=o.phone||c.phone;}
+    if(t&&(!c.first||t<c.first))c.first=t;
+    if(!CST_DEAD[o.status]){c.spent+=Number(o.total)||0;c.paid++;}
+  });
+  const arr=[...map.values()];
+  arr.forEach(function(c){
+    c.orders.sort(function(a,b){return tms(b.createdAt)-tms(a.createdAt);});
+    c.avg=c.paid?c.spent/c.paid:0;
+    c.gap=c.last?dayDiff(c.last):null;          /* null = تاريخ غير معروف، وليس ٩٩٩ يومًا */
+    /* البيانات المحفوظة يدويًا تَغلب على المستخرَجة من آخر طلب */
+    const x=CUSTX[c.key];
+    c.note='';c.edited=false;
+    if(x){c.edited=true;if(x.name)c.name=x.name;if(x.area)c.area=x.area;if(x.address)c.address=x.address;c.note=x.note||'';}
+  });
+  return arr;
+}
+/* الانتقال من الطلب إلى ملف صاحبه مباشرة */
+function openCustFromOrder(phone){
+  const k=normPhone(phone); if(!k)return;
+  document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(function(t){
+    t.classList.remove('active');
+    if((t.textContent||'').indexOf('العملاء')>=0)t.classList.add('active');
+  });
+  document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('view-cust').classList.add('active');
+  if(custLoaded)openCustomer(k); else loadCustomers(0,function(){openCustomer(k);});
+}
+function loadCustomers(force,cb){
+  if(custLoaded&&!force){renderCustomers();if(cb)cb();return;}
+  document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">جاري التحميل…</div>';
+  Promise.all([
+    fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}),
+    fetch('/api/customers',{headers:akHdr()}).then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(a){
+    const d=a[0]||{};
+    CUSTX=(a[1]&&a[1].customers)||{};
+    custRaw=(d&&d.orders)||[]; CUST=buildCustomers(custRaw); custLoaded=true; renderCustomers(); retranslate(); if(cb)cb();
+  }).catch(function(){document.getElementById('custList').innerHTML='<div style="padding:18px;text-align:center;color:#b32d1f">تعذّر تحميل العملاء، يرجى الضغط على تحديث</div>';});
+}
+function renderCustomers(){
+  document.getElementById('custDetail').style.display='none';
+  document.getElementById('custList').style.display='';
+  const q=(document.getElementById('custSearch').value||'').trim().toLowerCase();
+  const sort=document.getElementById('custSort').value;
+  const rep=CUST.filter(function(c){return c.paid>=2;}).length;
+  const totalSpent=CUST.reduce(function(a,c){return a+c.spent;},0);
+  const totalPaid=CUST.reduce(function(a,c){return a+c.paid;},0);
+  document.getElementById('cntCust').textContent=CUST.length;
+  document.getElementById('custSummary').innerHTML=
+     bx(CUST.length,'عميل')
+    +bx(CUST.length?Math.round(100*rep/CUST.length)+'%':'—','عملاء متكررين')
+    +bx(CUST.length?(totalPaid/CUST.length).toFixed(1):'—','متوسط الطلبات للعميل')
+    +bx(totalPaid?(totalSpent/totalPaid).toFixed(3):'—','متوسط قيمة الطلب');
+  let arr=CUST.slice();
+  if(q)arr=arr.filter(function(c){return (c.name||'').toLowerCase().indexOf(q)>=0||String(c.phone||'').indexOf(q)>=0||c.key.indexOf(q)>=0;});
+  if(sort==='spent')arr.sort(function(a,b){return b.spent-a.spent;});
+  else if(sort==='count')arr.sort(function(a,b){return b.paid-a.paid||b.spent-a.spent;});
+  else if(sort==='recent')arr.sort(function(a,b){return b.last-a.last;});
+  else arr.sort(function(a,b){return (b.paid>=2?1:0)-(a.paid>=2?1:0)||((b.gap==null?-1:b.gap)-(a.gap==null?-1:a.gap));});
+  document.getElementById('custList').innerHTML=arr.length?arr.map(function(c){
+    const tag=c.paid>=2?((c.gap!=null&&c.gap>30)?'<span class="cst-tag gone">منقطع منذ '+c.gap+' يومًا</span>':'<span class="cst-tag rep">متكرر ×'+c.paid+'</span>')
+                       :'<span class="cst-tag new">أول طلب</span>';
+    return '<div class="cst-card" onclick="openCustomer(\''+c.key+'\')">'
+      +'<div class="av">'+esc((c.name||'؟').trim().charAt(0)||'؟')+'</div>'
+      +'<div class="mid"><div class="nm">'+esc(c.name||'بدون اسم')+tag+'</div>'
+      +'<div class="sb">'+esc(c.phone||'')+' • '+esc(c.area||'—')+' • آخر طلب '+(c.last?fmtD(c.last):'—')+'</div></div>'
+      +'<div class="amt">'+c.spent.toFixed(3)+'<span>'+c.paid+' طلب</span></div></div>';
+  }).join(''):'<div style="padding:18px;text-align:center;color:var(--muted)">لا يوجد عملاء مطابقون</div>';
+}
+function bx(n,l){return '<div class="b"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';}
+function openCustomer(k,retried){
+  const c=CUST.find(function(x){return x.key===k;});
+  if(!c){ if(!retried){loadCustomers(1,function(){openCustomer(k,1);});} return; }
+  const rows=c.orders.map(function(o){
+    const dead=CST_DEAD[o.status];
+    const items=(o.lines&&o.lines.length)?o.lines.map(function(l){return esc(l.name)+' ×'+l.qty+(l.note?(' <span style="color:#a2333f">📝 '+esc(l.note)+'</span>'):'');}).join('، ')
+                :esc(String(o.items||'—'));
+    return '<div class="cst-ord"><div style="display:flex;justify-content:space-between;gap:8px">'
+      +'<b>'+fmtD(o.createdAt)+' — طلب '+esc(String(o.no||o.id))+'</b>'
+      +'<b style="color:'+(dead?'#b32d1f':'#6e1423')+'">'+(Number(o.total)||0).toFixed(3)+' د.ك'+(dead?' (ملغي)':'')+'</b></div>'
+      +'<div style="color:var(--muted);margin-top:3px;line-height:1.8">'+items+'</div>'
+      +(o.scheduledFor?'<div style="color:#7a5c00;font-weight:800;margin-top:3px">⏰ كان مؤجَّلًا — '+esc(fmtSched(o.scheduledFor))+'</div>':'')
+      +(o.note?'<div style="color:#a2333f;font-weight:800;margin-top:3px">📝 '+esc(o.note)+'</div>':'')
+      +'<div style="margin-top:5px"><button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ طباعة</button></div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('custList').style.display='none';
+  const d=document.getElementById('custDetail');
+  d.style.display='';
+  d.innerHTML='<button class="sbtn done" onclick="renderCustomers()" style="margin-bottom:10px">← العودة إلى قائمة العملاء</button>'
+    +'<div style="background:#fff;border:1px solid var(--line);border-right:5px solid var(--gold);border-radius:12px;padding:13px 15px;margin-bottom:12px">'
+    +'<div style="font-size:19px;font-weight:900;color:var(--maroon)">'+esc(c.name||'بدون اسم')+'</div>'
+    +'<div style="color:var(--muted);margin-top:4px;line-height:1.9">📞 '+esc(c.phone||'—')+'<br>📍 '+esc(c.area||'—')+(c.address?(' — '+esc(c.address)):'')+'</div>'
+    +'<div style="margin-top:9px">'+bx(c.paid,'طلب مدفوع')+'</div>'
+    +'<div class="cst-sum" style="margin-top:9px">'
+      +bx(c.spent.toFixed(3),'إجمالي إنفاقه')
+      +bx(c.avg.toFixed(3),'متوسط الطلب')
+      +bx(c.first?fmtD(c.first):'—','أول طلب')
+      +bx(c.gap!=null?(c.gap+' يومًا'):'—','منذ آخر طلب')
+    +'</div>'
+    +(c.note?'<div style="margin-top:10px;background:#fff8e7;border:1px solid #eddca5;border-radius:9px;padding:8px 11px;color:#7a5c00;font-weight:700">📝 '+esc(c.note)+'</div>':'')
+    +'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
+      +'<button class="sbtn print" onclick="editCustomer(\''+c.key+'\')">✏️ تعديل البيانات</button>'
+      +'<a class="sbtn deliver" style="text-decoration:none" target="_blank" href="https://wa.me/'+waNum(c.phone)+'">📲 واتساب</a>'
+      +'<a class="sbtn print" style="text-decoration:none" href="tel:'+esc(c.phone||'')+'">📞 اتصال</a>'
+    +'</div>'
+    +'<div id="custEditBox" style="display:none;margin-top:11px"></div>'
+    +'</div>'
+    +'<div style="font-weight:900;color:var(--maroon);margin-bottom:7px">طلباته السابقة ('+c.orders.length+')</div>'
+    +rows;
+}
+
+/* ===== تعديل بيانات العميل =====
+   الاسم والمنطقة والعنوان تُؤخذ تلقائيًا من آخر طلب، وما يُحفظ هنا يَغلب عليها
+   ويبقى ثابتًا مهما تغيّرت الطلبات. رقم الهاتف هو مفتاح تجميع الطلبات فلا يُعدَّل. */
+function cxFld(lbl,id,val,ml,ta){
+  return '<label style="display:block;margin-bottom:9px">'
+    +'<span style="display:block;font-weight:800;color:var(--maroon);font-size:13px;margin-bottom:4px">'+lbl+'</span>'
+    +(ta?('<textarea id="'+id+'" rows="2" maxlength="'+ml+'" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;min-height:44px">'+esc(val||'')+'</textarea>')
+        :('<input id="'+id+'" maxlength="'+ml+'" value="'+esc(val||'')+'" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;min-height:44px">'))
+    +'</label>';
+}
+function editCustomer(k){
+  const c=CUST.find(function(x){return x.key===k;}); if(!c)return;
+  const box=document.getElementById('custEditBox'); if(!box)return;
+  box.innerHTML='<div style="background:#faf7f2;border:1px solid var(--line);border-radius:11px;padding:12px 13px">'
+    +cxFld('الاسم','cxName',c.name,80,0)
+    +cxFld('المنطقة','cxArea',c.area,60,0)
+    +cxFld('العنوان','cxAddr',c.address,300,0)
+    +cxFld('ملاحظة خاصة (تظهر لك في اللوحة فقط)','cxNote',c.note,400,1)
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">'
+      +'<button class="sbtn done" id="cxSave" onclick="saveCustomer(\''+k+'\')">💾 حفظ</button>'
+      +'<button class="sbtn" onclick="openCustomer(\''+k+'\')">إلغاء</button>'
+    +'</div>'
+    +'<div style="color:var(--muted);font-size:12px;margin-top:8px;line-height:1.7">رقم الهاتف <b>'+esc(c.phone||'')+'</b> هو المُعرِّف الذي تُجمَع به طلبات العميل، ولذلك لا يُعدَّل من هنا.<br>ترك الحقول فارغة يُعيد البيانات المأخوذة تلقائيًا من آخر طلب.</div>'
+    +'</div>';
+  box.style.display='';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const f=document.getElementById('cxName'); if(f)f.focus();
+}
+function saveCustomer(k){
+  const btn=document.getElementById('cxSave');
+  const g=function(id){const e=document.getElementById(id);return e?e.value:'';};
+  const body={key:k,name:g('cxName'),area:g('cxArea'),address:g('cxAddr'),note:g('cxNote')};
+  if(btn){btn.disabled=true;btn.textContent='… جارٍ الحفظ';}
+  fetch('/api/customers',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},akHdr()),body:JSON.stringify(body)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||d.error){toast('تعذّر حفظ بيانات العميل');if(btn){btn.disabled=false;btn.textContent='💾 حفظ';}return;}
+      if(d.cleared)delete CUSTX[k]; else CUSTX[k]=d.customer;
+      CUST=buildCustomers(custRaw);
+      toast('تم حفظ بيانات العميل');
+      openCustomer(k);
+    })
+    .catch(function(){toast('تعذّر حفظ بيانات العميل');if(btn){btn.disabled=false;btn.textContent='💾 حفظ';}});
+}
+
+/* الانتقال إلى تبويب الطلبات من بطاقة الطلب المؤجَّل */
+function goOrders(){
+  let el=null;
+  document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(function(t){
+    if(!el&&(t.textContent||'').indexOf('الطلبات')>=0)el=t;
+  });
+  showView('orders',el);
+}
 function showView(v,el){
+  retranslate();
   document.querySelectorAll('#app > .wrap > .tabs > .tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   if(v==='stats')initStats();
+  if(v==='cust')loadCustomers();
 }
 
 /* ===== الصوت (متين) ===== */
@@ -379,47 +673,320 @@ async function subscribePush(){
       if(!j||!j.publicKey)return;
       sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(j.publicKey)});
     }
-    await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',subscription:sub})});
+    await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'subscribe',subscription:sub})});
   }catch(_){}
 }
-function beep(){
+/* إشعار تجريبي — للتأكد أن التنبيهات تصل فعلاً إلى الجهاز، وليس أن السيرفر أرسلها فقط */
+function testPush(){
+  if(!KEY){toast('سجّل الدخول أولًا');return;}
+  fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'test'})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      const s=d&&d.sent;
+      if(!s){toast('تعذّر إرسال الإشعار التجريبي');return;}
+      if(!s.total){toast('لا يوجد جهاز مشترك — اضغط «اختبار الصوت» واسمح بالإشعارات، ثم أعد المحاولة');return;}
+      if(s.ok)toast('أُرسل إشعار تجريبي إلى '+s.ok+' من '+s.total+' جهاز — يفترض أن يصلك الآن');
+      else toast('فشل الإرسال إلى كل الأجهزة المسجّلة ('+s.total+') — أعد السماح بالإشعارات');
+    })
+    .catch(function(){toast('تعذّر إرسال الإشعار التجريبي');});
+}
+
+/* ===== الإنجليزية في اللوحة =====
+   اللوحة مكتوبة بالعربية في مئات المواضع، فبدل تعديل كل موضع نترجم النص المعروض
+   نفسه بعد كل رسم: نمرّ على نصوص الصفحة ونستبدل ما يطابق قاموس الواجهة تطابقًا
+   كاملاً فقط — فأسماء العملاء والأصناف والملاحظات تبقى كما كتبها أصحابها. */
+const EN={
+"الأكثر إنفاقاً":"Top spenders","آخر طلب":"Last order","• آخر طلب":"• Last order",
+"📥 تصدير المنيو (Excel)":"📥 Export menu (Excel)","📤 استيراد المنيو (Excel)":"📤 Import menu (Excel)",
+"✅ إتاحة الكل للزبائن":"✅ Make everything available","👁 عرض أسماءها":"👁 Show names","📋 نسخ القائمة":"📋 Copy list",
+"💾 حفظ المنيو":"💾 Save menu","سيظهر:":"Will show:","الكل:":"All:","اليوم:":"Today:","الزبون:":"Customer:",
+"نسبة خصم الطلب المباشر (٪) — اكتب الرقم فقط، مثلاً 10 = ١٠٪":"Direct-order discount (%) — number only, e.g. 10 = 10%",
+"تنبيه الطلبات المؤجَّلة — كم دقيقة قبل موعد التسليم يصل التنبيه؟":"Scheduled-order reminder — how many minutes before delivery?",
+"مثال: ١٢٠ تعني وصول التنبيه قبل الموعد بساعتين، ويتكرر التنبيه حتى تفتح لوحة التحكم.":"Example: 120 means the reminder arrives two hours ahead, and repeats until you open the panel.",
+"مواعيد العمل — نطاق أو أكثر (هي اللي تظهر للعميل وتحدّد «مغلق حالياً»)":"Opening hours — one or more ranges (shown to customers and used for the closed-now notice)",
+"هذه النطاقات نفسها هي التي تظهر للعميل":"These same ranges are what customers see",
+"التي يُحدَّد بها تنبيه «المطعم مغلق حاليًا» — ولا يوجد مكان آخر للمواعيد.":"and what drives the closed-now notice — there is no other place for hours.",
+"تقدر تحط نطاق واحد لكل الأسبوع، أو نطاق للسبت - الخميس ونطاق تاني للجمعة. لو الإغلاق بعد منتصف الليل اكتبه عادي (مثلاً من ١٢:٠٠ إلى ٠٢:٠٠).":"You can set one range for the whole week, or one for Sat-Thu and another for Friday. If closing runs past midnight, enter it normally (e.g. 12:00 to 02:00).",
+"لو مسحت كل النطاقات: قسم أوقات العمل مش هيظهر للعميل، والتنبيه مش هيشتغل.":"If you clear every range, the hours section is hidden from customers and the closed-now notice stops working.",
+"اكتب رقم الهاتف المستخدم في الطلبات التجريبية، ثم اعرض المطابق قبل الإلغاء. الإلغاء يغيّر حالة الطلب إلى «ملغي» فيخرج من القوائم والإحصائيات، ويبقى محفوظًا في السجل ويمكن التراجع عنه.":"Enter the phone used for the test orders, then review the matches before cancelling. Cancelling sets the status to Cancelled so it leaves the lists and analytics, while the record stays and can be reversed.",
+"رقم الهاتف":"Phone number","الحالة":"Status","الإجمالي":"Total","المجموع":"Subtotal","الأصناف":"Items",
+"ملاحظات العميل":"Customer notes","ملاحظة":"Note","طلباته السابقة":"Previous orders",
+"مباشر":"Live","🔔 اختبار الصوت":"🔔 Test sound","⏹️ إيقاف":"⏹️ Stop","🗣️ النطق":"🗣️ Voice",
+"🗣️ النطق: مُفعَّل":"🗣️ Voice: on","🔇 النطق: موقوف":"🔇 Voice: off","📲 اختبار الإشعار":"📲 Test notification",
+"خروج":"Log out","دخول":"Log in","كلمة السر":"Password","لوحة تحكم عهد الضيافة":"Ahd Al-Diyafa Admin",
+"أدخل كلمة السر للدخول":"Enter your password to continue","خطأ في الاتصال":"Connection error",
+"🔇 اضغط هنا لتفعيل صوت التنبيه للطلبات الجديدة":"🔇 Tap here to enable the new-order alert sound",
+"🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه":"🔔 New order! Tap here to stop the sound",
+"💳 طلب فشل دفعه! عميل حاول يدفع ولم يكتمل — اضغط هنا لإيقاف الصوت":"💳 A payment failed — tap here to stop the sound",
+"📋 الطلبات":"📋 Orders","📅 الحجوزات والمؤجَّل":"📅 Bookings & scheduled","👥 العملاء":"👥 Customers",
+"🍲 المنيو":"🍲 Menu","📊 الإحصائيات":"📊 Analytics","⚙️ الإعدادات":"⚙️ Settings",
+"الجديدة":"New","قيد التحضير":"Preparing","الكل":"All","🔄 تحديث":"🔄 Refresh",
+"اليوم":"Today","القادمة":"Upcoming","منتهية/ملغاة":"Past / cancelled",
+"طلب جديد":"New order","في الطريق 🛵":"On the way 🛵","مكتمل":"Completed","بانتظار الدفع":"Awaiting payment",
+"واتساب — بانتظار التأكيد":"WhatsApp — awaiting confirmation","فشل الدفع":"Payment failed","ملغي":"Cancelled",
+"جاهز للاستلام 🛍️":"Ready for pickup 🛍️","دفع لم يكتمل — محاولة متروكة":"Payment not completed — abandoned attempt",
+"طلب مؤجَّل":"Scheduled order","جديد":"New","مؤكد":"Confirmed","تم":"Done",
+"✅ أكّد الطلب":"✅ Confirm order","👨‍🍳 قيد التحضير":"👨‍🍳 Preparing","🛵 في الطريق":"🛵 On the way",
+"✅ مكتمل":"✅ Completed","✖️ إلغاء":"✖️ Cancel","إلغاء":"Cancel","✅ تأكيد":"✅ Confirm","✔️ تم":"✔️ Done",
+"🖨️ فاتورة":"🖨️ Invoice","👨‍🍳 تذكرة المطبخ":"👨‍🍳 Kitchen ticket","🖨️ طباعة":"🖨️ Print",
+"📲 رسالة تتبع":"📲 Tracking message","🚗 تجهيزة السائق":"🚗 Driver handover","👤 ملف العميل":"👤 Customer profile",
+"📋 فتحه في الطلبات":"📋 Open in orders","✏️ تعديل البيانات":"✏️ Edit details","💾 حفظ":"💾 Save",
+"📲 واتساب":"📲 WhatsApp","📞 اتصال":"📞 Call","← العودة إلى قائمة العملاء":"← Back to customers",
+"🔎 ابحث باسم العميل أو رقمه":"🔎 Search by customer name or number","لا يوجد عملاء مطابقون":"No matching customers",
+"عميل":"Customers","عملاء متكررين":"Repeat customers","متوسط الطلبات للعميل":"Orders per customer",
+"متوسط قيمة الطلب":"Average order value","طلب مدفوع":"Paid orders","إجمالي إنفاقه":"Total spent",
+"متوسط الطلب":"Average order","أول طلب":"First order","منذ آخر طلب":"Since last order","بدون اسم":"No name",
+"الاسم":"Name","المنطقة":"Area","العنوان":"Address","الهاتف":"Phone","العميل":"Customer","التاريخ":"Date",
+"ملاحظة خاصة (تظهر لك في اللوحة فقط)":"Private note (visible to you only)",
+"تم حفظ بيانات العميل":"Customer details saved","تعذّر حفظ بيانات العميل":"Could not save customer details",
+"لا توجد طلبات":"No orders","لا توجد حجوزات ولا طلبات مؤجَّلة في هذا القسم":"No bookings or scheduled orders here",
+"لا توجد حجوزات لهذا اليوم":"No bookings today","لا توجد حجوزات ولا طلبات مؤجَّلة لهذا اليوم":"Nothing scheduled for today",
+"ارتباطات اليوم":"Today's commitments","جارٍ التحميل…":"Loading…","جاري التحميل…":"Loading…",
+"التاريخ غير محدد — يُرجى الاتصال بالعميل":"No date set — please call the customer",
+"زيارات":"Visits","مشاهدات":"Page views","طلبات مدفوعة":"Paid orders","الأكثر طلباً":"Most ordered",
+"آخر 7 أيام":"Last 7 days","آخر 30 يوم":"Last 30 days","آخر 3 شهور":"Last 3 months","الشهر الحالي":"This month",
+"من":"From","إلى":"To","تطبيق":"Apply","٢٤ ساعة":"24 hours","يومياً":"Daily","أسبوعياً":"Weekly",
+"إنذار قوي":"Loud alarm","جرس كلاسيكي":"Classic bell","ثلاثي متلاحق":"Rapid triple","صفارة متدرجة":"Rising siren",
+"نغمة مزدوجة":"Double chime","رنين هادئ":"Soft ring","نغمة التنبيه":"Alert tone",
+"شعار المطعم (لوجو)":"Restaurant logo","رقم واتساب (دولي بدون +)":"WhatsApp number (international, no +)",
+"💾 حفظ الإعدادات":"💾 Save settings","+ إضافة منطقة":"+ Add area","+ إضافة موعد":"+ Add time range",
+"+ إضافة قسم جديد":"+ Add section","+ إضافة مجموعة خيارات":"+ Add option group","قسم جديد":"New section",
+"منطقة جديدة":"New area","اسم الصنف":"Item name","اسم الطبق":"Dish name","الوصف":"Description",
+"السعر (د.ك)":"Price (KWD)","سعر إضافي":"Extra price","رفع صورة":"Upload image","حذف الصنف":"Delete item",
+"إلغاء الطلبات التجريبية":"Cancel test orders","🔎 عرض المطابق":"🔎 Show matches","✖️ إلغاء الكل":"✖️ Cancel all",
+"تفعيل خيار الاستلام من المطعم":"Enable pickup from the restaurant","الحد الأدنى":"Minimum","حد أدنى":"Minimum",
+"رسوم التوصيل":"Delivery fee","وقت التوصيل":"Delivery time","رقم الفاتورة":"Invoice no.","الخصم":"Discount",
+"الاستلام":"Fulfilment","توصيل":"Delivery","🛵 توصيل":"🛵 Delivery","🏠 استلام من المطعم":"🏠 Pickup",
+"استلام من المطعم":"Pickup","واتساب":"WhatsApp","💬 واتساب":"💬 WhatsApp","📷 إنستجرام":"📷 Instagram",
+"👻 سناب شات":"👻 Snapchat","🎵 تيك توك":"🎵 TikTok","👍 فيسبوك":"👍 Facebook","🔍 جوجل":"🔍 Google",
+"🌐 أخرى":"🌐 Other","🔗 مباشر":"🔗 Direct","الأحد":"Sunday","الاثنين":"Monday","الثلاثاء":"Tuesday",
+"الأربعاء":"Wednesday","الخميس":"Thursday","الجمعة":"Friday","السبت":"Saturday","منتصف الليل":"Midnight",
+"(يمتد بعد منتصف الليل)":"(runs past midnight)","صنف":"item","طلبات":"orders","يومًا":"days","دقيقة":"minutes",
+"د.ك":"KWD","المنقطعون":"Lapsed","الخيارات":"Options","الاختيارات":"Choices","اسم الاختيار":"Choice name",
+"الإضافات":"Add-ons","سلال (أشخاص)":"Platters (people)","وجبات كومبو":"Combo meals","الجانب":"Side",
+"طلبات جديدة":"new orders","طلبات حجز":"booking requests","طلب حجز جديد":"New booking request",
+"… جارٍ الحفظ":"… Saving","❌ فشل الحفظ":"❌ Save failed","❌ الملف فاضي":"❌ Empty file",
+"تعذّر إرسال الإشعار التجريبي":"Could not send the test notification","سجّل الدخول أولًا":"Log in first"
+};
+let LANG=(function(){try{return localStorage.getItem('ahd_lang')==='en'?'en':'ar';}catch(_){return 'ar';}})();
+function updLangBtn(){const b=document.getElementById('langBtn');if(b)b.textContent=LANG==='en'?'🌐 عربي':'🌐 EN';}
+function toggleLang(){
+  LANG=(LANG==='en')?'ar':'en';
+  try{localStorage.setItem('ahd_lang',LANG);}catch(_){}
+  location.reload();                       /* أبسط وأأمن من محاولة عكس الترجمة */
+}
+function translateDOM(root){
+  if(LANG!=='en')return;
+  try{
+    const w=document.createTreeWalker(root||document.body,NodeFilter.SHOW_TEXT,null);
+    const ns=[]; while(w.nextNode())ns.push(w.currentNode);
+    ns.forEach(function(n){
+      const k=n.nodeValue.trim();
+      if(k&&EN[k])n.nodeValue=n.nodeValue.replace(k,EN[k]);
+    });
+    ['placeholder','title'].forEach(function(at){
+      document.querySelectorAll('['+at+']').forEach(function(e){
+        const k=(e.getAttribute(at)||'').trim();
+        if(k&&EN[k])e.setAttribute(at,EN[k]);
+      });
+    });
+  }catch(_){}
+}
+function applyLangShell(){
+  updLangBtn();
+  if(LANG==='en'){
+    document.documentElement.setAttribute('lang','en');
+    document.documentElement.setAttribute('dir','ltr');
+    document.title='Ahd Al-Diyafa Admin';
+  }
+  translateDOM();
+}
+/* كل رسم جديد يمرّ على المترجم — بدونه تعود البطاقات المرسومة عربية */
+function retranslate(){ if(LANG==='en')setTimeout(function(){translateDOM();},0); }
+
+/* ===== أصوات التنبيه =====
+   المشكلة السابقة: كل رنّة تجدول عشر نغمات على مدى ٤٫٥ ثانية، وإيقاف المؤقّت
+   لا يلغي النغمات المجدولة — فيفضل الصوت شغّالًا بعد الضغط على زر الإيقاف
+   ويبدو كأن الزر لا يعمل. الآن نحتفظ بكل نغمة مجدولة ونوقفها فورًا. */
+const SOUNDS={
+  siren:  {n:'إنذار قوي',    seq:[1000,1400],              type:'square',   c:16, gap:0.26, len:0.24, h:3},
+  classic:{n:'جرس كلاسيكي',  seq:[880,1245],               type:'square',   c:12, gap:0.42, len:0.38, h:3},
+  triple: {n:'ثلاثي متلاحق', seq:[1175,1568,1976,0],        type:'square',   c:20, gap:0.16, len:0.14, h:2},
+  rise:   {n:'صفارة متدرجة', seq:[700,950,1200,1500,1800],  type:'sawtooth', c:20, gap:0.18, len:0.17, h:2},
+  double: {n:'نغمة مزدوجة',  seq:[1046,1318,0,1046,1318],   type:'sine',     c:14, gap:0.28, len:0.24, h:3},
+  soft:   {n:'رنين هادئ',    seq:[660,880],                type:'sine',     c:8,  gap:0.60, len:0.50, h:1}
+};
+let liveNodes=[], masterGain=null;
+function soundKey(){try{return SOUNDS[localStorage.getItem('ahd_snd')]?localStorage.getItem('ahd_snd'):'classic';}catch(_){return 'classic';}}
+function setSound(k){try{localStorage.setItem('ahd_snd',k);}catch(_){} stopSound(); beep(2); }
+function fillSounds(){
+  const s=document.getElementById('sndSel'); if(!s)return;
+  s.innerHTML=Object.keys(SOUNDS).map(function(k){return '<option value="'+k+'">'+SOUNDS[k].n+'</option>';}).join('');
+  s.value=soundKey();
+}
+function stopSound(){
+  clearAlertQueue();
+  try{ if(_voiceEl){_voiceEl.pause();_voiceEl.currentTime=0;} }catch(_){}
+  try{ if(masterGain){masterGain.gain.cancelScheduledValues(0);masterGain.gain.value=0;} }catch(_){}
+  try{ if(window.speechSynthesis)speechSynthesis.cancel(); }catch(_){}
+  liveNodes.forEach(function(o){try{o.stop();}catch(_){}try{o.disconnect();}catch(_){}});
+  liveNodes=[];
+  try{ if(navigator.vibrate)navigator.vibrate(0); }catch(_){}
+}
+/* count: عدد النغمات — نمرّر رقمًا صغيرًا للتنبيه الخفيف (طلب بانتظار الدفع).
+   الارتفاع: ثلاث توافقيات لكل نغمة بدل واحدة، وضاغط بعتبة منخفضة ونسبة عالية —
+   يرفع الصوت المسموع إلى أقصى ما يسمح به الجهاز قبل التشويش. */
+function beep(count){
   try{
     if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
     if(audioCtx.state==="suspended")audioCtx.resume();
-    // ضاغط ديناميكي لرفع الصوت لأقصى حد بدون تشويش
+    const S=SOUNDS[soundKey()]||SOUNDS.classic;
+    const N=count||S.c;
     const comp=audioCtx.createDynamicsCompressor();
-    comp.threshold.value=-24; comp.knee.value=30; comp.ratio.value=12; comp.attack.value=0.003; comp.release.value=0.25;
-    const master=audioCtx.createGain();
-    master.gain.value=6.0; // صوت عالي جداً
-    master.connect(comp); comp.connect(audioCtx.destination);
-    const N=10; // تنبيه عالي وطويل (~4.5 ثانية)
+    comp.threshold.value=-38; comp.knee.value=6; comp.ratio.value=20; comp.attack.value=0.002; comp.release.value=0.18;
+    const master=audioCtx.createGain(); master.gain.value=14.0;   /* كان ٦ */
+    const makeup=audioCtx.createGain(); makeup.gain.value=2.2;    /* تعويض ما يبتلعه الضاغط */
+    master.connect(comp); comp.connect(makeup); makeup.connect(audioCtx.destination);
+    masterGain=master;
+    const H=S.h||2;
     for(let k=0;k<N;k++){
-      const o=audioCtx.createOscillator(), o2=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.connect(g); o2.connect(g); g.connect(master);
-      o.type="square"; o2.type="square";
-      const f=(k%2===0)?880:1245;
-      o.frequency.value=f; o2.frequency.value=f*2;
-      const t=audioCtx.currentTime + k*0.45;
+      const f=S.seq[k%S.seq.length];
+      if(!f)continue;                               /* صفر = سكتة داخل النمط */
+      const t=audioCtx.currentTime + k*S.gap;
+      const g=audioCtx.createGain(); g.connect(master);
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(1.0,t+0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
-      o.start(t); o2.start(t); o.stop(t+0.42); o2.stop(t+0.42);
+      g.gain.exponentialRampToValueAtTime(1.0,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+S.len);
+      for(let x=1;x<=H;x++){
+        const o=audioCtx.createOscillator();
+        o.connect(g); o.type=S.type; o.frequency.value=f*x;
+        o.start(t); o.stop(t+S.len+0.02);
+        liveNodes.push(o);
+      }
     }
   }catch(_){}
 }
-// تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
-function startAlarm(){
-  const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
-  beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);
-  if(alarmTimer)return;
-  alarmTimer=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
+
+/* ===== النطق العربي حسب الحالة =====
+   الصوت وحده لا يقول ماذا حدث؛ النطق يفرّق بين طلب جديد وطلب واتساب ومحاولة دفع
+   وفشل دفع، فيعرف المطبخ ما عليه فعله دون النظر إلى الشاشة. */
+function voiceOn(){try{return localStorage.getItem('ahd_voice')!=='0';}catch(_){return true;}}
+function updVoiceBtn(){
+  const b=document.getElementById('voiceBtn'); if(!b)return;
+  b.textContent=voiceOn()?'🗣️ النطق: مُفعَّل':'🔇 النطق: موقوف';
+  b.title=voiceOn()?(ttsAvailable()?'يستخدم الصوت العربي المثبّت على الجهاز':'يستخدم تسجيلات جاهزة — لا يوجد صوت عربي على الجهاز'):'';
 }
-function ackServer(){ try{ if(KEY) fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}}
+function toggleVoice(){
+  try{localStorage.setItem('ahd_voice',voiceOn()?'0':'1');}catch(_){}
+  updVoiceBtn();
+  if(!voiceOn()){stopSound();return;}
+  say('تم تفعيل التنبيه الصوتي',null,'new');
+}
+/* بعض الأجهزة لا يوجد بها صوت عربي مثبّت أصلاً. في هذه الحالة القراءة تخرج
+   بصوت إنجليزي يلفظ العربية لفظًا مشوّهًا أو لا تخرج إطلاقًا — فالأنظف أن نتخطّى
+   النطق ونكتفي بالجرس، ونخبر صاحب اللوحة كيف يثبّت الصوت العربي. */
+function arVoice(){
+  try{ return (speechSynthesis.getVoices()||[]).filter(function(v){return /^ar/i.test(v.lang||'');})[0]||null; }
+  catch(_){ return null; }
+}
+function voiceAvailable(){ return true; }   /* دائمًا متاح: إمّا صوت الجهاز أو ملفات مسجّلة */
+function ttsAvailable(){ try{ return ('speechSynthesis' in window) && !!arVoice(); }catch(_){ return false; } }
+/* الأجهزة التي لا صوت عربي عليها تشغّل تسجيلات جاهزة بدل أن تصمت. الملفات قصيرة
+   ومخزّنة مع الموقع، فلا تحتاج إنترنت إضافيًا ولا إعدادات على الجهاز. */
+/* ثلاث طبقات للنطق: تسجيلان جاهزان بصوتين مختلفين، أو صوت الجهاز إن وُجد.
+   لا يمكن الحكم على الأوضح إلا بالسماع، فالاختيار متروك لصاحب اللوحة. */
+const VSTYLES={a:'صوت بشري (افتراضي)', b:'صوت آلي', device:'صوت الجهاز إن وُجد'};
+function voiceStyle(){try{const v=localStorage.getItem('ahd_vstyle');return VSTYLES[v]?v:'a';}catch(_){return 'a';}}
+function setVoiceStyle(v){try{localStorage.setItem('ahd_vstyle',v);}catch(_){} stopSound(); say('طَلَبٌ جَدِيدٌ وَصَلَ',null,'new');}
+function fillVStyle(){
+  const s=document.getElementById('vStyleSel'); if(!s)return;
+  s.innerHTML=Object.keys(VSTYLES).map(function(k){return '<option value="'+k+'">'+VSTYLES[k]+'</option>';}).join('');
+  s.value=voiceStyle();
+}
+let _voiceEl=null;
+function playVoiceFile(key,cb){
+  const done=(typeof cb==='function')?cb:function(){};
+  if(!key){done();return;}
+  try{
+    if(_voiceEl){try{_voiceEl.pause();}catch(_){}}
+    const a=new Audio('/voice/'+key+(voiceStyle()==='b'?'-b':'')+'.mp3');
+    _voiceEl=a; a.volume=1.0;
+    let fired=false; const go=function(){if(fired)return;fired=true;done();};
+    a.onended=go; a.onerror=go;
+    setTimeout(go,6000);                       /* أمان لو تعذّر التشغيل بصمت */
+    const p=a.play(); if(p&&p.catch)p.catch(go);
+  }catch(_){done();}
+}
+function say(txt,cb,key){
+  const done=(typeof cb==='function')?cb:function(){};
+  if(!voiceOn()||(!txt&&!key)){done();return;}
+  const ar=(voiceStyle()==='device')?arVoice():null;
+  if(!ar){playVoiceFile(key,done);return;}    /* التسجيل الجاهز هو الأساس */
+  try{
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang=ar.lang||'ar-SA'; u.rate=0.95; u.pitch=1.0; u.volume=1.0; u.voice=ar;
+    u.onend=done; u.onerror=done;
+    speechSynthesis.speak(u);
+  }catch(_){done();}
+}
+/* ===== الترتيب: النطق أولاً ثم الجرس =====
+   تعرف ما الذي وصل قبل أن يرنّ، فالرنّة تصبح تأكيدًا لا لغزًا. لو تعذّر النطق
+   أو طال، الجرس ينطلق بعد أربع ثوانٍ على أي حال حتى لا يضيع التنبيه. */
+/* ===== طابور التنبيهات =====
+   مشكلتان كانتا تظهران معًا: لو وصل طلب جديد ومحاولة دفع فاشلة في نفس الدورة،
+   كان التنبيهان ينطلقان في نفس اللحظة فيركب الصوتان على بعضهما. وكان إيقاف
+   تنبيه قديم يُصفّر مكسب الصوت بعد أن يكون تنبيه جديد قد بدأ، فيخرج صامتًا.
+   الحل: تنبيه واحد في كل مرة بالدور، ورقم جيل يُبطل أي سلسلة قديمة نهائيًا. */
+let _chainGen=0, _q=[], _qBusy=false;
+function clearAlertQueue(){ _q=[]; _qBusy=false; _chainGen++; }
+function voiceThen(txt,fn,key){
+  if(_q.length>3)_q.shift();                 /* لا نكدّس تنبيهات قديمة فات أوانها */
+  _q.push({txt:txt,fn:fn,key:key});
+  if(!_qBusy)_qNext();
+}
+function _qNext(){
+  const it=_q.shift();
+  if(!it){ _qBusy=false; return; }
+  _qBusy=true;
+  const gen=++_chainGen;
+  let done=false;
+  const go=function(){
+    if(done)return; done=true;
+    if(gen===_chainGen){ try{ it.fn(); }catch(_){} }
+    setTimeout(function(){ if(gen===_chainGen)_qNext(); else _qBusy=false; },400);
+  };
+  if(!voiceOn()||(!it.txt&&!it.key)){ go(); return; }
+  say(it.txt,go,it.key);
+  setTimeout(go,7000);                        /* أمان لو لم تصل إشارة الانتهاء */
+}
+
+// تنبيه متكرر للطلبات الجديدة لحد ما الأدمن يوقفه
+function startAlarm(voiceTxt,voiceKey){
+  const bar=document.getElementById('alarmBar');if(bar)bar.style.display='block';
+  if(navigator.vibrate)navigator.vibrate([300,150,300]);
+  voiceThen(voiceTxt,function(){
+    /* رنّة متكرّرة واحدة فقط في اللوحة — الطلب الجديد له الأولوية على تنبيه الدفع الفاشل */
+    if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
+    beep();
+    if(!alarmTimer)alarmTimer=setInterval(function(){beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},5000);
+  },voiceKey);
+}
+/* إيقاف التنبيه المتكرر على السيرفر. كان يُرسَل مع كل دورة طلبات (كل ٦ ثوانٍ)
+   بلا داعٍ، وهو نداء كامل للسيرفر — مرة كل دقيقة تؤدّي الغرض نفسه. */
+let lastAck=0;
+function ackServer(force){
+  if(!KEY)return;
+  const t=Date.now();
+  if(!force&&t-lastAck<60000)return;
+  lastAck=t;
+  try{ fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
+}
 function stopAlarm(){
   if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+  stopSound();
   const bar=document.getElementById('alarmBar');if(bar)bar.style.display='none';
   document.title="لوحة التحكم — عهد الضيافة";
-  ackServer(); // إيقاف التنبيه من اللوحة يوقفه على كل الأجهزة (بما فيها التطبيق)
+  ackServer(1); // إيقاف التنبيه من اللوحة يوقفه على كل الأجهزة (بما فيها التطبيق)
 }
 /* ===== صوت فشل الدفع (نغمة مختلفة منخفضة هابطة) ===== */
 function beepFail(){
@@ -445,16 +1012,21 @@ function beepFail(){
     }
   }catch(_){}
 }
-function startFailAlarm(){
+function startFailAlarm(voiceTxt,voiceKey){
   const bar=document.getElementById('failBar');if(bar)bar.style.display='block';
-  beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
-  if(failAlarmTimer)return;
-  failAlarmTimer=setInterval(()=>{beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
+  if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
+  voiceThen(voiceTxt,function(){
+    beepFail();
+    /* لو رنّة الطلب الجديد شغّالة نكتفي بصفّارة واحدة حتى لا يركب الصوتان */
+    if(alarmTimer)return;
+    if(!failAlarmTimer)failAlarmTimer=setInterval(function(){beepFail();if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);},5000);
+  },voiceKey);
 }
 function stopFailAlarm(){
   if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
+  stopSound();
   const bar=document.getElementById('failBar');if(bar)bar.style.display='none';
-  ackServer();
+  ackServer(1);
 }
 // استئناف الصوت عند أي تفاعل
 document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();});
@@ -464,30 +1036,70 @@ function loadOrders(){
   if(!KEY)return;
   fetch('/api/orders',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.orders)return;
-    let fresh=0, freshFail=0;
+    let fresh=0, freshFail=0, freshPend=0, freshNew=0, freshWa=0;
     d.orders.forEach(o=>{
-      if(o.status==="new" && !seen.has(o.id)){ if(!first) fresh++; seen.add(o.id); }
+      /* طلب مؤكَّد — جديد أو واتساب بانتظار التأكيد — يستحق الرنّة الكاملة.
+         كان الشرط على "new" وحده، فطلبات واتساب كانت تصل بلا صوت. */
+      if((o.status==="new"||o.status==="awaiting") && !seen.has(o.id)){ if(!first){fresh++; if(o.status==="awaiting")freshWa++; else freshNew++;} seen.add(o.id); }
+      /* بانتظار الدفع: تنبيه خفيف مرة واحدة — كثير منها يُترك قبل إتمام الدفع،
+         فالرنّة المتكررة هنا تُتعب أكثر مما تفيد. */
+      if(o.status==="pending" && !seenPend.has(o.id)){ seenPend.add(o.id); if(!first) freshPend++; }
       if(o.status==="failed" && !seenFail.has(o.id)){ if(!first) freshFail++; seenFail.add(o.id); }
     });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") طلب جديد!"; notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد'); }
-    if(freshFail>0){ startFailAlarm(); notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); }
+    if(fresh>0){
+      document.title="("+fresh+") طلب جديد!";
+      notify('🔔 طلب جديد — عهد الضيافة','وصلك '+fresh+' طلب جديد');
+      /* النطق يفرّق بين مصدر الطلب حتى يُعرف المطلوب دون النظر إلى الشاشة */
+      const parts=[];
+      if(freshNew) parts.push(freshNew===1?'طلب جديد وصل':('وصل '+freshNew+' طلبات جديدة'));
+      if(freshWa)  parts.push(freshWa===1?'طلب واتساب بانتظار التأكيد':(freshWa+' طلبات واتساب بانتظار التأكيد'));
+      startAlarm(parts.join('، '), freshWa&&!freshNew?'wa':'new');
+    }
+    if(!fresh && freshPend>0){ notify("💳 لم يكتمل الدفع","عميل حاول الدفع ولم يكمله — لا تحضّره قبل تأكيد الدفع"); voiceThen('عميل حاول الدفع ولم يكتمل',function(){try{beep(2);}catch(_){}},'pending'); }
+    if(freshFail>0){ notify('💳 محاولة دفع فاشلة','عميل حاول يدفع ولم يكتمل — قد تحتاج متابعته'); startFailAlarm(freshFail===1?'فشل دفع طلب، يُرجى متابعة العميل':('فشل دفع '+freshFail+' طلبات'),'failed'); }
     // اللوحة مفتوحة قدام الأدمن → أوقف التنبيه المتكرر على السيرفر
-    try{ if(document.visibilityState==='visible') fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({action:'ack'})}); }catch(_){}
-    first=false; orders=d.orders; renderOrders();
+    if(document.visibilityState==='visible') ackServer();
+    first=false; orders=d.orders; renderOrders(); retranslate();
+    /* كل الأرقام تتحدّث مع كل دورة طلبات (كل ٦ ثوانٍ) بدل انتظار فتح التبويب */
+    try{ syncCustomers(); }catch(_){}
+    try{ renderReservations(); }catch(_){}
   }).catch(()=>{});
+}
+/* عدّاد العملاء مبنيّ على الطلبات نفسها، فنُحدِّثه من دورة الطلبات الجارية بدل
+   إعادة تحميل ألف طلب. التحميل الكامل يحدث مرة عند الدخول ومع زر التحديث. */
+function syncCustomers(){
+  const byId={};
+  (custRaw||[]).forEach(function(o){if(o&&o.id)byId[o.id]=o;});
+  (orders||[]).forEach(function(o){if(o&&o.id)byId[o.id]=o;});
+  custRaw=Object.keys(byId).map(function(k){return byId[k];});
+  CUST=buildCustomers(custRaw);
+  const b=document.getElementById('cntCust'); if(b)b.textContent=CUST.length;
+  /* نعيد رسم قائمة العملاء فقط إذا كان الأدمن ينظر إليها ولم يفتح ملف عميل */
+  const v=document.getElementById('view-cust'), det=document.getElementById('custDetail');
+  if(custLoaded&&v&&v.classList.contains('active')&&det&&det.style.display==='none')renderCustomers();
 }
 function setOFilter(f,el){ofilter=f;el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderOrders();}
 function renderOrders(){
   const box=document.getElementById('orders');
-  document.getElementById('cntNew').textContent=orders.filter(o=>o.status==="new").length;
+  document.getElementById('cntNew').textContent=orders.filter(o=>o.status==="new"||o.status==="awaiting").length;
   let list=orders;
-  if(ofilter==="new")list=orders.filter(o=>o.status==="new");
+  /* الطلبات المتوقفة عند الدفع: بياناتها كاملة وقابلة للاسترجاع برسالة واحدة */
+  const unpaidList=orders.filter(o=>o.status==="pending"||o.status==="failed");
+  const cu=document.getElementById('cntUnpaid');
+  if(cu)cu.textContent=unpaidList.filter(o=>!recovered(o.id)).length;
+  if(ofilter==="new")list=orders.filter(o=>o.status==="new"||o.status==="awaiting");
   else if(ofilter==="preparing")list=orders.filter(o=>o.status==="preparing");
+  else if(ofilter==="unpaid")list=unpaidList.slice().sort((a,b)=>(Number(b.total)||0)-(Number(a.total)||0));
   if(!list.length){box.innerHTML='<div class="empty"><div class="big">📭</div><p>لا توجد طلبات</p></div>';return;}
   box.innerHTML=list.map(o=>{
     const t=toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}));
-    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],awaiting:['واتساب — بانتظار التأكيد','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
-    const st=stMap[o.status]||stMap.new;
+    const stMap={new:['طلب جديد','st-new'],preparing:['قيد التحضير','st-preparing'],delivering:['في الطريق 🛵','st-delivering'],done:['مكتمل','st-done'],pending:['بانتظار الدفع','st-preparing'],awaiting:['واتساب — بانتظار التأكيد','st-preparing'],failed:['فشل الدفع','st-cancelled'],cancelled:['ملغي','st-cancelled']};
+    let st=stMap[o.status]||stMap.new;
+    if(o.status==='delivering'&&o.deliveryType==='pickup')st=['جاهز للاستلام 🛍️','st-delivering'];
+    /* طلب ظلّ بانتظار الدفع أكثر من ساعة = محاولة دفع مهجورة، وليس طلبًا فعليًا.
+       تمييزه يمنع الالتباس مع الطلب المدفوع الذي يليه. */
+    if(o.status==='pending'&&(Date.now()-tms(o.createdAt))>3600000)st=['دفع لم يكتمل — محاولة متروكة','st-cancelled'];
+    if(o.revivedAfterCancel)st=['⚠️ أُلغي ثم وصل دفعه — راجعه','st-new'];
     const meta=[o.name?esc(o.name):'', o.phone?`<a href="tel:${esc(o.phone)}" style="color:inherit;text-decoration:underline">${esc(o.phone)}</a>`:''].filter(Boolean).join(' • ');
     const dtype=o.deliveryType==='pickup'?'🏠 استلام من المطعم':(o.deliveryType==='delivery'?'🛵 توصيل':'');
     const dparts=[];
@@ -497,130 +1109,706 @@ function renderOrders(){
     if(o.mapUrl)dparts.push('<a href="'+esc(o.mapUrl)+'" target="_blank" style="color:#2563c9;text-decoration:underline;font-weight:700">📍 فتح الموقع على الخريطة</a>');
     if(o.deliveryFee)dparts.push('رسوم التوصيل: '+Number(o.deliveryFee).toFixed(3)+' د.ك');
     if(o.deliveryTime)dparts.push('🕒 وقت التوصيل: '+esc(o.deliveryTime));
+    if(o.note)dparts.push('<b style="color:#a2333f">📝 ملاحظات: '+esc(o.note)+'</b>');
     if(o.prepTime)dparts.push('⏱️ '+(parseInt(o.prepTime)||0)+' دقيقة');
     const dinfo=dparts.length?`<div class="dinfo">${dparts.join('<br>')}</div>`:'';
-    const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web'})[o.channel]||'web';
-    const chanTxt=o.channel==='knet'?'KNET':(o.channel==='whatsapp'?'واتساب':esc(o.channel));
-    const showActions=(o.status==='new'||o.status==='preparing'||o.status==='awaiting');
+    const chanCls=({knet:'knet',whatsapp:'whatsapp',web:'web',cod:'cod'})[o.channel]||'web';
+    const chanTxt=o.channel==='knet'?'💳 دفع إلكتروني':(o.channel==='whatsapp'?'واتساب':(o.channel==='cod'?'💵 الدفع عند الاستلام':esc(o.channel)));
+    const showActions=(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting');
     return `<div class="order ${o.status==='new'?'new':''}">
       <div class="top">
         <div><span class="oid">${esc(o.no||o.id)}</span> <span class="status-tag ${st[1]}">${st[0]}</span></div>
         <div style="text-align:left"><span class="chan ${chanCls}">${chanTxt}</span><div class="time">${t}</div></div>
       </div>
+      ${o.scheduledFor?`<div style="background:#fff3cd;border:1px solid #e0a800;border-radius:8px;padding:6px 10px;margin:6px 0;font-weight:800;color:#8a6d00">⏰ طلب مؤجل — ${esc(fmtSched(o.scheduledFor))}</div>`:''}
       <div class="items">${esc(o.items)}</div>
       <div class="total">${Number(o.total).toFixed(3)} د.ك</div>
       ${meta?`<div class="meta">${meta}</div>`:''}
       ${dinfo}
       <div class="actions">
-        <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ طباعة</button>
+        ${(o.status==='pending'||o.status==='failed')&&o.phone?(recovered(o.id)
+            ?`<button class="sbtn" style="background:#e6f4ea;color:#1b6b3a" onclick="unmarkRecovered('${o.id}')">✅ تمت المتابعة — تراجع</button>`
+            :`<button class="sbtn deliver" onclick="waRecover('${o.id}')">💬 تابع العميل على واتساب</button>`):''}
+        <button class="sbtn print" onclick="printOrder('${o.id}')">🖨️ فاتورة</button>
+        <button class="sbtn prep" onclick="printKitchen('${o.id}')">👨‍🍳 تذكرة المطبخ</button>
+        ${o.phone?`<button class="sbtn" style="background:#efe7f7;color:#5b3a86" onclick="openCustFromOrder('${String(o.phone).replace(/[^0-9+]/g,'')}')">👤 ملف العميل</button>`:''}
         ${o.status==='awaiting'?`<button class="sbtn done" onclick="updOrder('${o.id}','new')">✅ أكّد الطلب</button>`:''}
         ${o.status==='new'?`<button class="sbtn prep" onclick="updOrder('${o.id}','preparing')">👨‍🍳 قيد التحضير</button>`:''}
-        ${(o.status==='new'||o.status==='preparing')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
-        ${(o.status==='new'||o.status==='preparing'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
+        ${o.status==='preparing'?`<button class="sbtn deliver" onclick="updOrder('${o.id}','delivering')">${o.deliveryType==='pickup'?'🛍️ جاهز للاستلام':'🛵 في الطريق'}</button>`:''}
+        ${(o.status==='new'||o.status==='preparing'||o.status==='delivering')?`<button class="sbtn done" onclick="updOrder('${o.id}','done')">✅ مكتمل</button>`:''}
+        ${o.phone?`<button class="sbtn" style="background:rgba(31,170,84,.15);color:#178c44" onclick="waTrack('${o.id}')">📲 رسالة تتبع</button>`:''}
+        ${o.status==='delivering'&&o.deliveryType==='delivery'?`<button class="sbtn deliver" onclick="waDriver('${o.id}')">🚗 تجهيزة السائق</button>`:''}
+        ${(o.status==='new'||o.status==='preparing'||o.status==='delivering'||o.status==='awaiting')?`<button class="sbtn cancel" onclick="cancelOrder('${o.id}')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
   }).join('');
+}
+/* ===== الأصناف المخفية عن الزبائن ===== */
+function hiddenItems(){
+  const out=[];
+  (DATA.menu||[]).forEach((c,ci)=>(c.items||[]).forEach((it,ii)=>{ if(it.available===false) out.push({ci,ii,cat:c.cat,name:it.name||'(بدون اسم)'}); }));
+  return out;
+}
+/* ===== الأصناف بدون صورة ===== */
+function noImgItems(){
+  const out=[];
+  (DATA.menu||[]).forEach(c=>(c.items||[]).forEach(it=>{
+    const im=(it.img||'').trim();
+    if(!im) out.push({cat:c.cat,name:it.name||'(بدون اسم)'});
+  }));
+  return out;
+}
+function noImgText(){
+  const l=noImgItems();
+  const byCat={};l.forEach(x=>{(byCat[x.cat]=byCat[x.cat]||[]).push(x.name);});
+  return Object.keys(byCat).map(c=>c+':\n'+byCat[c].map(n=>'  • '+n).join('\n')).join('\n\n');
+}
+function refreshNoImgBar(){
+  const bar=document.getElementById('noimgBar');if(!bar)return;
+  const l=noImgItems();
+  if(!l.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  document.getElementById('noimgTxt').textContent='🖼 '+l.length+' صنف بدون صورة';
+}
+function listNoImg(){const t=noImgText();if(t)alert('أصناف بدون صورة ('+noImgItems().length+'):\n\n'+t);}
+function copyNoImg(){
+  const t='أصناف بدون صورة ('+noImgItems().length+'):\n\n'+noImgText();
+  const done=()=>toast('📋 تم نسخ القائمة');
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fallback());return;} }catch(_){}
+  fallback();
+  function fallback(){
+    try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}
+    catch(_){alert(t);}
+  }
+}
+function refreshHiddenBar(){
+  const bar=document.getElementById('hiddenBar');if(!bar)return;
+  const h=hiddenItems();
+  if(!h.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  document.getElementById('hiddenTxt').textContent='🚫 '+h.length+' صنف مخفي عن الزبائن (يظهر لهم «غير متوفر»)';
+}
+function listHidden(){
+  const h=hiddenItems();
+  if(!h.length)return;
+  alert('الأصناف المخفية حالياً:\n\n'+h.map((x,i)=>(i+1)+'. '+x.name+'  —  '+x.cat).join('\n'));
+}
+function showAllItems(){
+  const h=hiddenItems();
+  if(!h.length)return;
+  // حماية: لا نُتيح صنفاً سعره صفر — هيظهر للزبون ببلاش
+  const zero=h.filter(x=>!(Number(DATA.menu[x.ci].items[x.ii].price)>0));
+  const ok=h.filter(x=>Number(DATA.menu[x.ci].items[x.ii].price)>0);
+  if(zero.length){
+    alert('⚠️ '+zero.length+' صنف سعره صفر ولن يتم إتاحته حتى تضع له سعراً:\n\n'
+      +zero.map((x,i)=>(i+1)+'. '+x.name+'  —  '+x.cat).join('\n'));
+  }
+  if(!ok.length)return;
+  if(!confirm('سيتم إتاحة '+ok.length+' صنف للزبائن وحفظ المنيو. متأكد؟'))return;
+  ok.forEach(x=>{DATA.menu[x.ci].items[x.ii].available=true;});
+  renderMenuEditor();saveMenu();
+  toast('✅ تم إتاحة '+ok.length+' صنف');
+}
+function fmtSched(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return sf||'';
+  let h=parseInt(m[4],10);const ap=h<12?'ص':'م';let h12=h%12;if(h12===0)h12=12;
+  return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
+}
+/* نفس الموعد بالإنجليزية — الفاتورة ثنائية اللغة، والسائق قد لا يقرأ «ص/م». */
+function fmtSchedEn(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return '';
+  let h=parseInt(m[4],10);const ap=h<12?'AM':'PM';let h12=h%12;if(h12===0)h12=12;
+  return m[3]+'/'+m[2]+' — '+h12+':'+m[5]+' '+ap;
+}
+
+
+
+/* ===== تجربة التنبيهات =====
+   كل زر يشغّل نفس المسار الحقيقي تمامًا: نفس جملة النطق ونفس الجرس وبنفس الترتيب،
+   فما تسمعه هنا هو ما ستسمعه عند وصول الطلب فعلاً. يتوقف وحده بعد تسع ثوانٍ. */
+const ALERT_TESTS=[
+ {t:'🔔 طلب جديد',            v:'طلب جديد وصل',                k:'new'},
+ {t:'💬 طلب واتساب',          v:'طلب واتساب بانتظار التأكيد',   k:'wa'},
+ {t:'💳 لم يكتمل الدفع',       v:'عميل حاول الدفع ولم يكتمل',    k:'pending', short:true},
+ {t:'❌ فشل دفع',              v:'فشل دفع طلب، تابع العميل',     k:'failed',  fail:true},
+ {t:'📅 حجز جديد',            v:'طلب حجز جديد',                k:'rsv'},
+ {t:'⏰ طلب مؤجَّل حان موعده',  v:'طلب مؤجَّل، حان وقت التحضير',  k:'sched'}
+];
+function renderAlertTests(){
+  const b=document.getElementById('alertTestBox'); if(!b)return;
+  b.innerHTML=ALERT_TESTS.map(function(a,i){
+    return '<button class="sbtn prep" style="margin:0 6px 6px 0" onclick="tryAlert('+i+')">'+a.t+'</button>';
+  }).join('');
+}
+/* طول الرنّة الواحدة بالمللي ثانية — نحسبه من النمط المختار حتى لا نقطعها في نصّها */
+function beepDuration(count){
+  const S=SOUNDS[soundKey()]||SOUNDS.classic;
+  const N=count||S.c;
+  return (N*S.gap + S.len)*1000;
+}
+let _testTimer=null;
+function hushAlerts(){
+  if(_testTimer){clearTimeout(_testTimer);_testTimer=null;}
+  if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+  if(failAlarmTimer){clearInterval(failAlarmTimer);failAlarmTimer=null;}
+  const b1=document.getElementById('alarmBar'),b2=document.getElementById('failBar');
+  if(b1)b1.style.display='none'; if(b2)b2.style.display='none';
+  document.title='لوحة التحكم — عهد الضيافة';
+  stopSound();
+}
+/* التجربة تُسمعك الجملة كاملة ثم رنّة واحدة كاملة، ثم تسكت.
+   قبل ذلك كان مؤقّت ثابت بتسع ثوانٍ لا يُلغى: فمؤقّت تجربة سابقة يقطع التجربة
+   التالية في منتصف الكلام، والرنّة المتكرّرة تنقطع في نصّها عند انتهاء التسع ثوانٍ. */
+function tryAlert(i){
+  const a=ALERT_TESTS[i]; if(!a)return;
+  hushAlerts();
+  try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(_){}
+  const bar=document.getElementById(a.fail?'failBar':'alarmBar'); if(bar)bar.style.display='block';
+  _testTimer=setTimeout(hushAlerts,20000);                 /* أمان لو تعثّر النطق */
+  setTimeout(function(){
+    voiceThen(a.v,function(){
+      const ms=a.fail?3900:beepDuration(a.short?2:0);       /* صفّارة الفشل ٥ دورات × ٠٫٧ ث */
+      if(a.fail)beepFail(); else beep(a.short?2:0);
+      if(_testTimer)clearTimeout(_testTimer);
+      _testTimer=setTimeout(hushAlerts,ms+700);
+    },a.k);
+  },150);
+  toast(!voiceOn()?'النطق موقوف — الجرس فقط':'الجملة كاملة ثم رنّة واحدة');
+}
+
+/* ===== متابعة الطلبات التي لم يكتمل دفعها =====
+   العميل هنا اختار أصنافه وكتب اسمه وعنوانه ورقمه ثم توقّف عند الدفع — فبياناته
+   كاملة عندنا. رسالة واحدة على واتساب تسترجع طلبًا جاهزًا بدل البحث عن عميل جديد. */
+function recoverKey(id){return 'ahd_rec_'+id;}
+function recovered(id){try{return localStorage.getItem(recoverKey(id))==='1';}catch(_){return false;}}
+function markRecovered(id){try{localStorage.setItem(recoverKey(id),'1');}catch(_){} renderOrders(); retranslate();}
+function unmarkRecovered(id){try{localStorage.removeItem(recoverKey(id));}catch(_){} renderOrders(); retranslate();}
+function waRecover(id){
+  const o=orders.find(function(x){return x.id===id;});
+  if(!o||!o.phone){toast('لا يوجد رقم هاتف لهذا الطلب');return;}
+  let ph=String(o.phone).replace(/\D/g,''); if(ph.length===8)ph='965'+ph;
+  const items=(o.lines&&o.lines.length)
+    ? o.lines.map(function(l){return '• '+l.name+' ×'+l.qty;}).join('%0A')
+    : String(o.items||'').split('،').map(function(s){return '• '+s.trim();}).filter(function(s){return s.length>2;}).join('%0A');
+  const nm=(o.name||'').trim();
+  const msg='مطعم عهد الضيافة 🌟%0A%0A'
+    +encodeURIComponent(nm?('أهلاً '+nm+'،'):'أهلاً بك،')+'%0A'
+    +encodeURIComponent('لاحظنا أن طلبك لم يكتمل دفعه، وهو ما زال محفوظًا لدينا:')+'%0A%0A'
+    +encodeURIComponent(decodeURIComponent(items))+'%0A%0A'
+    +encodeURIComponent('الإجمالي: '+(Number(o.total)||0).toFixed(3)+' د.ك')+'%0A%0A'
+    +encodeURIComponent('تحب نكمّله لك الآن؟ يمكنك الدفع من هنا أو نجهّزه لك بالدفع عند الاستلام.')+'%0A'
+    +'https://ahed-aldeyafa.vercel.app/';
+  markRecovered(id);
+  window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
+}
+
+function waTrack(id){
+  const o=orders.find(x=>x.id===id);if(!o||!o.phone)return;
+  let ph=String(o.phone).replace(/\D/g,'');
+  if(ph.length===8)ph='965'+ph;
+  let stTxt=({new:'تم استلام طلبك وجارٍ تجهيزه',preparing:'طلبك قيد التحضير الآن',delivering:'طلبك في الطريق إليك 🛵',done:'تم توصيل طلبك — بالهنا والشفا!'})[o.status]||'تم استلام طلبك';
+  if(o.deliveryType==='pickup'&&o.status==='delivering')stTxt='طلبك جاهز للاستلام من المطعم 🛍️';
+  if(o.deliveryType==='pickup'&&o.status==='done')stTxt='تم استلام طلبك — بالهنا والشفا!';
+  const msg='مطعم عهد الضيافة 🌟%0A'+'طلبك رقم '+encodeURIComponent(o.no||'')+' — '+encodeURIComponent(stTxt)+'%0A%0A'+'تابع طلبك لحظة بلحظة من هنا:%0A'+'https://ahed-aldeyafa.vercel.app/?track='+encodeURIComponent(o.id);
+  window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
+}
+function waDriver(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  let msg='🚗 توصيلة جديدة — عهد الضيافة%0A%0A';
+  msg+='طلب: '+encodeURIComponent(o.no||'')+'%0A';
+  if(o.name)msg+='الزبون: '+encodeURIComponent(o.name)+(o.phone?(' — '+encodeURIComponent(o.phone)):'')+'%0A';
+  if(o.area)msg+='المنطقة: '+encodeURIComponent(o.area)+'%0A';
+  if(o.address)msg+='العنوان: '+encodeURIComponent(o.address)+'%0A';
+  if(o.mapUrl)msg+='خريطة الزبون: '+encodeURIComponent(o.mapUrl)+'%0A';
+  msg+='%0A📲 افتح لينك السائق وشغّل مشاركة الموقع:%0A'+encodeURIComponent('https://ahed-aldeyafa.vercel.app/drv.html?o='+o.id);
+  window.open('https://wa.me/?text='+msg,'_blank');
 }
 function updOrder(id,status){
   seen.add(id);
   fetch('/api/orders',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({id,status})})
     .then(()=>{const o=orders.find(x=>x.id===id);if(o)o.status=status;renderOrders();});
 }
+
+/* ===== إلغاء الطلبات التجريبية =====
+   الإلغاء هنا تغيير حالة فقط — الطلب يخرج من القوائم والإحصائيات ويبقى في السجل،
+   فيمكن التراجع عنه. لا يوجد حذف نهائي من اللوحة عمدًا. */
+let TSTFOUND=[];
+const TST_DONE={cancelled:1};
+function findTestOrders(){
+  const q=normPhone(document.getElementById('tstPhone').value);
+  const box=document.getElementById('tstBox'), btn=document.getElementById('tstBtn');
+  TSTFOUND=[]; btn.style.display='none';
+  if(!q||q.length<6){box.innerHTML='<div style="color:#a2333f;font-weight:700">اكتب رقم هاتف صحيح (٦ أرقام على الأقل)</div>';return;}
+  box.innerHTML='<div style="color:var(--muted)">جارٍ البحث في كامل السجل…</div>';
+  fetch('/api/orders?limit=1000',{headers:akHdr()}).then(function(r){return r.json();}).then(function(d){
+    const all=(d&&d.orders)||[];
+    TSTFOUND=all.filter(function(o){return o&&normPhone(o.phone)===q&&!TST_DONE[o.status];});
+    if(!TSTFOUND.length){box.innerHTML='<div style="font-weight:700">لا توجد طلبات غير ملغاة بهذا الرقم</div>';return;}
+    const sum=TSTFOUND.reduce(function(a,o){return a+(Number(o.total)||0);},0);
+    box.innerHTML='<div style="font-weight:900;color:#a2333f;margin-bottom:6px">'+TSTFOUND.length+' طلب — بإجمالي '+sum.toFixed(3)+' د.ك</div>'
+      +TSTFOUND.slice(0,40).map(function(o){
+        return '<div style="font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line)">'
+          +esc(String(o.no||o.id))+' — '+esc(o.name||'بدون اسم')+' — '+(Number(o.total)||0).toFixed(3)+' د.ك — '+esc(String(o.status||''))
+          +(o.createdAt?(' — '+fmtD(tms(o.createdAt))):'')+'</div>';
+      }).join('')
+      +(TSTFOUND.length>40?'<div style="font-size:12px;color:var(--muted);margin-top:4px">…وغيرها ('+(TSTFOUND.length-40)+')</div>':'');
+    btn.style.display='';
+    btn.textContent='✖️ إلغاء '+TSTFOUND.length+' طلب';
+  }).catch(function(){box.innerHTML='<div style="color:#a2333f">تعذّر تحميل الطلبات</div>';});
+}
+function cancelTestOrders(){
+  if(!TSTFOUND.length)return;
+  if(!confirm('إلغاء '+TSTFOUND.length+' طلب؟ ستتحوّل حالتها إلى «ملغي» وتخرج من القوائم والإحصائيات، ويمكن التراجع عن أي طلب من بطاقته.'))return;
+  const btn=document.getElementById('tstBtn'), box=document.getElementById('tstBox');
+  btn.disabled=true; btn.textContent='… جارٍ الإلغاء';
+  let done=0, failed=0;
+  const one=function(o){
+    return fetch('/api/orders',{method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},akHdr()),body:JSON.stringify({id:o.id,status:'cancelled'})})
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d&&d.ok){done++;const x=orders.find(function(y){return y.id===o.id;});if(x)x.status='cancelled';} else failed++; })
+      .catch(function(){failed++;});
+  };
+  /* بالتتابع لا بالتوازي — حتى لا نصطدم بحد الطلبات على السيرفر */
+  TSTFOUND.reduce(function(p,o){return p.then(function(){return one(o);});},Promise.resolve()).then(function(){
+    box.innerHTML='<div style="font-weight:900;color:'+(failed?'#a2333f':'#178c44')+'">تم إلغاء '+done+' طلب'+(failed?(' — وتعذّر إلغاء '+failed):'')+'</div>';
+    btn.style.display='none'; btn.disabled=false; TSTFOUND=[];
+    try{renderOrders();syncCustomers();}catch(_){}
+    toast('تم إلغاء '+done+' طلب تجريبي');
+  });
+}
+
 function cancelOrder(id){
-  if(!confirm("متأكد من إلغاء هذا الطلب؟"))return;
+  const o=orders.find(function(x){return x.id===id;});
+  /* العميل قد يكون ما زال داخل بوابة الدفع؛ إلغاؤه الآن يجعل دفعته تصل إلى طلب ملغي */
+  const msg=(o&&o.status==='pending')
+    ? 'هذا الطلب ما زال بانتظار الدفع، وقد يكون العميل داخل صفحة الدفع الآن.\nإن أتمّ الدفع بعد الإلغاء سيعود الطلب تلقائيًا وعليه علامة «عاد بعد الإلغاء».\n\nإلغاؤه على أي حال؟'
+    : 'متأكد من إلغاء هذا الطلب؟';
+  if(!confirm(msg))return;
   updOrder(id,'cancelled');
 }
+/* ===== قراءة العناوين القديمة المكتوبة كنص حر وتحويلها لخانات =====
+   العملاء القدام كتبوا العنوان سطر واحد؛ ده بيفكّه لقطعة/شارع/جادة/منزل/دور/شقة. */
+/* اسم المنطقة محفوظ في خانة مستقلة، فلو ظهر داخل نص العنوان القديم لا يُعتبر
+   علامة مميزة — وإلا تكرّرت «الجابرية» مرتين على التذكرة بلا فائدة. */
+function _normAr(s){
+  return String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+    .replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي')
+    .replace(/\s+/g,' ').trim();
+}
+function _areaNames(){
+  try{ return ((DATA&&DATA.settings&&DATA.settings.areas)||[]||[]).map(function(a){return _normAr(a&&a.name?a.name:a);}).filter(Boolean); }
+  catch(_){ return []; }
+}
+function _flexAr(nm){
+  /* الاسم الواحد يُكتب بأكثر من شكل: الجابرية/الجابريه، سلوى/سلوي، إشبيلية/اشبيلية.
+     نبني نمطًا يقبل كل الأشكال بدل مقارنة نصّية تفشل على حرف واحد. */
+  const map={'ا':'[اأإآ]','ه':'[هة]','ة':'[هة]','ي':'[يى]','ى':'[يى]'};
+  return String(nm||'').split('').map(function(c){
+    if(map[c])return map[c];
+    if(/[.*+?^${}()|[\]\\]/.test(c))return '\\'+c;
+    return c;
+  }).join('');
+}
+function stripAreaName(s){
+  let out=String(s||'');
+  _areaNames().forEach(function(nm){
+    if(!nm||nm.length<3)return;
+    const bare=nm.replace(/^ال/,'');
+    [nm, 'ال'+bare, bare].forEach(function(v){
+      const re=new RegExp('(^|[\\s,،\\-])'+_flexAr(v)+'($|[\\s,،\\-])','g');
+      out=out.replace(re,'$1$2');
+    });
+  });
+  return out.replace(/[،,\-]+/g,' ').replace(/\s+/g,' ').trim();
+}
+
+/* الطلبات القديمة حفظت العنوان سطرًا واحدًا بلا خانات. نفكّه وقت الطباعة لنشتقّ
+   منه العنوان الإنجليزي فقط، ونترك السطر العربي كما كتبه العميل حرفًا بحرف —
+   فلا يُفقد شيء لم يفهمه المحلّل، ولا يتكرّر الدور والعلامة مرتين على الورقة. */
+function ordAddr(o){
+  const a=(o&&o.addr)||null;
+  if(a&&(a.block||a.street||a.ave||a.house||a.floor||a.apt||a.landmark))return a;
+  try{ const d=parseAddrText(o&&o.address); if(d){d._derived=true;return d;} }catch(_){}
+  return null;
+}
+function parseAddrText(t){
+  let s=String(t||'');
+  if(!s.trim())return null;
+  s=s.replace(/[٠-٩]/g,function(d){return String(d.charCodeAt(0)-0x0660);})
+     .replace(/[۰-۹]/g,function(d){return String(d.charCodeAt(0)-0x06F0);});
+  const KEYS=[
+    ['block','قطعة|قطعه|القطعة|القطعه'],
+    ['street','شارع|الشارع'],
+    ['ave','جادة|جاده|الجادة|الجاده'],
+    ['house','منزل|المنزل|بيت|البيت|مبنى|مبني|المبنى|فيلا|الفيلا'],
+    ['floor','دور|الدور|طابق|الطابق'],
+    ['apt','شقة|شقه|الشقة|الشقه|مكتب|المكتب']
+  ];
+  const hits=[];
+  KEYS.forEach(function(k){
+    const re=new RegExp('(?:^|[\\s,،\\-\\u060C])(?:'+k[1]+')\\s*[:\\-]?\\s*','g');
+    let m; while((m=re.exec(s))!==null){ hits.push({key:k[0],start:m.index+m[0].length,kstart:m.index+(m[0].length-m[0].replace(/^[\s,،\-،]+/,'').length)}); }
+  });
+  // الأشكال المختصرة: ق4 ش43 م12 — تُقبل فقط لو بعدها رقم مباشرة
+  [['block','ق'],['street','ش'],['ave','ج'],['house','م']].forEach(function(k){
+    const re=new RegExp('(?:^|[\\s,،\\-])('+k[1]+')\\s*\\.?\\s*(?=\\d)','g');
+    let m; while((m=re.exec(s))!==null){ hits.push({key:k[0],start:m.index+m[0].length,kstart:m.index+m[0].indexOf(k[1])}); }
+  });
+  if(!hits.length) return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:stripAreaName(s).slice(0,80)};
+  hits.sort(function(a,b){return a.kstart-b.kstart;});
+  const out={block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:''};
+  const used=[];
+  hits.forEach(function(hit,i){
+    const nextK=hits[i+1]?hits[i+1].kstart:s.length;
+    let val=s.slice(hit.start,nextK).trim().replace(/^[:\-،,]+/,'').replace(/[،,\-\s]+$/,'').trim();
+    if(!val)return;
+    // لو القيمة طويلة، خد أول كلمتين بس والباقي علامة مميزة
+    const words=val.split(/\s+/);
+    let take=words.slice(0,2).join(' ');
+    if(/^\d+$/.test(words[0]))take=words[0];
+    if(!out[hit.key])out[hit.key]=take.slice(0,40);
+    used.push([hit.kstart,hit.start+take.length]);
+  });
+  // اللي فضل بره الخانات = علامة مميزة
+  let rest=s, off=0;
+  used.sort(function(a,b){return a[0]-b[0];}).forEach(function(r){
+    const a=r[0]-off,b=r[1]-off;
+    if(a>=0&&b>=a){rest=rest.slice(0,a)+' '+rest.slice(b);off+=(b-a)-1;}
+  });
+  rest=rest.replace(/[،,\-]+/g,' ').replace(/\s+/g,' ').trim();
+  /* لو مفيش ولا قيمة رقمية، يبقى النص وصف مكان مش عنوان مرقّم (زي "بيت العايلة جنب الكوفي") */
+  const numeric=['block','street','ave','house','floor','apt'].filter(function(k){return /\d/.test(out[k]||'');}).length;
+  if(!numeric)return {block:'',street:'',ave:'',house:'',floor:'',apt:'',landmark:stripAreaName(s).slice(0,80)};
+  rest=stripAreaName(rest);
+  if(rest)out.landmark=rest.slice(0,80);
+  return out;
+}
+
+/* ===== الطباعة =====
+   الورق حراري ضيّق وأحادي اللون: الخلفيات الملوّنة تخرج رماديّة متّسخة، والجدول
+   ذو الأعمدة الأربعة كان يضغط اسم الصنف في عمود ضيّق فيتقطّع على أسطر كثيرة.
+   لذلك: أبيض وأسود وخطوط فاصلة فقط، وكل صنف في سطر كامل بعرض الورقة. */
+function invEn(nm){
+  const t=String(nm||'').trim(); const ms=(DATA&&DATA.menu)||[];
+  for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return String(it.nameEn||'').trim();
+  return '';
+}
+/* الاسم الإنجليزي للاختيارات يُجلب من المنيو وقت الطباعة، لا من اللحظة التي
+   حُفظ فيها الطلب — فيظهر على الطلبات القديمة أيضًا، ويتحدّث لو صحّحت الترجمة لاحقًا. */
+function optEnMap(){
+  const map={}; const ms=(DATA&&DATA.menu)||[];
+  ms.forEach(function(c){(c.items||[]).forEach(function(it){(it.options||[]).forEach(function(g){(g.choices||[]).forEach(function(ch){
+    const n=(typeof ch==='string')?ch:((ch&&ch.name)||'');
+    const e=(typeof ch==='string')?'':((ch&&ch.nameEn)||'');
+    if(n&&e)map[String(n).trim()]=String(e).trim();
+  });});});});
+  return map;
+}
+function optEn(optsAr,map){
+  const t=String(optsAr||'').trim(); if(!t)return '';
+  const parts=t.split(/[،,]/).map(function(s){return s.trim();}).filter(Boolean);
+  const en=parts.map(function(p){return map[p]||'';});
+  return en.some(Boolean)?en.map(function(e,i){return e||parts[i];}).join(', '):'';
+}
+function prLines(o){
+  const _oem=optEnMap();
+  if(o.lines&&o.lines.length)return o.lines.map(function(l){
+    return {name:l.name,en:invEn(l.name),qty:Number(l.qty)||1,unit:Number(l.unit),total:Number(l.total),opts:l.opts||'',optsEn:l.optsEn||optEn(l.opts,_oem),note:l.note||''};
+  });
+  const findP=function(nm){const t=String(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if(String(it.name||'').trim()===t)return Number(it.price)||0;return null;};
+  return String(o.items||'').split('،').map(function(s){return s.trim();}).filter(Boolean).map(function(p){
+    const qm=p.match(/×\s*(\d+)/); const qty=qm?parseInt(qm[1],10):1;
+    const nm=p.split('×')[0].trim(); const u=findP(nm);
+    return {name:nm,en:invEn(nm),qty:qty,unit:u==null?null:u,total:u==null?null:u*qty,opts:'',optsEn:'',note:''};
+  });
+}
+function doPrint(html){
+  const pa=document.getElementById('printArea');
+  pa.innerHTML=html;
+  let fired=false; const go=function(){if(fired)return;fired=true;window.print();};
+  const imgs=Array.prototype.slice.call(pa.querySelectorAll('img'));
+  if(!imgs.length){go();return;}
+  Promise.all(imgs.map(function(i){return i.decode?i.decode().catch(function(){}):Promise.resolve();})).then(go);
+  setTimeout(go,3000);
+}
+
+/* فاتورة العميل */
 function printOrder(id){
-  const o=orders.find(x=>x.id===id); if(!o)return;
+  const o=orders.find(function(x){return x.id===id;}); if(!o)return;
   const cur='د.ك';
   const dt=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'';
   const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
-  const lg=(DATA&&DATA.settings&&DATA.settings.logo)?`<img src="${DATA.settings.logo}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #c8962f;display:block;margin:0 auto 6px">`:'';
-  const hasLines=o.lines&&o.lines.length;
+  const dtypeEn=o.deliveryType==='pickup'?'Pickup':(o.deliveryType==='delivery'?'Delivery':'');
+  const A=ordAddr(o);
+  /* اسم المنطقة بالإنجليزية محفوظ مع المنطقة نفسها في الإعدادات */
+  const areaEnOf=function(nm){
+    const t=String(nm||'').trim(); if(!t)return '';
+    const as=(DATA&&DATA.settings&&DATA.settings.areas)||[];
+    for(const a of as){ if(String((a&&a.name)||'').trim()===t) return String((a&&a.nameEn)||'').trim(); }
+    return '';
+  };
+  /* العنوان الإنجليزي يُبنى من الخانات المرقّمة؛ العنوان المكتوب نصًّا حرًّا لا يُترجم */
+  const addrEnOf=function(a){
+    if(!a)return '';
+    const p=[];
+    if(a.block)p.push('Block '+a.block);
+    if(a.street)p.push('Street '+a.street);
+    if(a.ave)p.push('Avenue '+a.ave);
+    if(a.house)p.push('House '+a.house);
+    return p.join(', ');
+  };
+  /* مدة التوصيل مكتوبة يدويًّا («٤٥ - ٦٠ دقيقة»)، فنحوّل الأرقام ووحدة الوقت
+     ونتخلّى عن الترجمة لو بقي فيها عربي لم نفهمه بدل طبع نصف جملة. */
+  const etaEnOf=function(t){
+    let x=toEn(String(t||'')).trim(); if(!x)return '';
+    if(!/[\u0600-\u06FF]/.test(x))return x;
+    x=x.replace(/دقائق|دقيقة|دقيقه/g,'min').replace(/ساعات|ساعة|ساعه/g,'hr').replace(/\s+/g,' ').trim();
+    return /[\u0600-\u06FF]/.test(x)?'':x;
+  };
+  const lg=(DATA&&DATA.settings&&DATA.settings.logo)?'<img src="'+DATA.settings.logo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px">':'';
   const fee=Number(o.deliveryFee)||0, tot=Number(o.total)||0;
-  let sub=Number(o.itemsSubtotal)||0, itemsBlock;
-  const findP=nm=>{const t=(nm||'').trim();const ms=(DATA&&DATA.menu)||[];for(const c of ms)for(const it of (c.items||[]))if((it.name||'').trim()===t)return Number(it.price)||0;return null;};
-  const TH='<thead><tr style="background:#6e1423;color:#fff"><th style="text-align:right;padding:6px">الصنف</th><th style="padding:6px">الكمية</th><th style="padding:6px">السعر</th><th style="padding:6px">الإجمالي</th></tr></thead>';
-  if(hasLines){const rows=o.lines.map(l=>`<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(l.name)}</b>${l.opts?`<div style="font-size:11px;color:#888">${esc(l.opts)}</div>`:''}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${l.qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.unit).toFixed(3)}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${Number(l.total).toFixed(3)}</td></tr>`).join('');
-    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;}
-  else{const parts=String(o.items||'').split('،').map(s=>s.trim()).filter(Boolean);let computed=0,anyP=false;
-    const rows=parts.map(p=>{const qm=p.match(/×\s*(\d+)/);const qty=qm?parseInt(qm[1]):1;const nm=p.split('×')[0].trim();const u=findP(nm);if(u!=null){anyP=true;computed+=u*qty;}return `<tr><td style="text-align:right;padding:6px;border-bottom:1px solid #eee"><b>${esc(p)}</b></td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${qty}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?u.toFixed(3):'—'}</td><td style="text-align:center;padding:6px;border-bottom:1px solid #eee">${u!=null?(u*qty).toFixed(3):'—'}</td></tr>`;}).join('');
-    itemsBlock=`<table style="width:100%;border-collapse:collapse;font-size:13px">${TH}<tbody>${rows}</tbody></table>`;
-    if(!sub&&anyP)sub=computed;}
-  let disc=o.discountPct?sub*(o.discountPct/100):0;const discLbl=o.discountPct?('الخصم ('+o.discountPct+'%)'):'الخصم';
+  const L=prLines(o);
+  let sub=Number(o.itemsSubtotal)||0;
+  if(!sub)L.forEach(function(l){if(l.total!=null)sub+=l.total;});
+
+  const rule='<div style="border-top:1px dashed #000;margin:7px 0"></div>';
+  const strong='<div style="border-top:2px solid #000;margin:7px 0"></div>';
+  const row=function(a,b){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px"><span>'+a+'</span><span style="white-space:nowrap;font-weight:700">'+b+'</span></div>';};
+  /* سطر البيان ثنائي اللغة: العربية على اليمين والإنجليزية على اليسار في السطر
+     نفسه، فالقارئ العربي يتابع العمود الأيمن والسائق الذي لا يقرأ العربية يتابع
+     الأيسر دون أن يتقاطعا. القيمة الإنجليزية اختيارية — اسم العميل ورقم هاتفه
+     لا يُترجمان، فيُكتفى في اليسار بعنوان الحقل وحده. */
+  /* أول أربعة بيانات — الرقم والتاريخ والاسم والهاتف — قيمتها لغة واحدة، فتُوضع
+     في منتصف السطر بين عنوانَيها: العربي يمينه والإنجليزي يساره. أعمدة العناوين
+     ثابتة العرض حتى تقع القيم كلها على محور واحد بدل أن يزيحها طول كل عنوان. */
+  const infoC=function(ar,en,v){return v?
+    '<div style="display:flex;align-items:baseline;gap:8px;padding:3px 0">'
+      +'<div style="flex:0 0 78px;font-size:12.5px">'+ar+'</div>'
+      +'<div style="flex:1 1 0;min-width:0;text-align:center;font-size:13px;font-weight:700;word-break:break-word">'+esc(v)+'</div>'
+      +'<div dir="ltr" style="flex:0 0 58px;text-align:left;font-size:11px">'+en+'</div>'
+    +'</div>':'';};
+  const info=function(ar,en,vAr,vEn){
+    if(!vAr&&!vEn)return '';
+    return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:3px 0;line-height:1.35">'
+      +'<div style="flex:1 1 0;min-width:0;text-align:right;font-size:12.5px;word-break:break-word">'
+        +ar+': <b>'+esc(vAr||'—')+'</b>'
+      +'</div>'
+      +'<div dir="ltr" style="flex:1 1 0;min-width:0;text-align:left;font-size:11px;word-break:break-word">'
+        +en+(vEn?(': <b>'+esc(vEn)+'</b>'):'')
+      +'</div>'
+    +'</div>';};
+
+  const items=L.map(function(l){
+    return '<div style="padding:6px 0;border-bottom:1px dotted #999">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'
+        +'<span style="font-size:14.5px;font-weight:700;line-height:1.45">'+esc(l.name)+'</span>'
+        +'<span style="font-size:14px;font-weight:700;white-space:nowrap">'+(l.total==null?'—':l.total.toFixed(3))+'</span>'
+      +'</div>'
+      +(l.en?'<div style="font-size:13.5px;font-weight:600;line-height:1.4;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
+      +'<div style="font-size:11.5px;margin-top:1px">'+l.qty+' × '+(l.unit==null?'—':l.unit.toFixed(3))+'</div>'
+      +(l.opts?'<div style="font-size:11.5px">'+esc(l.opts)+'</div>':'')
+      +(l.optsEn?'<div style="font-size:11px;text-align:right" dir="ltr">'+esc(l.optsEn)+'</div>':'')
+      +(l.note?'<div style="font-size:12.5px;font-weight:700;margin-top:2px">ملاحظة: '+esc(l.note)+'</div>':'')
+      +'</div>';
+  }).join('');
+
+  let disc=o.discountPct?sub*(o.discountPct/100):0;
   if(!o.discountPct&&sub>0){const d=sub-(tot-fee);if(d>0.001)disc=d;}
   let totals='';
-  if(sub>0){ totals+=`<div style="display:flex;justify-content:space-between"><span>المجموع</span><span>${sub.toFixed(3)} ${cur}</span></div>`; if(disc>0.001)totals+=`<div style="display:flex;justify-content:space-between;color:#178c44"><span>${discLbl}</span><span>- ${disc.toFixed(3)} ${cur}</span></div>`; }
-  if(fee>0)totals+=`<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fee.toFixed(3)} ${cur}</span></div>`;
-  totals+=`<div style="display:flex;justify-content:space-between;font-weight:900;font-size:17px;color:#6e1423;border-top:2px solid #6e1423;padding-top:6px;margin-top:4px"><span>الإجمالي</span><span>${tot.toFixed(3)} ${cur}</span></div>`;
-  const info=(l,v)=>v?`<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #eee"><span style="color:#888">${l}</span><b>${esc(v)}</b></div>`:'';
-  const html=`<div style="font-family:'Cairo',sans-serif;color:#2a1a13;max-width:360px;margin:0 auto;padding:10px" dir="rtl">
-    <div style="text-align:center">${lg}<div style="font-size:22px;font-weight:900;color:#6e1423">عهد الضيافة</div><div style="font-size:11px;color:#888">المأكولات الكويتية الأصيلة • حولي، الكويت</div></div>
-    <div style="text-align:center;background:#f7ecd8;color:#6e1423;font-weight:700;border:1px dashed #c8962f;border-radius:6px;padding:6px;margin:10px 0">🧾 فاتورة طلب</div>
-    <div style="border:1px solid #e8d9bf;border-radius:8px;padding:8px 12px;margin-bottom:10px;background:#fdf6ea;font-size:13px">
-      ${info('رقم الفاتورة', esc(o.no||o.id))}
-      ${info('التاريخ', dt)}
-      ${info('العميل', o.name?esc(o.name):'')}
-      ${info('الهاتف', o.phone?esc(o.phone):'')}
-      ${info('طريقة الاستلام', dtype)}
-      ${info('المنطقة', o.area?esc(o.area):'')}
-      ${info('العنوان', o.address?esc(o.address):'')}
-      ${info('وقت التوصيل المتوقع', o.deliveryTime?esc(o.deliveryTime):'')}
-    </div>
-    ${itemsBlock}
-    <div style="margin-top:8px;font-size:14px">${totals}</div>
-    <div style="text-align:center;font-size:12px;color:#888;margin-top:12px;line-height:1.8">نشكر لكم ثقتكم بمطعم عهد الضيافة 🌟<br>نتمنّى لكم وجبة شهية</div>
-  </div>`;
-  document.getElementById('printArea').innerHTML=html;
-  window.print();
+  if(sub>0)totals+=row('المجموع <span style="font-size:10px" dir="ltr">Subtotal</span>',sub.toFixed(3));
+  if(disc>0.001)totals+=row('الخصم'+(o.discountPct?' ('+o.discountPct+'%)':'')+' <span style="font-size:10px" dir="ltr">Discount</span>','- '+disc.toFixed(3));
+  if(fee>0)totals+=row('التوصيل <span style="font-size:10px" dir="ltr">Delivery</span>',fee.toFixed(3));
+
+  const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
+    +'<div style="text-align:center">'+lg
+      +'<div style="font-size:21px;font-weight:900;letter-spacing:.5px">عهد الضيافة</div>'
+      +'<div style="font-size:12.5px;font-weight:700;letter-spacing:2px" dir="ltr">AHD AL-DIYAFA</div>'
+      +'<div style="font-size:12.5px;font-weight:700;margin-top:3px">المأكولات الكويتية الأصيلة — حولي، الكويت</div>'
+    +'</div>'
+    +strong
+    +'<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1px">فاتورة <span style="font-size:11px" dir="ltr">INVOICE</span></div>'
+    +rule
+    +infoC('رقم الفاتورة','No.',o.no||o.id)
+    +infoC('التاريخ','Date',dt)
+    +infoC('العميل','Customer',o.name||'')
+    +infoC('الهاتف','Phone',o.phone||'')
+    +info('الاستلام','Type',dtype,dtypeEn)
+    +info('المنطقة','Area',o.area||'',areaEnOf(o.area))
+    +info('العنوان','Address',o.address||'',addrEnOf(A))
+    +((A&&!A._derived&&(A.floor||A.apt))?info('الدور / الشقة','Floor / Apt',
+        [A.floor?('دور '+A.floor):'',A.apt?('شقة '+A.apt):''].filter(Boolean).join(' — '),
+        [A.floor?('Floor '+A.floor):'',A.apt?('Apt '+A.apt):''].filter(Boolean).join(' — ')):'')
+    +((A&&!A._derived&&A.landmark)?info('علامة مميزة','Landmark',A.landmark,''):'')
+    +info('وقت التوصيل','ETA',o.deliveryTime||'',etaEnOf(o.deliveryTime))
+    +(o.scheduledFor?'<div style="border:2px solid #000;border-radius:4px;padding:6px;margin:7px 0;text-align:center;font-size:13.5px;font-weight:900">طلب مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'<div style="font-size:11px;font-weight:700;margin-top:2px" dir="ltr">Scheduled order — deliver '+esc(fmtSchedEn(o.scheduledFor))+'</div></div>':'')
+    +(o.note?'<div style="border:1px solid #000;border-radius:4px;padding:6px 8px;margin:7px 0;font-size:12.5px;font-weight:700;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
+    +strong
+    +'<div style="font-size:12px;font-weight:900;margin-bottom:2px">الأصناف <span style="font-size:10px" dir="ltr">ITEMS</span></div>'
+    +items
+    +'<div style="margin-top:7px">'+totals+'</div>'
+    +strong
+    +'<div style="display:flex;justify-content:space-between;gap:10px;font-size:17px;font-weight:900"><span>الإجمالي <span style="font-size:11px" dir="ltr">TOTAL</span></span><span style="white-space:nowrap">'+tot.toFixed(3)+' '+cur+'</span></div>'
+    +strong
+    +'<div style="text-align:center;font-size:12.5px;line-height:1.8;margin-top:6px">شكرًا لاختياركم عهد الضيافة<br><span dir="ltr">Thank you for your order</span></div>'
+    +'</div>';
+  doPrint(html);
 }
+
+/* تذكرة المطبخ — أسماء وكميات بخط كبير، بلا أسعار ولا بيانات دفع */
+function printKitchen(id){
+  const o=orders.find(function(x){return x.id===id;}); if(!o)return;
+  const t=o.createdAt?toEn(new Date(o.createdAt).toLocaleString('ar-KW',{hour:'2-digit',minute:'2-digit'})):'';
+  const dtype=o.deliveryType==='pickup'?'استلام من المطعم':(o.deliveryType==='delivery'?'توصيل':'');
+  const dtypeEnK=o.deliveryType==='pickup'?'Pickup':(o.deliveryType==='delivery'?'Delivery':'');
+  /* السائق قد لا يقرأ العربية، فالمنطقة والعنوان يُكرّران بالإنجليزية على التذكرة */
+  const K=ordAddr(o);
+  const kAreaEn=(function(nm){
+    const t=String(nm||'').trim(); if(!t)return '';
+    const as=(DATA&&DATA.settings&&DATA.settings.areas)||[];
+    for(const a of as){ if(String((a&&a.name)||'').trim()===t) return String((a&&a.nameEn)||'').trim(); }
+    return '';
+  })(o.area);
+  const kAddrEn=(function(a){
+    if(!a)return '';
+    const q=[];
+    if(a.block)q.push('Block '+a.block);
+    if(a.street)q.push('Street '+a.street);
+    if(a.ave)q.push('Avenue '+a.ave);
+    if(a.house)q.push('House '+a.house);
+    return q.join(', ');
+  })(K);
+  const L=prLines(o);
+  const items=L.map(function(l){
+    return '<div style="padding:8px 0;border-bottom:1px dashed #000">'
+      +'<div style="display:flex;gap:10px;align-items:baseline">'
+        +'<span style="font-size:26px;font-weight:900;white-space:nowrap">'+l.qty+'×</span>'
+        +'<span style="font-size:19px;font-weight:900;line-height:1.4">'+esc(l.name)+'</span>'
+      +'</div>'
+      +(l.en?'<div style="font-size:14.5px;font-weight:600;padding-right:44px;text-align:right" dir="ltr">'+esc(l.en)+'</div>':'')
+      +(l.opts?'<div style="font-size:13px;padding-right:44px">'+esc(l.opts)+'</div>':'')
+      +(l.optsEn?'<div style="font-size:11.5px;padding-right:44px;text-align:right" dir="ltr">'+esc(l.optsEn)+'</div>':'')
+      +(l.note?'<div style="font-size:16px;font-weight:900;border:2px solid #000;border-radius:4px;padding:4px 7px;margin-top:5px">ملاحظة: '+esc(l.note)+'</div>':'')
+      +'</div>';
+  }).join('');
+  const html='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;color:#000;background:#fff;max-width:360px;margin:0 auto;padding:10px" dir="rtl">'
+    +'<div style="text-align:center;font-size:19px;font-weight:900;letter-spacing:1px">تذكرة تحضير</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:5px"><span>'+esc(String(o.no||o.id))+'</span><span>'+t+'</span></div>'
+    +'<div style="border-top:2px solid #000;margin:7px 0"></div>'
+    +(o.scheduledFor?'<div style="border:3px solid #000;border-radius:4px;padding:8px;margin-bottom:8px;text-align:center;font-size:17px;font-weight:900">مؤجَّل — يُسلَّم '+esc(fmtSched(o.scheduledFor))+'<div style="font-size:12px;font-weight:700;margin-top:3px">لا يلزم تحضيره الآن</div></div>':'')
+    +items
+    +(o.note?'<div style="border:3px solid #000;border-radius:4px;padding:7px 9px;margin-top:9px;font-size:16px;font-weight:900;line-height:1.6">ملاحظات العميل: '+esc(o.note)+'</div>':'')
+    +'<div style="border-top:2px solid #000;margin:8px 0"></div>'
+    +'<div style="font-size:14px;font-weight:700">'+esc([dtype,o.area||''].filter(Boolean).join(' — '))+'</div>'
+    +(kAreaEn?'<div style="font-size:12px;font-weight:700" dir="ltr">'+esc([dtypeEnK,kAreaEn].filter(Boolean).join(' — '))+'</div>':'')
+    +(o.address?'<div style="font-size:13px;margin-top:2px">'+esc(o.address)+'</div>':'')
+    +(kAddrEn?'<div style="font-size:12px" dir="ltr">'+esc(kAddrEn)+'</div>':'')
+    +((K&&!K._derived&&(K.floor||K.apt))?'<div style="font-size:13px;margin-top:2px;font-weight:700">'+esc([K.floor?('دور '+K.floor):'',K.apt?('شقة '+K.apt):''].filter(Boolean).join(' — '))+'</div>'
+        /* الإنجليزية في سطر مستقل باتجاه صريح — خلطها داخل سطر عربي يقلب ترتيب
+           الأرقام فيظهر «شقة 7 7 Apt» بدل أن يقرأها السائق كما هي. */
+        +'<div style="font-size:12px;font-weight:700" dir="ltr">'+esc([K.floor?('Floor '+K.floor):'',K.apt?('Apt '+K.apt):''].filter(Boolean).join(' — '))+'</div>':'')
+    +((K&&!K._derived&&K.landmark)?'<div style="font-size:13px;margin-top:2px">علامة: '+esc(K.landmark)+'</div>':'')
+    +(o.name?'<div style="font-size:13px;margin-top:2px">'+esc(o.name)+(o.phone?(' — '+esc(o.phone)):'')+'</div>':'')
+    +'</div>';
+  doPrint(html);}
 
 /* ===== الحجوزات ===== */
 function loadReservations(){
   if(!KEY)return;
-  fetch('/api/reservations',{headers:akHdr()}).then(r=>r.json()).then(d=>{
+  fetch('/api/orders?rsv=1',{headers:akHdr()}).then(r=>r.json()).then(d=>{
     if(!d.reservations)return;
     let fresh=0;
     d.reservations.forEach(o=>{ if(!resSeen.has(o.id)){ resSeen.add(o.id); if(!resFirst && (!o.status||o.status==="new")) fresh++; } });
-    if(fresh>0){ startAlarm(); document.title="("+fresh+") حجز جديد!"; }
-    resFirst=false; reservations=d.reservations; renderReservations();
+    if(fresh>0){ document.title="("+fresh+") حجز جديد!"; startAlarm(fresh===1?'طلب حجز جديد':('وصل '+fresh+' طلبات حجز'),'rsv'); }
+    resFirst=false; reservations=d.reservations; renderReservations(); retranslate();
   }).catch(()=>{});
 }
 function setRFilter(f,el){rfilter=f;if(el){el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}renderReservations();}
 function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
 function resDate(r){return new Date(r.date||r.createdAt);}
+/* ===== الطلبات المؤجَّلة تظهر مع الحجوزات =====
+   الطلب المؤجَّل ارتباط على موعد تمامًا مثل الحجز، فمكانه الطبيعي في نفس الشاشة
+   بدل أن يضيع وسط طلبات اليوم. الموعد مخزَّن بتوقيت الكويت فنحوّله صراحةً. */
+const SCHED_DEAD={cancelled:1,failed:1,done:1,delivered:1,pending:1};
+function schedMs(sf){
+  const m=String(sf||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+  if(!m)return 0;
+  return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-3*3600000;
+}
+function schedItems(){
+  return (orders||[]).filter(function(o){return o&&o.scheduledFor&&!SCHED_DEAD[o.status];})
+    .map(function(o){return {o:o,ms:schedMs(o.scheduledFor)};})
+    .filter(function(s){return s.ms;});
+}
+function schedCard(s,now){
+  const o=s.o, dt=new Date(s.ms);
+  const isToday=sameDay(dt,now), hrsTo=(s.ms-now.getTime())/3600000;
+  const isSoon=hrsTo>=0&&hrsTo<=3;
+  const late=hrsTo<0;
+  const items=(o.lines&&o.lines.length)?o.lines.map(function(l){return esc(l.name)+' ×'+l.qty+(l.note?(' 📝 '+esc(l.note)):'');}).join('، '):esc(String(o.items||''));
+  return '<div class="order '+(isToday?'is-today ':'')+(isSoon?'is-soon':'')+'" style="border-right:5px solid #c8a349">'
+    +'<div class="top">'
+      +'<div><span class="oid">'+esc(o.name||'عميل')+'</span> <span class="status-tag st-confirmed">طلب مؤجَّل</span>'
+      +(isToday?' <span class="status-tag st-new">اليوم</span>':'')
+      +(late?' <span class="status-tag st-cancelled">فات موعده</span>':'')+'</div>'
+      +'<div style="text-align:left"><div class="time">⏰ '+esc(fmtSched(o.scheduledFor))+'</div></div>'
+    +'</div>'
+    +'<div class="meta">📞 <a href="tel:'+esc(o.phone||'')+'" style="color:inherit">'+esc(o.phone||'—')+'</a> • '+esc(String(o.no||o.id))+' • '+(Number(o.total)||0).toFixed(3)+' د.ك</div>'
+    +(items?'<div class="meta">'+items+'</div>':'')
+    +(o.note?'<div class="meta" style="color:#a2333f;font-weight:800">📝 '+esc(o.note)+'</div>':'')
+    +'<div class="actions">'
+      +'<button class="sbtn print" onclick="printOrder(\''+o.id+'\')">🖨️ فاتورة</button>'
+      +'<button class="sbtn prep" onclick="printKitchen(\''+o.id+'\')">👨‍🍳 تذكرة المطبخ</button>'
+      +'<button class="sbtn done" onclick="goOrders()">📋 فتحه في الطلبات</button>'
+    +'</div></div>';
+}
 function renderReservations(){
   const box=document.getElementById('reservations');
   const now=new Date();
   const isActive=r=>(!r.status||r.status==='new'||r.status==='confirmed');
   // العدّادات
   const pending=reservations.filter(r=>!r.status||r.status==='new').length;
-  document.getElementById('cntRes').textContent=pending;
   const todayList=reservations.filter(r=>r.date&&sameDay(resDate(r),now)&&isActive(r));
-  const upcoming=reservations.filter(r=>r.date&&resDate(r)>now&&!sameDay(resDate(r),now)&&isActive(r));
-  document.getElementById('cntRToday').textContent=todayList.length;
-  document.getElementById('cntRUp').textContent=upcoming.length;
-  // بانر اليوم
+  /* الحجوزات بدون تاريخ محدد تظهر هنا أيضًا — هي طلبات مفتوحة تحتاج متابعة،
+     وإخفاؤها كان يجعل القسم يبدو فارغًا مع وجود طلبات حجز فعلية. */
+  const upcoming=reservations.filter(r=>isActive(r)&&(!r.date||(resDate(r)>now&&!sameDay(resDate(r),now))));
+  const sched=schedItems();
+  const schedToday=sched.filter(function(s){return sameDay(new Date(s.ms),now);});
+  const schedUp=sched.filter(function(s){return s.ms>now.getTime()&&!sameDay(new Date(s.ms),now);});
+  document.getElementById('cntRToday').textContent=todayList.length+schedToday.length;
+  document.getElementById('cntRUp').textContent=upcoming.length+schedUp.length;
+  /* رقم التبويب الرئيسي يشمل الطلبات المؤجَّلة أيضًا بعد أن صارت تُعرض هنا،
+     وإلا ظهر صفرًا بينما القسم بداخله ارتباطات فعلية. */
+  document.getElementById('cntRes').textContent=pending+schedToday.length+schedUp.length;
+  // بانر اليوم — الحجوزات والطلبات المؤجَّلة معًا
   const tConf=todayList.filter(r=>r.status==='confirmed').length, tNew=todayList.length-tConf;
+  const tAll=todayList.length+schedToday.length;
+  const tSub=[todayList.length?(tNew+' حجز بانتظار التأكيد • '+tConf+' حجز مؤكد'):'',schedToday.length?(schedToday.length+' طلب مؤجَّل'):''].filter(Boolean).join(' • ');
   document.getElementById('resToday').innerHTML=`<div class="today-banner">
-    <div class="tb-num">${todayList.length}</div>
-    <div><div class="tb-txt">حجوزات اليوم</div>
-    <div class="tb-sub">${todayList.length?(tNew+' بانتظار التأكيد • '+tConf+' مؤكد'):'لا توجد حجوزات لهذا اليوم'}</div></div>
+    <div class="tb-num">${tAll}</div>
+    <div><div class="tb-txt">ارتباطات اليوم</div>
+    <div class="tb-sub">${tAll?tSub:'لا توجد حجوزات ولا طلبات مؤجَّلة لهذا اليوم'}</div></div>
   </div>`;
-  // الفلترة
-  let list;
-  if(rfilter==='today')list=todayList;
-  else if(rfilter==='upcoming')list=upcoming;
-  else if(rfilter==='past')list=reservations.filter(r=>r.status==='done'||r.status==='cancelled'||(r.date&&resDate(r)<now&&!sameDay(resDate(r),now)));
-  else list=reservations.slice();
-  const sorted=list.sort((a,b)=>resDate(a)-resDate(b));
-  if(!sorted.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات في هذا القسم</p></div>';return;}
-  box.innerHTML=sorted.map(r=>{
+  // الفلترة — الحجوزات والطلبات المؤجَّلة في قائمة واحدة مرتّبة بالموعد
+  let list, sl;
+  if(rfilter==='today'){list=todayList;sl=schedToday;}
+  else if(rfilter==='upcoming'){list=upcoming;sl=schedUp;}
+  else if(rfilter==='past'){list=reservations.filter(r=>r.status==='done'||r.status==='cancelled'||(r.date&&resDate(r)<now&&!sameDay(resDate(r),now)));sl=[];}
+  else {list=reservations.slice();sl=sched;}
+  const items=list.map(function(r){const t=resDate(r).getTime();return {ms:isFinite(t)?t:0,html:resCard(r,now)};})
+    .concat(sl.map(function(s){return {ms:s.ms,html:schedCard(s,now)};}));
+  items.sort(function(a,b){return a.ms-b.ms;});
+  if(!items.length){box.innerHTML='<div class="empty"><div class="big">📅</div><p>لا توجد حجوزات ولا طلبات مؤجَّلة في هذا القسم</p></div>';return;}
+  box.innerHTML=items.map(function(x){return x.html;}).join('');
+}
+function resCard(r,now){
     const stMap={new:['جديد','st-new'],confirmed:['مؤكد','st-confirmed'],done:['تم','st-done'],cancelled:['ملغي','st-cancelled']};
     const stKey=r.status||'new';
     const st=stMap[stKey]||stMap.new;
     const dt=r.date?resDate(r):null;
-    const d=dt?toEn(dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'})):'—';
+    const d=dt?toEn(dt.toLocaleString('ar-KW',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'})):'التاريخ غير محدد — يُرجى الاتصال بالعميل';
     const isToday=dt&&sameDay(dt,now);
     const hrsTo=dt?(dt-now)/3600000:999;
     const isSoon=isToday&&hrsTo>=0&&hrsTo<=3&&(stKey==='new'||stKey==='confirmed');
@@ -648,10 +1836,9 @@ function renderReservations(){
         ${stKey!=='cancelled'?`<button class="sbtn cancel" onclick="updRes('${r.id}','cancelled')">✖️ إلغاء</button>`:''}
       </div>
     </div>`;
-  }).join('');
 }
 function updRes(id,status){
-  fetch('/api/reservations',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({id,status})})
+  fetch('/api/orders',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({kind:'reservation',id,status})})
     .then(()=>{const r=reservations.find(x=>x.id===id);if(r)r.status=status;renderReservations();});
 }
 
@@ -660,8 +1847,8 @@ function loadMenuData(){
   fetch('/api/menu?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(d=>{
     DATA.menu=d.menu||[]; DATA.settings=d.settings||{};
     if(!Array.isArray(DATA.settings.areas))DATA.settings.areas=[];
-    if(!Array.isArray(DATA.settings.hours)||!DATA.settings.hours.length)DATA.settings.hours=[{days:"السبت - الخميس",time:"١١ ص - ١٢ م"},{days:"الجمعة",time:"١ ظ - ١٢ م"}];
-    renderMenuEditor(); fillSettings(); renderAreas('');
+    if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
+    renderMenuEditor(); fillSettings(); renderAreas(''); retranslate();
   }).catch(()=>{});
 }
 function renderMenuEditor(){
@@ -673,6 +1860,7 @@ function renderMenuEditor(){
       return `<div class="item-block">
         ${img}
         <input class="ib-name" value="${(it.name||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].name=this.value" placeholder="اسم الطبق">
+        <input class="ib-desc" dir="ltr" value="${(it.nameEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].nameEn=this.value" placeholder="English name">
         <input class="ib-desc" value="${(it.desc||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].desc=this.value" placeholder="الوصف">
         <input class="num" type="number" step="0.05" value="${it.price}" oninput="DATA.menu[${ci}].items[${ii}].price=parseFloat(this.value)||0">
         <input class="num" type="number" step="5" value="${it.prepTime!=null?it.prepTime:20}" oninput="DATA.menu[${ci}].items[${ii}].prepTime=parseInt(this.value)||0">
@@ -684,22 +1872,25 @@ function renderMenuEditor(){
     }).join('');
     return `<div class="card">
       <div class="cat-head">
-        <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:'Cairo';font-weight:700;color:var(--maroon);margin:0">
+        <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0">
+        <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0;max-width:190px">
         <button class="delx" onclick="delCat(${ci})">🗑</button>
       </div>
-      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
+      ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>English</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
       ${items}
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
   }).join('');
+  refreshHiddenBar();refreshNoImgBar();
 }
 function toggleAvail(ci,ii){const it=DATA.menu[ci].items[ii];it.available=(it.available===false);renderMenuEditor();}
 function onItemImg(ci,ii,inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=500;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.72);}catch(_){url=rd.result;}DATA.menu[ci].items[ii].img=url;renderMenuEditor();toast("✅ تم اختيار الصورة — اضغط حفظ المنيو");};img.src=rd.result;};rd.readAsDataURL(f);}
-function addItem(ci){DATA.menu[ci].items.push({id:Date.now(),name:"",desc:"",price:0,img:"",prepTime:20,available:true});renderMenuEditor();}
+function addItem(ci){DATA.menu[ci].items.push({id:Date.now(),name:"",nameEn:"",desc:"",price:0,img:"",prepTime:20,available:true});renderMenuEditor();}
 function delItem(ci,ii){if(!confirm("حذف هذا الصنف؟"))return;DATA.menu[ci].items.splice(ii,1);renderMenuEditor();}
 function addCat(){DATA.menu.push({cat:"قسم جديد",items:[]});renderMenuEditor();}
 function delCat(ci){if(!confirm("حذف هذا القسم وكل أصنافه؟"))return;DATA.menu.splice(ci,1);renderMenuEditor();}
 function saveMenu(){
+  delete DATA.settings.openTime; delete DATA.settings.closeTime;
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ المنيو":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
 }
@@ -723,23 +1914,92 @@ function addArea(){DATA.settings.areas.unshift({name:"منطقة جديدة",fee
 function delArea(i){if(!confirm("حذف هذه المنطقة؟"))return;DATA.settings.areas.splice(i,1);renderAreas(document.getElementById('areaFilter').value);}
 
 /* ===== الإعدادات ===== */
+const HR_DAYS=[{i:6,n:'السبت'},{i:0,n:'الأحد'},{i:1,n:'الاثنين'},{i:2,n:'الثلاثاء'},{i:3,n:'الأربعاء'},{i:4,n:'الخميس'},{i:5,n:'الجمعة'}];
+const HR_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function hrNorm(h){
+  /* يحوّل الصيغة القديمة (نص أيام + نص وقت) لصيغة النطاقات */
+  if(!h||typeof h!=='object')return {days:[],open:'',close:'',label:'',labelEn:''};
+  if(!Array.isArray(h.days)){
+    const old=(typeof h.days==='string')?h.days:'';
+    return {days:[],open:'',close:'',label:old,labelEn:h.daysEn||'',time:h.time||'',timeEn:h.timeEn||''};
+  }
+  h.days=h.days.map(Number).filter(n=>n>=0&&n<=6);
+  h.open=h.open||'';h.close=h.close||'';
+  return h;
+}
+function hrPreview(h){
+  const ds=h.days||[];
+  if(!ds.length)return h.label?('سيظهر: '+h.label+(h.time?(' — '+h.time):'')):'⚠️ اختر الأيام';
+  let lbl;
+  if(ds.length===7)lbl='كل أيام الأسبوع';
+  else{
+    const pos=HR_DAYS.map((d,i)=>ds.indexOf(d.i)>=0?i:-1).filter(i=>i>=0);
+    const run=pos.every((v,i)=>i===0||v===pos[i-1]+1);
+    lbl=(run&&pos.length>2)?(HR_DAYS[pos[0]].n+' - '+HR_DAYS[pos[pos.length-1]].n)
+                           :pos.map(i=>HR_DAYS[i].n).join('، ');
+  }
+  const f=v=>{const m=(''+v).match(/(\d{1,2}):(\d{2})/);if(!m)return '';let hh=+m[1];
+    if(hh===0&&m[2]==='00')return 'منتصف الليل';
+    const ap=hh<12?'ص':'م';let h12=hh%12;if(h12===0)h12=12;return h12+':'+m[2]+' '+ap;};
+  if(!h.open||!h.close)return '⚠️ '+lbl+' — حدّد وقت الفتح والإغلاق';
+  const t=(h.open===h.close)?'٢٤ ساعة':(f(h.open)+' - '+f(h.close));
+  const over=(h.close<h.open&&h.close!=='00:00')?'  (يمتد بعد منتصف الليل)':'';
+  return 'سيظهر للعميل: '+lbl+' — '+t+over;
+}
 function renderHours(){
   const box=document.getElementById('hoursBox');if(!box)return;
-  const hrs=DATA.settings.hours||[];
-  box.innerHTML=hrs.map((h,i)=>`<div class="hour-row"><input value="${(h.days||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].days=this.value" placeholder="الأيام (السبت - الخميس)"><input value="${(h.time||'').replace(/"/g,'&quot;')}" oninput="DATA.settings.hours[${i}].time=this.value" placeholder="الوقت (١١ص - ١٢م)"><button class="delx" onclick="delHour(${i})">🗑</button></div>`).join('');
+  if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
+  DATA.settings.hours=DATA.settings.hours.map(hrNorm);
+  const hrs=DATA.settings.hours;
+  const warn=hrs.length?'':'<div style="background:#fdecea;border:1px solid #e2a49c;border-radius:8px;padding:10px 12px;font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;font-weight:700;color:#c0392b;font-size:13px;margin-bottom:8px">⚠️ لا توجد مواعيد — لن يظهر قسم أوقات العمل للعميل</div>';
+  box.innerHTML=warn+hrs.map((h,i)=>`<div class="hr-card">
+    <div class="hr-top"><span class="hr-ttl">نطاق ${i+1}</span><button class="delx" onclick="delHour(${i})">🗑</button></div>
+    <div class="hr-days">${HR_DAYS.map(d=>`<button type="button" class="hr-day ${(h.days||[]).indexOf(d.i)>=0?'on':''}" onclick="hrToggleDay(${i},${d.i})">${d.n}</button>`).join('')}</div>
+    <div class="hr-presets">
+      <button type="button" onclick="hrPreset(${i},'all')">كل الأسبوع</button>
+      <button type="button" onclick="hrPreset(${i},'satthu')">السبت - الخميس</button>
+      <button type="button" onclick="hrPreset(${i},'fri')">الجمعة فقط</button>
+      <button type="button" onclick="hrPreset(${i},'none')">مسح الأيام</button>
+    </div>
+    <div class="hr-times">
+      <span>من</span><input type="time" value="${h.open||''}" onchange="hrSet(${i},'open',this.value)">
+      <span>إلى</span><input type="time" value="${h.close||''}" onchange="hrSet(${i},'close',this.value)">
+    </div>
+    <div class="hr-lbl">
+      <input value="${(h.label||'').replace(/"/g,'&quot;')}" oninput="hrSet(${i},'label',this.value)" placeholder="نص مخصص للأيام (اختياري)">
+      <input dir="ltr" value="${(h.labelEn||'').replace(/"/g,'&quot;')}" oninput="hrSet(${i},'labelEn',this.value)" placeholder="Days in English (optional)">
+    </div>
+    <div class="hr-prev">${hrPreview(h)}</div>
+  </div>`).join('');
 }
-function addHour(){if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];DATA.settings.hours.push({days:"",time:""});renderHours();}
+function hrSet(i,k,v){DATA.settings.hours[i][k]=v;renderHours();}
+function hrToggleDay(i,d){
+  const h=DATA.settings.hours[i];if(!Array.isArray(h.days))h.days=[];
+  const at=h.days.indexOf(d); if(at>=0)h.days.splice(at,1); else h.days.push(d);
+  renderHours();
+}
+function hrPreset(i,kind){
+  const h=DATA.settings.hours[i];
+  h.days = kind==='all'?[0,1,2,3,4,5,6] : kind==='satthu'?[6,0,1,2,3,4] : kind==='fri'?[5] : [];
+  renderHours();
+}
+function addHour(){
+  if(!Array.isArray(DATA.settings.hours))DATA.settings.hours=[];
+  const used=[].concat.apply([],DATA.settings.hours.map(h=>Array.isArray(h.days)?h.days:[]));
+  const rest=[0,1,2,3,4,5,6].filter(d=>used.indexOf(d)<0);
+  DATA.settings.hours.push({days:rest.length?rest:[6,0,1,2,3,4],open:'',close:'',label:'',labelEn:''});
+  renderHours();
+}
 function delHour(i){DATA.settings.hours.splice(i,1);renderHours();}
 function fillSettings(){
   const s=DATA.settings||{};
   document.getElementById('setWa').value=s.whatsapp||"";
-  const pctVal=(v,dv)=>v==null?dv:(v<=1?Math.round(v*100):v);
-  document.getElementById('setDiscTh').value=(s.discThreshold!=null?s.discThreshold:8);
-  document.getElementById('setDiscLow').value=pctVal(s.discLow!=null?s.discLow:s.directDiscount,10);
-  document.getElementById('setDiscHigh').value=pctVal(s.discHigh,20);
+  document.getElementById('setDisc').value=(s.directDiscount==null?10:(s.directDiscount<=1?Math.round(s.directDiscount*100):s.directDiscount));
+  document.getElementById('setDiscTh').value=(s.discThreshold==null?8:s.discThreshold);
+  document.getElementById('setDiscLow').value=(s.discLow==null?10:(s.discLow<=1?Math.round(s.discLow*100):s.discLow));
+  document.getElementById('setDiscHigh').value=(s.discHigh==null?20:(s.discHigh<=1?Math.round(s.discHigh*100):s.discHigh));
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
-  document.getElementById('setOpen').value=s.openTime||"";
-  document.getElementById('setClose').value=s.closeTime||"";
+  document.getElementById('setSchedLead').value=(s.schedLeadMin!=null?s.schedLeadMin:120);
   renderHours();
   const lp=document.getElementById('logoPrev');
   if(s.logo){lp.src=s.logo;lp.style.display='block';}else{lp.style.display='none';}
@@ -747,13 +2007,16 @@ function fillSettings(){
 function onLogoFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=function(){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const max=300;let w=img.width,h=img.height;if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let url;try{url=c.toDataURL('image/jpeg',0.8);}catch(_){url=rd.result;}DATA.settings.logo=url;const lp=document.getElementById('logoPrev');lp.src=url;lp.style.display='block';toast("✅ تم اختيار الشعار — اضغط حفظ الإعدادات");};img.src=rd.result;};rd.readAsDataURL(f);}
 function saveSettings(){
   DATA.settings.whatsapp=document.getElementById('setWa').value.trim();
-  {const th=Math.max(0,parseFloat(document.getElementById('setDiscTh').value)||0);
-   let lo=parseFloat(document.getElementById('setDiscLow').value)||0;if(lo>1)lo=lo/100;lo=Math.max(0,Math.min(lo,0.95));
-   let hi=parseFloat(document.getElementById('setDiscHigh').value)||0;if(hi>1)hi=hi/100;hi=Math.max(0,Math.min(hi,0.95));
-   DATA.settings.discThreshold=th;DATA.settings.discLow=lo;DATA.settings.discHigh=hi;DATA.settings.directDiscount=lo;}
+  {let p=parseFloat(document.getElementById('setDisc').value)||0;if(p>1)p=p/100;DATA.settings.directDiscount=Math.max(0,Math.min(p,0.95));}
+  {const th=parseFloat(document.getElementById('setDiscTh').value);DATA.settings.discThreshold=(isFinite(th)&&th>0)?th:0;}
+  {let lo=parseFloat(document.getElementById('setDiscLow').value);if(!isFinite(lo))lo=0;if(lo>1)lo=lo/100;DATA.settings.discLow=Math.max(0,Math.min(lo,0.95));}
+  {let hi=parseFloat(document.getElementById('setDiscHigh').value);if(!isFinite(hi))hi=0;if(hi>1)hi=hi/100;DATA.settings.discHigh=Math.max(0,Math.min(hi,0.95));}
+  if(DATA.settings.discThreshold>0)DATA.settings.directDiscount=DATA.settings.discLow;
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
-  DATA.settings.openTime=document.getElementById('setOpen').value||"";
-  DATA.settings.closeTime=document.getElementById('setClose').value||"";
+  {let v=parseInt(document.getElementById('setSchedLead').value,10);if(!isFinite(v))v=120;DATA.settings.schedLeadMin=Math.max(5,Math.min(v,1440));}
+  /* المواعيد كلها من نطاقات hours — نشيل الإعداد القديم عشان ما يفضلش مصدر تاني */
+  delete DATA.settings.openTime; delete DATA.settings.closeTime;
+  (DATA.settings.hours||[]).forEach(r=>{ if(r&&r.open&&r.close){ delete r.time; delete r.timeEn; } });
   if(DATA.settings.currency==null)DATA.settings.currency="د.ك";
   fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':KEY},body:JSON.stringify({menu:DATA.menu,settings:DATA.settings})})
     .then(r=>r.json()).then(d=>{toast(d.ok?"✅ تم حفظ الإعدادات":"❌ فشل الحفظ");}).catch(()=>toast("❌ خطأ في الاتصال"));
@@ -762,14 +2025,24 @@ function saveSettings(){
 /* ===== تصدير / استيراد المنيو (Excel) ===== */
 function _cN(c){return typeof c==='string'?c:(c&&c.name||'');}
 function _cP(c){return typeof c==='string'?0:(c&&Number(c.price)||0);}
-function encOpts(opts){return (opts||[]).map(g=>{const lbl=(g.label||'')+(g.required?'*':'');const ch=(g.choices||[]).map(c=>{const n=_cN(c),p=_cP(c);return p>0?(n+'('+p.toFixed(3)+')'):n;}).join(' ، ');return lbl+' = '+ch;}).join(' ؛ ');}
+function _cE(c){return (typeof c==='string')?'':((c&&c.nameEn)||'');}
+function encOpts(opts){return (opts||[]).map(g=>{
+  const lbl=(g.label||'')+(g.labelEn?('|'+g.labelEn):'')+(g.required?'*':'');
+  const ch=(g.choices||[]).map(c=>{const n=_cN(c)+(_cE(c)?('|'+_cE(c)):''),p=_cP(c);return p>0?(n+'('+p.toFixed(3)+')'):n;}).join(' ، ');
+  return lbl+' = '+ch;}).join(' ؛ ');}
 function parseOpts(text){
   if(!text||!(''+text).trim())return [];
   return (''+text).split(/[؛;]/).map(s=>s.trim()).filter(Boolean).map(part=>{
     const eq=part.split('=');const lblRaw=(eq[0]||'').trim();const rest=eq.slice(1).join('=').trim();
-    const required=/\*\s*$/.test(lblRaw);const label=lblRaw.replace(/\*\s*$/,'').trim();
-    const choices=rest.split(/[،,]/).map(c=>c.trim()).filter(Boolean).map(c=>{const m=c.match(/^(.*?)\(\s*([\d.]+)\s*\)\s*$/);return m?{name:m[1].trim(),price:parseFloat(m[2])||0}:{name:c,price:0};});
-    return {label:label,required:required,choices:choices};
+    const required=/\*\s*$/.test(lblRaw);let label=lblRaw.replace(/\*\s*$/,'').trim();
+    /* "عربي|English" يفصل الاسم العربي عن الإنجليزي */
+    let labelEn='';{const b=label.split('|');if(b.length>1){label=b[0].trim();labelEn=b.slice(1).join('|').trim();}}
+    const choices=rest.split(/[،,]/).map(c=>c.trim()).filter(Boolean).map(c=>{
+      const m=c.match(/^(.*?)\(\s*([\d.]+)\s*\)\s*$/);
+      let nm=m?m[1].trim():c, pr=m?(parseFloat(m[2])||0):0, en='';
+      const b=nm.split('|');if(b.length>1){nm=b[0].trim();en=b.slice(1).join('|').trim();}
+      return {name:nm,nameEn:en,price:pr};});
+    return {label:label,labelEn:labelEn,required:required,choices:choices};
   });
 }
 function exportMenu(){
@@ -812,13 +2085,13 @@ function importMenu(inp){
           desc:cDesc>=0?(''+(r[cDesc]||'')):'',
           price:cPrice>=0?(parseFloat(r[cPrice])||0):0,
           prepTime:cPrep>=0?(parseInt(r[cPrep])||0):0,
-          available: cAv>=0? !/^(لا|غير|no|false|0)\b/i.test((''+(r[cAv]||'')).trim()) : true,
+          available: cAv>=0? !/^\s*(لا|no|false|0|غير.*)\s*$/i.test((''+(r[cAv]||'')).trim()) : true,
           img: old?old.img:'',
           options: optTxt? parseOpts(optTxt) : (old?(old.options||[]):[])
         });
       }
       const total=newMenu.reduce((a,c)=>a+c.items.length,0);
-      if(!total){toast("❌ مفيش أصناف في الملف");return;}
+      if(!total){toast("❌ لا توجد أصناف في الملف");return;}
       if(!confirm("سيتم استبدال المنيو بالكامل بالملف ("+total+" صنف في "+newMenu.length+" قسم). متأكد؟"))return;
       DATA.menu=newMenu;renderMenuEditor();saveMenu();
       toast("✅ تم استيراد المنيو وحفظه");
@@ -946,13 +2219,14 @@ async function loadStats(range,el){
   const rangeLbl=(statsCustom&&statsCustom.label)?statsCustom.label:(d.mode==='custom'?('من '+fmt(d.from)+' إلى '+fmt(d.to)):(({1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم',90:'آخر 3 شهور'})[d.range]||''));
   const KWD=v=>Number(v||0).toFixed(3)+' د.ك';
   const card=(ic,lb,vl,sb)=>`<div class="scard"><div class="sic">${ic}</div><div class="sval">${vl}</div><div class="slbl">${lb}</div>${sb?`<div class="ssub">${sb}</div>`:''}</div>`;
-  let h='<div style="font-family:\'Cairo\';font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
+  let h='<div style="font-family:Calibri,\'Segoe UI\',\'Cairo\',sans-serif;font-weight:700;color:#6e1423;margin:2px 0 12px">📅 '+rangeLbl+'</div><div class="sgrid">';
   h+=card('💰','الإيرادات (مدفوعة)',KWD(o.revenue),'اليوم: '+KWD(o.revToday));
   h+=card('🧾','الطلبات',o.total||0);
   h+=card('✅','طلبات مدفوعة',o.paidCount||0);
   h+=card('👥','زيارات',t.visits||0,'الكل: '+(t.visitsTotal||0));
   h+=card('👁️','مشاهدات',t.pv||0);
-  h+=card('🛒','إضافة للسلة',t.atc||0);
+  h+=card('🛒','إضافة للسلة (ضغطات)',t.atc||0);
+  h+=card('🧺','سلال (أشخاص)',t.atcu||0);
   h+='</div>';
   const labels=t.chartLabels||[],vs=t.chartVisits||[],pv=t.chartPv||[];
   const maxv=Math.max(1,...vs,...pv);
@@ -962,10 +2236,11 @@ async function loadStats(range,el){
     h+=`<div class="barcol"><div class="barwrap"><div class="bar bar-pv" style="height:${hp}%"></div><div class="bar bar-v" style="height:${hv}%"></div></div><div class="barn">${vs[i]||0}</div><div class="barlbl">${labels[i]||''}</div></div>`;
   }
   h+='</div><div class="leg"><span><i class="dv"></i> زيارات</span><span><i class="dpv"></i> مشاهدات</span></div></div>';
-  const fv=t.visits||0,fa=t.atc||0,fc=t.co||0,fo=o.paidCount||0,pct=(a,b)=>b?Math.round(a/b*100):0;
+  const fv=t.visits||0,fa=t.atc||0,fu=t.atcu||0,fc=t.co||0,fo=o.paidCount||0,pct=(a,b)=>b?Math.round(a/b*100):0;
   h+='<div class="spanel"><h3>مسار التحويل ('+rangeLbl+')</h3><div class="funnel">';
   h+=`<div class="fstep"><span>زيارات</span><b>${fv}</b></div>`;
-  h+=`<div class="fstep"><span>إضافة للسلة</span><b>${fa}</b><small>${pct(fa,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>إضافة للسلة (ضغطات)</span><b>${fa}</b><small>${pct(fa,fv)}%</small></div>`;
+  h+=`<div class="fstep"><span>🧺 سلال (أشخاص)</span><b>${fu}</b><small>${pct(fu,fv)}%</small></div>`;
   h+=`<div class="fstep"><span>بدء الدفع</span><b>${fc}</b><small>${pct(fc,fv)}%</small></div>`;
   h+=`<div class="fstep"><span>طلبات مدفوعة</span><b>${fo}</b><small>${pct(fo,fv)}%</small></div>`;
   h+='</div></div>';
@@ -979,7 +2254,7 @@ async function loadStats(range,el){
   const src=t.sources||[];
   if(src.length){const tt=src.reduce((s,x)=>s+x.count,0)||1;h+='<div class="toplist">';src.forEach(s=>{h+=`<div class="toprow"><span class="topn">${sN[s.name]||s.name}</span><span class="topbar"><span style="width:${Math.round(s.count/tt*100)}%"></span></span><b>${s.count}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات بعد</div>';
   h+='</div></div>';
-  const c=o.counts||{},stN={new:'جديد',preparing:'قيد التحضير',done:'مكتمل',pending:'بانتظار الدفع',awaiting:'واتساب',failed:'فشل دفع',cancelled:'ملغي'};
+  const c=o.counts||{},stN={new:'جديد',preparing:'قيد التحضير',delivering:'في الطريق',done:'مكتمل',pending:'بانتظار الدفع',awaiting:'واتساب',failed:'فشل دفع',cancelled:'ملغي'};
   h+='<div class="spanel"><h3>حالات الطلبات</h3><div class="sgrid2">';
   Object.keys(stN).forEach(k=>{if(c[k])h+=`<div class="stbox"><b>${c[k]}</b><span>${stN[k]}</span></div>`;});
   h+='</div></div>';
