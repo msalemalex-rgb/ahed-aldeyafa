@@ -38,12 +38,12 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1849161062727719');
+fbq('init', '2260718927994526');
 fbq('track', 'PageView');
 }
 </script>
 <noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1849161062727719&ev=PageView&noscript=1"
+src="https://www.facebook.com/tr?id=2260718927994526&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel -->
 <title>مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل</title>
@@ -1047,6 +1047,7 @@ function changeQty(key,d){const l=cart.find(x=>x.key===key);if(!l)return;l.qty+=
 /* ===== نافذة اختيارات الصنف ===== */
 function openOptions(it){
   optItem=it;
+  try{fbTrack('ViewContent',{content_name:it.name,content_ids:[String(it.id)],content_type:'product',value:Number(it.price)||0,currency:'KWD'});}catch(_){}
   document.getElementById('optTitle').textContent=itName(it);
   document.getElementById('optBody').innerHTML=(it.options||[]).map((g,gi)=>{
     const choices=(g.choices||[]).map((c,ci)=>{const cc=normChoice(c);const extra=cc.price>0?(' <span style="color:var(--muted);font-size:12px">(+'+cc.price.toFixed(3)+')</span>'):'';
