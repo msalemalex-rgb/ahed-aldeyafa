@@ -204,6 +204,14 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
 .cst-tag.gone{background:#fdecea;color:#b32d1f}
 .cst-ord{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:13px}
 </style>
+<style>
+.item-block{position:relative}
+.dragh{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;font-size:15px;line-height:1;color:var(--maroon);background:#f6efe4;border:1px solid var(--line);border-radius:6px;padding:3px 5px;flex:0 0 auto}
+.item-block>.dragh{position:absolute;top:1px;inset-inline-start:1px;z-index:4;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.item-block,#menuEditor>.card{transition:transform .12s ease}
+.dragging{opacity:.96;z-index:50;position:relative;transition:none!important;box-shadow:0 10px 26px rgba(0,0,0,.28)!important}
+body.dragbusy,body.dragbusy *{-webkit-user-select:none;user-select:none}
+</style>
 </head>
 <body>
 <div id="alarmBar" onclick="stopAlarm()" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:#c0392b;color:#fff;text-align:center;padding:15px;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,.35)">🔔 طلب جديد وصل! اضغط هنا لإيقاف صوت التنبيه</div>
@@ -311,6 +319,7 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
         <label class="fld">نسبة الخصم من الحدّ فأكثر (٪)</label>
         <input id="setDiscHigh" type="number" step="1" min="0" max="95" placeholder="20">
         <div class="chk"><input type="checkbox" id="setPickup"> <label for="setPickup">تفعيل خيار الاستلام من المطعم</label></div>
+        <div class="chk"><input type="checkbox" id="setHideUnav"> <label for="setHideUnav">إخفاء الأصناف غير المتاحة من المنيو بدل عرضها «نفد»</label></div>
         <label class="fld">تنبيه الطلبات المؤجَّلة — كم دقيقة قبل موعد التسليم يصل التنبيه؟</label>
         <input id="setSchedLead" type="number" step="15" min="5" max="1440" placeholder="120">
         <div style="font-size:12px;color:var(--muted);margin-top:-4px;line-height:1.7">مثال: ١٢٠ تعني وصول التنبيه قبل الموعد بساعتين، ويتكرر التنبيه حتى تفتح لوحة التحكم.</div>
@@ -1851,6 +1860,51 @@ function loadMenuData(){
     renderMenuEditor(); fillSettings(); renderAreas(''); retranslate();
   }).catch(()=>{});
 }
+/* ===== سحب وإفلات لترتيب الأقسام والأصناف ===== */
+let _dg=null;
+function dragStart(e,kind,ci){
+  if(e.button!=null&&e.button!==0)return;
+  const row=e.currentTarget.closest(kind==='cat'?'.card':'.item-block');
+  if(!row||!row.parentNode)return;
+  e.preventDefault();e.stopPropagation();
+  const sel=kind==='cat'?'.card':'.item-block';
+  const list=[].slice.call(row.parentNode.children).filter(function(el){return el.matches&&el.matches(sel);});
+  const from=list.indexOf(row);if(from<0)return;
+  const rects=list.map(function(el){return el.getBoundingClientRect();});
+  _dg={kind:kind,ci:ci,from:from,to:from,row:row,list:list,rects:rects,y0:e.clientY};
+  row.classList.add('dragging');document.body.classList.add('dragbusy');
+  window.addEventListener('pointermove',dragMove,{passive:false});
+  window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd);
+}
+function dragMove(e){
+  if(!_dg)return;e.preventDefault();
+  const dy=e.clientY-_dg.y0,fr=_dg.rects[_dg.from];
+  _dg.row.style.transform='translateY('+dy+'px)';
+  const mid=fr.top+fr.height/2+dy;let to=_dg.from;
+  for(let k=0;k<_dg.rects.length;k++){const r=_dg.rects[k];if(mid>=r.top&&mid<=r.bottom){to=k;break;}
+    if(k===0&&mid<r.top){to=0;}
+    if(k===_dg.rects.length-1&&mid>r.bottom){to=k;}}
+  _dg.to=to;
+  _dg.list.forEach(function(el,k){
+    if(k===_dg.from)return;let sh=0;
+    if(_dg.from<to&&k>_dg.from&&k<=to)sh=-fr.height;
+    else if(_dg.from>to&&k>=to&&k<_dg.from)sh=fr.height;
+    el.style.transform=sh?('translateY('+sh+'px)'):'';});
+}
+function dragEnd(){
+  if(!_dg)return;const g=_dg;_dg=null;
+  window.removeEventListener('pointermove',dragMove);
+  window.removeEventListener('pointerup',dragEnd);window.removeEventListener('pointercancel',dragEnd);
+  g.list.forEach(function(el){el.style.transform='';el.classList.remove('dragging');});
+  document.body.classList.remove('dragbusy');
+  if(g.to!==g.from){
+    const arr=(g.kind==='cat')?DATA.menu:DATA.menu[g.ci].items;
+    if(!Array.isArray(arr)||g.from>=arr.length||g.to>=arr.length){renderMenuEditor();return;}
+    const m=arr.splice(g.from,1)[0];arr.splice(g.to,0,m);
+    try{toast('تم الترتيب — اضغط «حفظ المنيو» للتثبيت');}catch(_){}
+  }
+  renderMenuEditor();
+}
 function renderMenuEditor(){
   const box=document.getElementById('menuEditor');
   box.innerHTML=DATA.menu.map((c,ci)=>{
@@ -1858,6 +1912,7 @@ function renderMenuEditor(){
       const av=it.available!==false;
       const img=it.img?`<img class="ib-thumb" src="${it.img}" onerror="this.outerHTML='<div class=&quot;ib-thumb noimg&quot;>صورة</div>'">`:`<div class="ib-thumb noimg">صورة</div>`;
       return `<div class="item-block">
+        <span class="dragh" title="اسحب للترتيب" onpointerdown="dragStart(event,'item',${ci})">\u283F</span>
         ${img}
         <input class="ib-name" value="${(it.name||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].name=this.value" placeholder="اسم الطبق">
         <input class="ib-desc" dir="ltr" value="${(it.nameEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].items[${ii}].nameEn=this.value" placeholder="English name">
@@ -1872,6 +1927,7 @@ function renderMenuEditor(){
     }).join('');
     return `<div class="card">
       <div class="cat-head">
+        <span class="dragh" title="اسحب لترتيب القسم" onpointerdown="dragStart(event,'cat',${ci})">\u283F</span>
         <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0">
         <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0;max-width:190px">
         <button class="delx" onclick="delCat(${ci})">🗑</button>
@@ -1998,6 +2054,7 @@ function fillSettings(){
   document.getElementById('setDiscTh').value=(s.discThreshold==null?8:s.discThreshold);
   document.getElementById('setDiscLow').value=(s.discLow==null?10:(s.discLow<=1?Math.round(s.discLow*100):s.discLow));
   document.getElementById('setDiscHigh').value=(s.discHigh==null?20:(s.discHigh<=1?Math.round(s.discHigh*100):s.discHigh));
+  document.getElementById('setHideUnav').checked=!!s.hideUnavailable;
   document.getElementById('setPickup').checked=s.pickupEnabled!==false;
   document.getElementById('setSchedLead').value=(s.schedLeadMin!=null?s.schedLeadMin:120);
   renderHours();
@@ -2012,6 +2069,7 @@ function saveSettings(){
   {let lo=parseFloat(document.getElementById('setDiscLow').value);if(!isFinite(lo))lo=0;if(lo>1)lo=lo/100;DATA.settings.discLow=Math.max(0,Math.min(lo,0.95));}
   {let hi=parseFloat(document.getElementById('setDiscHigh').value);if(!isFinite(hi))hi=0;if(hi>1)hi=hi/100;DATA.settings.discHigh=Math.max(0,Math.min(hi,0.95));}
   if(DATA.settings.discThreshold>0)DATA.settings.directDiscount=DATA.settings.discLow;
+  DATA.settings.hideUnavailable=document.getElementById('setHideUnav').checked;
   DATA.settings.pickupEnabled=document.getElementById('setPickup').checked;
   {let v=parseInt(document.getElementById('setSchedLead').value,10);if(!isFinite(v))v=120;DATA.settings.schedLeadMin=Math.max(5,Math.min(v,1440));}
   /* المواعيد كلها من نطاقات hours — نشيل الإعداد القديم عشان ما يفضلش مصدر تاني */
@@ -2250,7 +2308,7 @@ async function loadStats(range,el){
   if(ti.length){const mx=Math.max(1,...ti.map(x=>x.qty));h+='<div class="toplist">';ti.forEach((it,i)=>{h+=`<div class="toprow"><span class="topn">${i+1}. ${it.name}</span><span class="topbar"><span style="width:${Math.round(it.qty/mx*100)}%"></span></span><b>${it.qty}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات كافية بعد</div>';
   h+='</div>';
   h+='<div class="spanel"><h3>مصادر الزيارة</h3>';
-  const sN={instagram:'📷 إنستجرام',google:'🔍 جوجل',facebook:'👍 فيسبوك',tiktok:'🎵 تيك توك',snapchat:'👻 سناب شات',whatsapp:'💬 واتساب',twitter:'🐦 X',direct:'🔗 مباشر',internal:'↩️ داخلي',other:'🌐 أخرى'};
+  const sN={ig:'📷 إنستجرام — رابط معلَّم',insta:'📷 إنستجرام — رابط معلَّم',instagram:'📷 إنستجرام — بدون رابط',fb:'👍 فيسبوك — رابط معلَّم',tt:'🎵 تيك توك — رابط معلَّم',snap:'👻 سناب شات — رابط معلَّم',wa:'💬 واتساب — رابط معلَّم',x:'🐦 X — رابط معلَّم',sanitized:'🔒 غير معروف',google:'🔍 جوجل',facebook:'👍 فيسبوك',tiktok:'🎵 تيك توك',snapchat:'👻 سناب شات',whatsapp:'💬 واتساب',twitter:'🐦 X',direct:'🔗 مباشر',internal:'↩️ داخلي',other:'🌐 أخرى'};
   const src=t.sources||[];
   if(src.length){const tt=src.reduce((s,x)=>s+x.count,0)||1;h+='<div class="toplist">';src.forEach(s=>{h+=`<div class="toprow"><span class="topn">${sN[s.name]||s.name}</span><span class="topbar"><span style="width:${Math.round(s.count/tt*100)}%"></span></span><b>${s.count}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات بعد</div>';
   h+='</div></div>';

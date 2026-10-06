@@ -767,7 +767,7 @@ footer .eyebrow,footer .ornament{color:var(--gold-light)}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,discThreshold:8,discLow:0.10,discHigh:0.20,logo:"",areas:[],pickupEnabled:true,hours:[],openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
+let CONFIG={whatsapp:"96566348608",currency:"د.ك",directDiscount:0.10,discThreshold:8,discLow:0.10,discHigh:0.20,hideUnavailable:false,logo:"",areas:[],pickupEnabled:true,hours:[],openTime:"",closeTime:"",knet:{enabled:true,endpoint:"/api/checkout"}};
 /* ===== اللغة (عربي / English) ===== */
 const I18N={
 ar:{"brand.name":"عهد الضيافة","brand.full":"مطعم عهد الضيافة","title.doc":"مطعم عهد الضيافة | مجبوس وبرياني ومطبق كويتي بحولي - طلب أونلاين وتوصيل","nav.menu":"المنيو","nav.catering":"المناسبات والديوانيات","nav.about":"عن المطعم","nav.contact":"الموقع والتواصل","nav.orders":"📋 طلباتي","mo.title":"طلباتي السابقة","mo.empty":"لا توجد طلبات سابقة على هذا الجهاز — سيظهر طلبك الأول هنا تلقائياً","mo.note":"بدون تسجيل دخول — تُستعاد طلباتك السابقة المرتبطة برقمك تلقائياً","mo.track":"🛵 تتبع","mo.again":"🔁 إعادة الطلب","mo.readded":"✓ تمت إضافة طلبك إلى السلة","mo.partial":"تمت إضافة الأصناف المتاحة — بعض الأصناف لم تعد متوفرة","mo.noLines":"تفاصيل هذا الطلب غير متاحة لإعادة الطلب",
@@ -870,9 +870,10 @@ function catImage(c){
 function renderMenu(){
   const cg=document.getElementById('catGrid');cg.innerHTML='';
   MENU.forEach((c,i)=>{
+    const n=visItems(c).length;
+    if(!n&&CONFIG.hideUnavailable)return;
     const d=document.createElement('div');d.className='cat-card';d.onclick=()=>openItems(i,d);
     const img=catImage(c);
-    const n=(c.items||[]).length;
     d.innerHTML=(img?`<img src="${img}" alt="" loading="${i<4?'eager':'lazy'}" decoding="async" fetchpriority="${i<4?'high':'low'}" onerror="this.outerHTML='<div class=&quot;ph&quot;>🍽️</div>'">`:'<div class="ph">🍽️</div>')
       +`<div class="cc-body"><h3>${escH(catName(c))}</h3><div class="cc-n">${T('m.count').replace('{n}',n)}</div></div>`;
     cg.appendChild(d);
@@ -976,9 +977,10 @@ function closeCateringTab(){
   }catch(_){}
   try{const f=document.getElementById('cateringForm'),b=document.getElementById('catFormToggle');if(f&&b){f.classList.add('collapsed');b.innerHTML=T('cat.openForm');}}catch(_){}
 }
+function visItems(c){const a=(c&&c.items)||[];return CONFIG.hideUnavailable?a.filter(function(x){return x.available!==false;}):a;}
 function fillCat(i){
   const grid=document.getElementById('ipGrid');grid.innerHTML='';
-  (MENU[i].items||[]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
+  visItems(MENU[i]).forEach(it=>{const un=it.available===false;const d=document.createElement('div');d.className='card'+(un?' unavailable':'');
     d.innerHTML=`<div class="thumb">${un?('<span class="soldout">'+T('m.soldout')+'</span>'):''}${imgTag(it.img+(it.imgV?('&v='+it.imgV):''))}</div><div class="body"><h3>${itName(it)}</h3><div class="desc">${itemSub(it)}</div><div class="row"><div class="price">${Number(it.price).toFixed(3)} <small>${CUR()}</small></div>${un?('<span class="add-btn" style="background:#ded6c8;color:#5c5346;border:1px solid #bfb4a1;box-shadow:none;cursor:not-allowed;pointer-events:none;font-weight:800">'+T('m.unavail')+'</span>'):`<button class="add-btn" onclick="addItem(${it.id})">${T('m.add')}</button>`}</div></div>`;
     grid.appendChild(d);});
 }
@@ -2123,7 +2125,7 @@ function initPaymentStatus(){
 const MENU_CACHE_KEY='ahd_menu_v1';
 function applyMenuData(d){
     if(d.menu&&d.menu.length)MENU=d.menu;
-    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.discThreshold!=null)CONFIG.discThreshold=s.discThreshold;if(s.discLow!=null)CONFIG.discLow=s.discLow;if(s.discHigh!=null)CONFIG.discHigh=s.discHigh;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
+    if(d.settings){const s=d.settings;CONFIG.whatsapp=s.whatsapp||CONFIG.whatsapp;if(s.directDiscount!=null)CONFIG.directDiscount=s.directDiscount;if(s.discThreshold!=null)CONFIG.discThreshold=s.discThreshold;if(s.discLow!=null)CONFIG.discLow=s.discLow;if(s.discHigh!=null)CONFIG.discHigh=s.discHigh;if(s.hideUnavailable!=null)CONFIG.hideUnavailable=!!s.hideUnavailable;if(s.currency)CONFIG.currency=s.currency;CONFIG.logo=s.logo||"";CONFIG.areas=Array.isArray(s.areas)?s.areas:[];CONFIG.pickupEnabled=s.pickupEnabled!==false;CONFIG.hours=Array.isArray(s.hours)?s.hours:[];CONFIG._loaded=true;CONFIG.openTime=s.openTime||"";CONFIG.closeTime=s.closeTime||"";}
 }
 function cacheMenuData(d){try{localStorage.setItem(MENU_CACHE_KEY,JSON.stringify(d));}catch(_){}}
 function readMenuCache(){try{return JSON.parse(localStorage.getItem(MENU_CACHE_KEY)||'null');}catch(_){return null;}}
