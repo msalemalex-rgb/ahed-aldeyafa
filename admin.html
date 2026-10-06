@@ -1876,7 +1876,7 @@ function dragStart(e,kind,ci){
   row.classList.add('dragging');document.body.classList.add('dragbusy');
   window.addEventListener('pointermove',dragMove,{passive:false});
   window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd);
-  _dg.raf=requestAnimationFrame(dragTick);
+  _dg.raf=setInterval(dragTick,16);
 }
 function dragApply(){
   if(!_dg)return;
@@ -1900,7 +1900,6 @@ function dragTick(){
   if(y<EDGE)sp=-Math.ceil((EDGE-y)/4);
   else if(y>vh-EDGE)sp=Math.ceil((y-(vh-EDGE))/4);
   if(sp){sp=Math.max(-30,Math.min(30,sp));window.scrollBy(0,sp);dragApply();}
-  _dg.raf=requestAnimationFrame(dragTick);
 }
 function dragMove(e){
   if(!_dg)return;e.preventDefault();
@@ -1908,7 +1907,7 @@ function dragMove(e){
 }
 function dragEnd(){
   if(!_dg)return;const g=_dg;_dg=null;
-  if(g.raf)cancelAnimationFrame(g.raf);
+  if(g.raf)clearInterval(g.raf);
   window.removeEventListener('pointermove',dragMove);
   window.removeEventListener('pointerup',dragEnd);window.removeEventListener('pointercancel',dragEnd);
   g.list.forEach(function(el){el.style.transform='';el.classList.remove('dragging');});
