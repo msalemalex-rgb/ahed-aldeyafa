@@ -1868,7 +1868,7 @@ function loadMenuData(){
 /* ===== طي الأقسام ===== */
 function foldKey(ci){const c=DATA.menu[ci];return (c&&c.cat)?('n:'+c.cat):('#'+ci);}
 function foldGet(){try{return new Set(JSON.parse(localStorage.getItem('ahd_fold')||'[]'));}catch(_){return new Set();}}
-function foldSave(s){try{localStorage.setItem('ahd_fold',JSON.stringify([].slice.call(s)));}catch(_){}}
+function foldSave(s){try{const a=[];s.forEach(function(v){a.push(v);});localStorage.setItem('ahd_fold',JSON.stringify(a));}catch(_){}}
 function applyFold(){
   const s=foldGet();
   document.querySelectorAll('#menuEditor > .card').forEach(function(el,ci){
