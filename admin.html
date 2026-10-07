@@ -211,6 +211,10 @@ label.fld{display:block;font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-w
 .item-block,#menuEditor>.card{transition:transform .12s ease}
 .dragging{opacity:.96;z-index:50;position:relative;transition:none!important;box-shadow:0 10px 26px rgba(0,0,0,.28)!important}
 body.dragbusy,body.dragbusy *{-webkit-user-select:none;user-select:none}
+#menuEditor>.card.collapsed>.item-head,#menuEditor>.card.collapsed>.item-block,#menuEditor>.card.collapsed>.addbtn{display:none}
+#menuEditor>.card.collapsed>.cat-head{margin-bottom:0}
+.capsx{cursor:pointer;background:#f6efe4;border:1px solid var(--line);border-radius:6px;color:var(--maroon);font-size:14px;line-height:1;padding:4px 7px;flex:0 0 auto}
+.catn{background:var(--maroon);color:#fff;border-radius:50px;font-size:12px;font-weight:700;padding:2px 9px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -298,6 +302,7 @@ body.dragbusy,body.dragbusy *{-webkit-user-select:none;user-select:none}
         <button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="listNoImg()">👁 عرض أسماءها</button>
         <button class="btn" style="background:#2563c9;width:auto;padding:8px 16px;font-size:13px" onclick="copyNoImg()">📋 نسخ القائمة</button>
       </div>
+      <div style="margin:0 0 10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="foldAll(true)">▸ طيّ كل الأقسام</button><button class="btn" style="background:#7a6a58;width:auto;padding:8px 16px;font-size:13px" onclick="foldAll(false)">▾ فتح كل الأقسام</button></div>
       <div id="menuEditor"></div>
       <div style="margin:8px 0 14px"><button class="addbtn" onclick="addCat()">+ إضافة قسم جديد</button></div>
       <div class="savebar"><button class="btn" onclick="saveMenu()">💾 حفظ المنيو</button></div>
@@ -1860,6 +1865,29 @@ function loadMenuData(){
     renderMenuEditor(); fillSettings(); renderAreas(''); retranslate();
   }).catch(()=>{});
 }
+/* ===== طي الأقسام ===== */
+function foldKey(ci){const c=DATA.menu[ci];return (c&&c.cat)?('n:'+c.cat):('#'+ci);}
+function foldGet(){try{return new Set(JSON.parse(localStorage.getItem('ahd_fold')||'[]'));}catch(_){return new Set();}}
+function foldSave(s){try{localStorage.setItem('ahd_fold',JSON.stringify([].slice.call(s)));}catch(_){}}
+function applyFold(){
+  const s=foldGet();
+  document.querySelectorAll('#menuEditor > .card').forEach(function(el,ci){
+    const on=s.has(foldKey(ci));
+    el.classList.toggle('collapsed',on);
+    const b=el.querySelector('.capsx');if(b)b.textContent=on?'▸':'▾';
+  });
+}
+function toggleCat(ci,e){
+  if(e){e.stopPropagation();e.preventDefault();}
+  const s=foldGet(),k=foldKey(ci);
+  if(s.has(k))s.delete(k);else s.add(k);
+  foldSave(s);applyFold();
+}
+function foldAll(on){
+  const s=new Set();
+  if(on)DATA.menu.forEach(function(c,ci){s.add(foldKey(ci));});
+  foldSave(s);applyFold();
+}
 /* ===== سحب وإفلات لترتيب الأقسام والأصناف ===== */
 let _dg=null;
 function dragStart(e,kind,ci){
@@ -1943,8 +1971,10 @@ function renderMenuEditor(){
     return `<div class="card">
       <div class="cat-head">
         <span class="dragh" title="اسحب لترتيب القسم" onpointerdown="dragStart(event,'cat',${ci})">\u283F</span>
+        <button type="button" class="capsx" title="طي أو فتح القسم" onclick="toggleCat(${ci},event)">\u25BE</button>
         <input value="${(c.cat||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].cat=this.value" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0">
         <input dir="ltr" value="${(c.catEn||'').replace(/"/g,'&quot;')}" oninput="DATA.menu[${ci}].catEn=this.value" placeholder="English name" style="font-family:Calibri,'Segoe UI','Cairo',sans-serif;font-weight:700;color:var(--maroon);margin:0;max-width:190px">
+        <span class="catn" title="عدد الأصناف">${c.items.length}</span>
         <button class="delx" onclick="delCat(${ci})">🗑</button>
       </div>
       ${c.items.length?`<div class="item-head"><span></span><span>اسم الصنف</span><span>English</span><span>الوصف</span><span>السعر</span><span>الوقت (د)</span><span>متاح</span><span>صورة</span><span>حذف</span><span>خيارات</span></div>`:''}
@@ -1952,6 +1982,7 @@ function renderMenuEditor(){
       <button class="addbtn" onclick="addItem(${ci})">+ إضافة صنف</button>
     </div>`;
   }).join('');
+  try{applyFold();}catch(_){}
   refreshHiddenBar();refreshNoImgBar();
 }
 function toggleAvail(ci,ii){const it=DATA.menu[ci].items[ii];it.available=(it.available===false);renderMenuEditor();}
