@@ -262,7 +262,14 @@ const changed = await offloadImages(data);
 let fixed = false;
 if (i18nFix && data._i18nFixV !== i18nFix.I18N_FIX_V) { try { i18nFix.applyI18nFix(data); data._i18nFixV = i18nFix.I18N_FIX_V; fixed = true; } catch (_) {} }
 if(changed||fixed||migrated){ try{ await cmd(["SET","menu_data",JSON.stringify(data)]); }catch(_){} }
-res.setHeader("Cache-Control","no-store");
+/* ===== تخزين مؤقّت على حافة الشبكة =====
+   المنيو بيانات عامة واحدة للجميع، فلا داعي لأن يضرب قاعدة البيانات مع كل زائر.
+   نترك شبكة Vercel تحتفظ بالرد دقيقتين وتقدّم النسخة السابقة أثناء التحديث،
+   فينزل استهلاك الباندويدث لأقل من ١٪ دون أن يشعر الزبون بأي فرق.
+   ولوحة التحكم تطلب fresh=1 فتتخطّى الكاش وترى آخر تعديل فوراً. */
+const _noCache = !!(req.query && (req.query.fresh || req.query.key)) || !!req.headers["x-admin-key"];
+if (_noCache) res.setHeader("Cache-Control","no-store");
+else res.setHeader("Cache-Control","public, s-maxage=120, stale-while-revalidate=600");
 return res.status(200).json(data);
 }
 if(req.method==="POST"){
