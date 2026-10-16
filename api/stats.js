@@ -50,7 +50,11 @@ module.exports = async (req, res) => {
       }
       if (t === "visit" && b.src) {
         const src = String(b.src).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20);
-        if (src) await cmd(["INCR", `stats:src:${src}`]);
+        if (src) {
+          await cmd(["INCR", `stats:src:${src}`]);              // الإجمالي التراكمي (للتوافق مع القديم)
+          await cmd(["INCR", `stats:srcd:${ds}:${src}`]);        // ونسخة لكل يوم كي تُقرأ حسب المدى
+          await cmd(["EXPIRE", `stats:srcd:${ds}:${src}`, "34560000"]);
+        }
       }
       return res.status(200).json({ ok: true });
     } catch (_) { return res.status(200).json({ ok: false }); }
@@ -121,17 +125,41 @@ module.exports = async (req, res) => {
       chartVisits.push(sv); chartPv.push(sp);
     }
 
-    // ===== مصادر الزيارة (إجمالي) =====
-    let sources = [];
+    // ===== مصادر الزيارة =====
+    // نقرأ مصادر أيام المدى المطلوب فقط. التسجيل اليومي بدأ في أكتوبر ٢٠٢٦،
+    // فإن لم يوجد شيء لهذا المدى نرجع للإجمالي التراكمي القديم ونُعلم الواجهة
+    // أنه إجمالي كي لا يُقرأ على أنه خاص بالفترة.
+    let sources = [], sourcesAllTime = false;
     try {
-      const skeys = await cmd(["KEYS", "stats:src:*"]);
-      if (skeys && skeys.length) { const svals = await mget(skeys); sources = skeys.map((k, i) => ({ name: k.replace("stats:src:", ""), count: svals[i] })).sort((a, b) => b.count - a.count); }
+      const dkeys = await cmd(["KEYS", "stats:srcd:*"]);
+      const want = new Set(spanDates);
+      const mine = (dkeys || []).filter((k) => {
+        const p = String(k).split(":");          // stats:srcd:YYYYMMDD:name
+        return p.length >= 4 && want.has(p[2]);
+      });
+      if (mine.length) {
+        const vals = await mget(mine);
+        const agg = {};
+        mine.forEach((k, i) => {
+          const name = String(k).split(":").slice(3).join(":");
+          agg[name] = (agg[name] || 0) + (Number(vals[i]) || 0);
+        });
+        sources = Object.keys(agg).map((n) => ({ name: n, count: agg[n] })).sort((a, b) => b.count - a.count);
+      }
+      if (!sources.length) {
+        const skeys = await cmd(["KEYS", "stats:src:*"]);
+        if (skeys && skeys.length) {
+          const svals = await mget(skeys);
+          sources = skeys.map((k, i) => ({ name: k.replace("stats:src:", ""), count: svals[i] })).sort((a, b) => b.count - a.count);
+          sourcesAllTime = true;
+        }
+      }
     } catch (_) {}
 
     return res.status(200).json({
       range: meta.range || 0, mode: meta.mode, from: meta.from || "", to: meta.to || "", bucket: bucketDays, days: daysN,
       orders: { total: ordersInWin, paidCount, revenue: Math.round(revenue * 1000) / 1000, revToday: Math.round(revToday * 1000) / 1000, counts, topItems },
-      traffic: { visits: winVisits, pv: winPv, atc: winAtc, atcu: winAtcu, co: winCo, todayVisits: visitRaw[visitRaw.length - 1] || 0, visitsTotal, pvTotal, chartLabels, chartVisits, chartPv, sources },
+      traffic: { visits: winVisits, pv: winPv, atc: winAtc, atcu: winAtcu, co: winCo, todayVisits: visitRaw[visitRaw.length - 1] || 0, visitsTotal, pvTotal, chartLabels, chartVisits, chartPv, sourcesAllTime, sources },
     });
   } catch (e) { return res.status(500).json({ error: e.message }); }
 };
