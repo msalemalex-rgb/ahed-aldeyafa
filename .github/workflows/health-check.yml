@@ -1,0 +1,44 @@
+# فحص صحّة الموقع
+#
+# قاعدة البيانات توقّفت مرة لأيام دون أن ينتبه أحد: الموقع ظلّ يبدو سليماً
+# للزوّار القدامى من كاش متصفحهم، بينما لم تُسجَّل أي طلبات جديدة.
+#
+# هذه المهمة تنادي /api/menu كل ١٥ دقيقة. لو ردّ بغير 200 تفشل المهمة،
+# فيرسل GitHub بريداً لصاحب المستودع تلقائياً — بلا مفاتيح ولا خدمات
+# خارجية، والأهم أنها لا تعتمد على قاعدة البيانات نفسها كي تنبّهك.
+
+name: health-check
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: فحص واجهة المنيو
+        run: |
+          code=$(curl -s -o /tmp/body.txt -w "%{http_code}" --max-time 25 \
+            "https://ahed-aldeyafa.vercel.app/api/menu?fresh=1")
+          echo "HTTP $code"
+          head -c 300 /tmp/body.txt || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::الموقع لا يستجيب — /api/menu ردّ بـ $code. الأرجح أن قاعدة البيانات موقوفة."
+            exit 1
+          fi
+          if ! grep -q '"menu"' /tmp/body.txt; then
+            echo "::error::الرد 200 لكنه لا يحتوي على المنيو."
+            exit 1
+          fi
+          echo "تمام — الموقع وقاعدة البيانات يعملان."
