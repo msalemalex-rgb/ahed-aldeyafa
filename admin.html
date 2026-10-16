@@ -2353,7 +2353,7 @@ async function loadStats(range,el){
   const ti=o.topItems||[];
   if(ti.length){const mx=Math.max(1,...ti.map(x=>x.qty));h+='<div class="toplist">';ti.forEach((it,i)=>{h+=`<div class="toprow"><span class="topn">${i+1}. ${it.name}</span><span class="topbar"><span style="width:${Math.round(it.qty/mx*100)}%"></span></span><b>${it.qty}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات كافية بعد</div>';
   h+='</div>';
-  h+='<div class="spanel"><h3>مصادر الزيارة</h3>';
+  h+='<div class="spanel"><h3>مصادر الزيارة'+(t.sourcesAllTime?' <small style="font-weight:400;color:var(--muted)">(إجمالي من البداية — التفصيل اليومي بدأ في أكتوبر ٢٠٢٦)</small>':'')+'</h3>';
   const sN={ig:'📷 إنستجرام — رابط معلَّم',insta:'📷 إنستجرام — رابط معلَّم',instagram:'📷 إنستجرام — بدون رابط',fb:'👍 فيسبوك — رابط معلَّم',tt:'🎵 تيك توك — رابط معلَّم',snap:'👻 سناب شات — رابط معلَّم',wa:'💬 واتساب — رابط معلَّم',x:'🐦 X — رابط معلَّم',sanitized:'🔒 غير معروف',google:'🔍 جوجل',facebook:'👍 فيسبوك',tiktok:'🎵 تيك توك',snapchat:'👻 سناب شات',whatsapp:'💬 واتساب',twitter:'🐦 X',direct:'🔗 مباشر',internal:'↩️ داخلي',other:'🌐 أخرى'};
   const src=t.sources||[];
   if(src.length){const tt=src.reduce((s,x)=>s+x.count,0)||1;h+='<div class="toplist">';src.forEach(s=>{h+=`<div class="toprow"><span class="topn">${sN[s.name]||s.name}</span><span class="topbar"><span style="width:${Math.round(s.count/tt*100)}%"></span></span><b>${s.count}</b></div>`;});h+='</div>';}else h+='<div class="empty">لا توجد بيانات بعد</div>';

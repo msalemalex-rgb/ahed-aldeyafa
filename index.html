@@ -2015,6 +2015,12 @@ function firePurchase(ref,value){
     if(typeof fbq==='function')
       fbq('track','Purchase',{value:v,currency:'KWD',content_type:'product'},{eventID:'ord_'+ref});
   }catch(_){}
+  /* نفس الشراء يُرسل إلى Google Analytics بقيمته الحقيقية ورقم الطلب،
+     كي تُنسب الطلبات وإيراداتها للقناة التي جاء منها الزبون تلقائياً. */
+  try{
+    if(typeof gtag==='function')
+      gtag('event','purchase',{transaction_id:String(ref),value:v,currency:'KWD'});
+  }catch(_){}
 }
 
 async function loadInvoice(ref,pid){
