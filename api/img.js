@@ -24,7 +24,13 @@ module.exports = async (req, res) => {
   catch (_) { return res.status(500).end(); }
 
   res.setHeader("Content-Type", ct);
-  res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+  // max-age يخص متصفح العميل فقط؛ بدون s-maxage لا تحتفظ شبكة Vercel بالصورة
+  // فتُستدعى هذه الدالة من جديد مع كل زائر. s-maxage يجعل الشبكة تخزّنها
+  // فتعمل الدالة مرة واحدة لكل صورة بدلاً من مرة لكل زائر.
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=604800, s-maxage=31536000, stale-while-revalidate=86400, immutable"
+  );
   res.setHeader("Content-Length", buf.length);
   res.status(200);
   return res.end(buf);
